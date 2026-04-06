@@ -165,7 +165,7 @@
 
     .picker-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
 
@@ -734,17 +734,30 @@
       <img src="icons/safe.png" alt="Безпечно">
       <span>Безпечно</span>
     </div>
+
     <div class="picker-item" data-type="block">
       <img src="icons/block.png" alt="Блокпост">
       <span>Блокпост</span>
     </div>
+
     <div class="picker-item" data-type="danger2">
       <img src="icons/danger2.png" alt="Злодій">
       <span>Злодій</span>
     </div>
+
     <div class="picker-item" data-type="trash">
       <img src="icons/trash.png" alt="Сміття">
       <span>Сміття</span>
+    </div>
+
+    <div class="picker-item" data-type="question">
+      <img src="icons/????.png" alt="Питання">
+      <span>Питання</span>
+    </div>
+
+    <div class="picker-item" data-type="poop">
+      <img src="icons/kaka.png" alt="Лайно">
+      <span>Лайно</span>
     </div>
   </div>
 </div>
@@ -826,6 +839,22 @@
         </div>
         <div class="filter-toggle" id="filterTrash"></div>
       </div>
+
+      <div class="filter-item" data-filter-type="question">
+        <div class="filter-item-left">
+          <img src="icons/????.png" alt="">
+          <span>Питання</span>
+        </div>
+        <div class="filter-toggle" id="filterQuestion"></div>
+      </div>
+
+      <div class="filter-item" data-filter-type="poop">
+        <div class="filter-item-left">
+          <img src="icons/kaka.png" alt="">
+          <span>Лайно</span>
+        </div>
+        <div class="filter-toggle" id="filterPoop"></div>
+      </div>
     </div>
   </div>
 
@@ -878,7 +907,9 @@
     safe: 'Безпечно',
     block: 'Блокпост',
     danger2: 'Злодій',
-    trash: 'Сміття'
+    trash: 'Сміття',
+    question: 'Питання',
+    poop: 'Лайно'
   };
 
   const mapThemes = {
@@ -903,7 +934,9 @@
         safe: true,
         block: true,
         danger2: true,
-        trash: true
+        trash: true,
+        question: true,
+        poop: true
       }
     };
 
@@ -1040,7 +1073,9 @@
       safe: 'filterSafe',
       block: 'filterBlock',
       danger2: 'filterDanger2',
-      trash: 'filterTrash'
+      trash: 'filterTrash',
+      question: 'filterQuestion',
+      poop: 'filterPoop'
     };
 
     for (const [type, id] of Object.entries(filterIds)) {
@@ -1113,10 +1148,16 @@
 
     return L.divIcon({
       className: '',
-      html: `<img src="icons/${type}.png" class="pin-img">`,
+      html: `<img src="icons/${type === 'question' ? '????' : type === 'poop' ? 'kaka' : type}.png" class="pin-img">`,
       iconSize: [s, s],
-      iconAnchor: [s / 2, s / 2]
+      iconAnchor: [s / 2, s]
     });
+  }
+
+  function getIconPath(type) {
+    if (type === 'question') return 'icons/????.png';
+    if (type === 'poop') return 'icons/kaka.png';
+    return `icons/${type}.png`;
   }
 
   function formatDateTime(t) {
@@ -1169,7 +1210,7 @@
       <div class="radar-popup">
         <div class="popup-head">
           <div class="popup-head-left">
-            <img src="icons/${point.type}.png" class="popup-icon">
+            <img src="${getIconPath(point.type)}" class="popup-icon">
             <div class="popup-meta">
               <div class="popup-title-row">
                 <div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div>
@@ -1268,7 +1309,7 @@
   function updatePickerActive() {
     pickerItems.forEach(x => x.classList.remove('active'));
     document.querySelector(`.picker-item[data-type="${currentType}"]`)?.classList.add('active');
-    sheetIcon.src = `icons/${currentType}.png`;
+    sheetIcon.src = getIconPath(currentType);
     sheetTitle.textContent = labelMap[currentType] || currentType;
     if (temp && selected) {
       temp.setIcon(getIcon(currentType, map.getZoom()));
