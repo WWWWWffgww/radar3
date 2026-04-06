@@ -70,7 +70,7 @@
     #settingsBtn::before {
       content: "";
       position: absolute;
-      width: 31px;   /* было визуально ~48, стало примерно на 35% меньше */
+      width: 31px;
       height: 31px;
       border-radius: 50%;
       background: rgba(28,28,30,0.6);
@@ -462,34 +462,36 @@
       flex: 1;
     }
 
+    .popup-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
     .popup-title {
       font-size: 19px;
       font-weight: 700;
       line-height: 1.15;
       color: #fff;
-      margin-bottom: 4px;
+      margin-bottom: 0;
+      white-space: nowrap;
     }
 
-    .popup-time-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 3px;
+    .popup-life {
+      font-size: 11px;
+      color: #8be28b;
+      white-space: nowrap;
+      font-weight: 600;
     }
 
     .popup-time {
       font-size: 13px;
       color: rgba(255,255,255,0.74);
       white-space: nowrap;
+      margin-bottom: 3px;
     }
-
-.popup-life {
-  font-size: 11px;
-  color: #8be28b;
-  white-space: nowrap;
-  font-weight: 600;
-}
 
     .popup-close {
       width: 34px;
@@ -673,22 +675,23 @@
     <button id="pickerClose">×</button>
   </div>
 
-<div class="picker-grid">
-  <div class="picker-item active" data-type="safe">
-    <img src="icons/safe.png" alt="Безпечно">
-    <span>Безпечно</span>
-  </div>
-  <div class="picker-item" data-type="block">
-    <img src="icons/block.png" alt="Блокпост">
-    <span>Блокпост</span>
-  </div>
-  <div class="picker-item" data-type="danger2">
-    <img src="icons/danger2.png" alt="Злодій">
-    <span>Злодій</span>
-  </div>
-  <div class="picker-item" data-type="trash">
-    <img src="icons/trash.png" alt="Сміття">
-    <span>Сміття</span>
+  <div class="picker-grid">
+    <div class="picker-item active" data-type="safe">
+      <img src="icons/safe.png" alt="Безпечно">
+      <span>Безпечно</span>
+    </div>
+    <div class="picker-item" data-type="block">
+      <img src="icons/block.png" alt="Блокпост">
+      <span>Блокпост</span>
+    </div>
+    <div class="picker-item" data-type="danger2">
+      <img src="icons/danger2.png" alt="Злодій">
+      <span>Злодій</span>
+    </div>
+    <div class="picker-item" data-type="trash">
+      <img src="icons/trash.png" alt="Сміття">
+      <span>Сміття</span>
+    </div>
   </div>
 </div>
 
@@ -736,52 +739,45 @@
   </div>
 
   <div class="settings-group">
-  <div class="settings-label">👁️ Фільтр типів міток</div>
-
-  <div class="filter-group" id="filterGroup">
-
-<div class="settings-group">
-  <div class="settings-label">👁️ Фільтр типів міток</div>
-
-  <div class="filter-group" id="filterGroup">
-
-    <div class="filter-item" data-filter-type="safe">
-      <div class="filter-item-left">
-        <img src="icons/safe.png" alt="">
-        <span>Безпечно</span>
+    <div class="settings-label">👁️ Фільтр типів міток</div>
+    <div class="filter-group" id="filterGroup">
+      <div class="filter-item" data-filter-type="safe">
+        <div class="filter-item-left">
+          <img src="icons/safe.png" alt="">
+          <span>Безпечно</span>
+        </div>
+        <div class="filter-toggle" id="filterSafe"></div>
       </div>
-      <div class="filter-toggle" id="filterSafe"></div>
-    </div>
 
-    <div class="filter-item" data-filter-type="block">
-      <div class="filter-item-left">
-        <img src="icons/block.png" alt="">
-        <span>Блокпост</span>
+      <div class="filter-item" data-filter-type="block">
+        <div class="filter-item-left">
+          <img src="icons/block.png" alt="">
+          <span>Блокпост</span>
+        </div>
+        <div class="filter-toggle" id="filterBlock"></div>
       </div>
-      <div class="filter-toggle" id="filterBlock"></div>
-    </div>
 
-    <div class="filter-item" data-filter-type="danger2">
-      <div class="filter-item-left">
-        <img src="icons/danger2.png" alt="">
-        <span>Злодій</span>
+      <div class="filter-item" data-filter-type="danger2">
+        <div class="filter-item-left">
+          <img src="icons/danger2.png" alt="">
+          <span>Злодій</span>
+        </div>
+        <div class="filter-toggle" id="filterDanger2"></div>
       </div>
-      <div class="filter-toggle" id="filterDanger2"></div>
-    </div>
 
-    <div class="filter-item" data-filter-type="trash">
-      <div class="filter-item-left">
-        <img src="icons/trash.png" alt="">
-        <span>Сміття</span>
+      <div class="filter-item" data-filter-type="trash">
+        <div class="filter-item-left">
+          <img src="icons/trash.png" alt="">
+          <span>Сміття</span>
+        </div>
+        <div class="filter-toggle" id="filterTrash"></div>
       </div>
-      <div class="filter-toggle" id="filterTrash"></div>
     </div>
-
   </div>
+
+  <button id="saveSettingsBtn">Зберегти</button>
 </div>
 
-<button id="saveSettingsBtn">Зберегти</button>
-  
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script type="module">
@@ -814,12 +810,12 @@
   const LIFE = 24 * 60 * 60 * 1000;
   const VOTES_KEY = 'radar_votes';
 
-const labelMap = {
-  safe: 'Безпечно',
-  block: 'Блокпост',
-  danger2: 'Злодій',
-  trash: 'Сміття'
-};
+  const labelMap = {
+    safe: 'Безпечно',
+    block: 'Блокпост',
+    danger2: 'Злодій',
+    trash: 'Сміття'
+  };
 
   const mapThemes = {
     day: {
@@ -1082,15 +1078,15 @@ const labelMap = {
       .replace(/'/g, '&#039;');
   }
 
-function timeLeftText(createdAt) {
-  const end = createdAt + LIFE;
-  const left = end - Date.now();
-  if (left <= 0) return 'Зникла';
+  function timeLeftText(createdAt) {
+    const end = createdAt + LIFE;
+    const left = end - Date.now();
+    if (left <= 0) return 'Зникла';
 
-  const hours = Math.floor(left / (1000 * 60 * 60));
-  const minutes = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
-  return `зникне через ${hours}:${String(minutes).padStart(2, '0')} год`;
-}
+    const hours = Math.floor(left / (1000 * 60 * 60));
+    const minutes = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
+    return `зникне через ${hours}:${String(minutes).padStart(2, '0')} год`;
+  }
 
   function popupHtml(point, index) {
     const commentsHtml = (point.comments || []).map(c => `
@@ -1108,11 +1104,11 @@ function timeLeftText(createdAt) {
           <div class="popup-head-left">
             <img src="icons/${point.type}.png" class="popup-icon">
             <div class="popup-meta">
-              <div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div>
-              <div class="popup-time-row">
-                <div class="popup-time">${formatDateTime(point.time)}</div>
+              <div class="popup-title-row">
+                <div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div>
                 <div class="popup-life">${timeLeftText(point.time)}</div>
               </div>
+              <div class="popup-time">${formatDateTime(point.time)}</div>
             </div>
           </div>
 
@@ -1220,7 +1216,6 @@ function timeLeftText(createdAt) {
     sheet.style.right = 'auto';
     sheet.style.top = 'auto';
     sheet.style.bottom = 'auto';
-
     sheet.style.display = 'block';
 
     if (isMobile) {
@@ -1299,13 +1294,9 @@ function timeLeftText(createdAt) {
     const ref = doc(db, "points", item.id);
 
     if (type === 'like') {
-      await updateDoc(ref, {
-        likes: (item.likes || 0) + 1
-      });
+      await updateDoc(ref, { likes: (item.likes || 0) + 1 });
     } else {
-      await updateDoc(ref, {
-        dislikes: (item.dislikes || 0) + 1
-      });
+      await updateDoc(ref, { dislikes: (item.dislikes || 0) + 1 });
     }
 
     setVoted(item.id, type);
