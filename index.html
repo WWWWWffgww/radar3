@@ -61,10 +61,11 @@
       box-shadow: 0 10px 24px rgba(0,0,0,0.22);
     }
 
+    /* --- ОКНА РЯДОМ С КНОПКАМИ --- */
     #pickerBar {
       position: fixed;
       right: 16px;
-      bottom: 84px;
+      bottom: 86px;
       width: 320px;
       z-index: 1001;
       display: none;
@@ -75,6 +76,42 @@
       padding: 10px;
       box-shadow: 0 18px 40px rgba(0,0,0,0.22);
       border: 1px solid rgba(255,255,255,0.08);
+      box-sizing: border-box;
+    }
+
+    #descSheet {
+      position: fixed;
+      right: 16px;
+      bottom: 86px;
+      width: 320px;
+      z-index: 1002;
+      display: none;
+      background: rgba(28,28,30,0.96);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff;
+      box-sizing: border-box;
+    }
+
+    #settingsSheet {
+      position: fixed;
+      top: 72px;
+      right: 16px;
+      width: 320px;
+      z-index: 1002;
+      display: none;
+      background: rgba(28,28,30,0.96);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff;
       box-sizing: border-box;
     }
 
@@ -140,25 +177,6 @@
     .picker-item span {
       display: block;
       font-size: 12px;
-    }
-
-    #descSheet,
-    #settingsSheet {
-      position: fixed;
-      right: 16px;
-      bottom: 84px;
-      width: 320px;
-      z-index: 1002;
-      display: none;
-      background: rgba(28,28,30,0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 24px;
-      padding: 14px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: #fff;
-      box-sizing: border-box;
     }
 
     #sheetHead,
@@ -557,11 +575,22 @@
       #pickerBar,
       #descSheet,
       #settingsSheet {
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
         width: calc(100vw - 16px);
-        bottom: 8px;
+      }
+
+      #pickerBar,
+      #descSheet {
+        right: 8px;
+        bottom: 72px;
+        left: auto;
+        transform: none;
+      }
+
+      #settingsSheet {
+        top: 64px;
+        right: 8px;
+        left: auto;
+        transform: none;
       }
 
       .picker-item img {
@@ -646,9 +675,9 @@
   <div class="settings-group">
     <div class="settings-label">⏱️ Фільтр за часом (ползунок)</div>
     <div class="time-slider-container">
-      <input type="range" id="timeSlider" class="time-slider" min="0.5" max="24" step="0.5" value="24">
+      <input type="range" id="timeSlider" class="time-slider" min="0.25" max="24" step="0.25" value="24">
       <div class="time-slider-value">
-        <span>🕒 30 хв</span>
+        <span>🕒 15 хв</span>
         <span class="time-value" id="timeValue">24 год</span>
         <span>📅 24 год</span>
       </div>
@@ -801,7 +830,8 @@
       const minutes = Math.round(hours * 60);
       timeValue.textContent = `${minutes} хв`;
     } else {
-      timeValue.textContent = `${hours} год`;
+      const whole = Number.isInteger(hours);
+      timeValue.textContent = whole ? `${hours} год` : `${hours} год`;
     }
   }
 
@@ -1028,6 +1058,55 @@
     }
   }
 
+  function positionSheetNearButton(sheet, button, placement = 'top') {
+    const btnRect = button.getBoundingClientRect();
+    const gap = 10;
+
+    sheet.style.left = 'auto';
+    sheet.style.right = 'auto';
+    sheet.style.top = 'auto';
+    sheet.style.bottom = 'auto';
+
+    sheet.style.display = 'block';
+    const sheetRect = sheet.getBoundingClientRect();
+
+    let left = window.innerWidth - sheetRect.width - 8;
+    if (placement === 'top') {
+      left = btnRect.right - sheetRect.width;
+      left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
+      const top = btnRect.top - sheetRect.height - gap;
+      sheet.style.left = `${left}px`;
+      sheet.style.top = `${Math.max(8, top)}px`;
+    } else if (placement === 'bottom-right') {
+      left = btnRect.right - sheetRect.width;
+      left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
+      const top = btnRect.bottom + gap;
+      sheet.style.left = `${left}px`;
+      sheet.style.top = `${Math.max(8, top)}px`;
+    } else {
+      left = btnRect.right - sheetRect.width;
+      left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
+      const top = btnRect.top - sheetRect.height - gap;
+      sheet.style.left = `${left}px`;
+      sheet.style.top = `${Math.max(8, top)}px`;
+    }
+  }
+
+  function showPickerBar() {
+    pickerBar.style.display = 'block';
+    positionSheetNearButton(pickerBar, addBtn, 'top');
+  }
+
+  function showDescSheet() {
+    descSheet.style.display = 'block';
+    positionSheetNearButton(descSheet, addBtn, 'top');
+  }
+
+  function showSettingsSheet() {
+    settingsSheet.style.display = 'block';
+    positionSheetNearButton(settingsSheet, settingsBtn, 'bottom-right');
+  }
+
   function closeCreateMode() {
     addMode = false;
     pickerBar.style.display = 'none';
@@ -1102,14 +1181,16 @@
     addMode = true;
     addBtn.style.display = 'none';
     settingsSheet.style.display = 'none';
-    pickerBar.style.display = 'block';
+    pickerBar.style.display = 'none';
     descSheet.style.display = 'none';
+    addBtn.style.display = 'block';
+    showPickerBar();
   });
 
   settingsBtn.addEventListener('click', () => {
-    settingsSheet.style.display = 'block';
     pickerBar.style.display = 'none';
     descSheet.style.display = 'none';
+    showSettingsSheet();
   });
 
   pickerClose.addEventListener('click', closeCreateMode);
@@ -1144,7 +1225,8 @@
     }).addTo(map);
 
     updatePickerActive();
-    descSheet.style.display = 'block';
+    pickerBar.style.display = 'none';
+    showDescSheet();
   });
 
   saveBtn.addEventListener('click', () => {
@@ -1184,6 +1266,12 @@
 
   map.on('zoomend', () => {
     render();
+  });
+
+  window.addEventListener('resize', () => {
+    if (pickerBar.style.display === 'block') showPickerBar();
+    if (descSheet.style.display === 'block') showDescSheet();
+    if (settingsSheet.style.display === 'block') showSettingsSheet();
   });
 
   setInterval(() => {
