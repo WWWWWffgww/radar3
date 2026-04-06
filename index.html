@@ -4,53 +4,159 @@
   <meta charset="utf-8">
   <title>RADAR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
-    html, body {margin:0;padding:0;height:100%;font-family:Arial}
-    #map {width:100%;height:100vh}
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
 
     #addBtn {
-      position:absolute;right:20px;bottom:20px;
-      width:56px;height:56px;border-radius:50%;
-      border:none;background:black;color:white;font-size:30px;
-      z-index:1000;cursor:pointer;
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      background: black;
+      color: white;
+      font-size: 30px;
+      z-index: 1000;
+      cursor: pointer;
     }
 
     #panel {
-      position:absolute;right:20px;bottom:90px;
-      background:white;padding:12px;border-radius:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.2);
-      display:none;width:280px;z-index:1000;
+      position: absolute;
+      right: 20px;
+      bottom: 90px;
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none;
+      width: 280px;
+      z-index: 1000;
     }
 
     .icon-grid {
-      display:grid;grid-template-columns:repeat(3,1fr);
-      gap:10px;margin-top:10px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
     }
 
     .icon-option {
-      border:2px solid transparent;
-      border-radius:10px;padding:5px;
-      text-align:center;cursor:pointer;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 5px;
+      text-align: center;
+      cursor: pointer;
+      background: #f7f7f7;
     }
 
-    .icon-option.active {border-color:#1e90ff;}
+    .icon-option.active {
+      border-color: #1e90ff;
+      background: #eef6ff;
+    }
 
-    .icon-option img {width:50px;height:50px;object-fit:contain}
+    .icon-option img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .icon-option span {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+    }
 
     textarea {
-      width:100%;margin-top:10px;padding:8px;
-      border-radius:8px;border:1px solid #ccc;
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      resize: vertical;
+      min-height: 80px;
+      font-size: 14px;
     }
 
-    button {margin-top:10px;width:100%;padding:10px}
+    #saveBtn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: black;
+      color: white;
+      cursor: pointer;
+    }
 
-    .pin-img {width:100%;height:100%;object-fit:contain}
+    .pin-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
 
-    .comment {margin-top:6px;font-size:13px}
-    .time {font-size:11px;color:#777}
+    .popup-time {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .popup-desc {
+      font-size: 14px;
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+    }
+
+    .comment {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #eee;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+
+    .comment-time {
+      font-size: 11px;
+      color: #777;
+      margin-top: 2px;
+    }
+
+    .popup-input {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 10px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .popup-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+      border: none;
+      border-radius: 8px;
+      background: black;
+      color: white;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -63,136 +169,241 @@
 
   <div class="icon-grid">
     <div class="icon-option active" data-type="safe">
-      <img src="icons/safe.png">
+      <img src="icons/safe.png" alt="Безпечно">
+      <span>Safe</span>
     </div>
 
     <div class="icon-option" data-type="block">
-      <img src="icons/block.png">
+      <img src="icons/block.png" alt="Перекрито">
+      <span>Block</span>
     </div>
 
     <div class="icon-option" data-type="danger2">
-      <img src="icons/danger2.png">
+      <img src="icons/danger2.png" alt="Небезпека">
+      <span>Danger</span>
+    </div>
+
+    <div class="icon-option" data-type="trash">
+      <img src="icons/trash.png" alt="Trash">
+      <span>Trash</span>
     </div>
   </div>
 
-  <textarea id="descInput" maxlength="100" placeholder="Опис (обов'язково, до 100 символів)"></textarea>
-
+  <textarea id="descInput" maxlength="100" placeholder="Опис обов'язковий, до 100 символів"></textarea>
   <button id="saveBtn">Зберегти</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-const STORAGE_KEY='radar_points';
-const LIFE=86400000;
+  const STORAGE_KEY = 'radar_points';
+  const LIFE = 24 * 60 * 60 * 1000;
 
-let currentType='safe';
+  const labelMap = {
+    safe: 'Безпечно',
+    block: 'Перекрито',
+    danger2: 'Небезпека',
+    trash: 'Сміття'
+  };
 
-function icon(type,z){
-  let s=z<12?22:z<14?28:34;
-  return L.divIcon({
-    html:`<img src="icons/${type}.png" class="pin-img">`,
-    iconSize:[s,s],
-    iconAnchor:[s/2,s/2]
-  });
-}
+  const map = L.map('map').setView([50.45, 30.52], 13);
 
-function fmt(t){
-  return new Date(t).toLocaleString('uk-UA');
-}
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
-function load(){
-  let d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-  return d.filter(p=>Date.now()-p.time<LIFE);
-}
+  const addBtn = document.getElementById('addBtn');
+  const panel = document.getElementById('panel');
+  const descInput = document.getElementById('descInput');
+  const saveBtn = document.getElementById('saveBtn');
+  const iconOptions = document.querySelectorAll('.icon-option');
 
-function save(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}
+  let addMode = false;
+  let selected = null;
+  let temp = null;
+  let currentType = 'safe';
+  let data = load();
 
-const map=L.map('map').setView([50.45,30.52],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  function getIcon(type, zoom) {
+    let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
 
-let data=load(),markers=[];
-
-function render(){
-  markers.forEach(m=>map.removeLayer(m));
-  markers=[];
-  let z=map.getZoom();
-
-  data=load();
-
-  data.forEach((p,i)=>{
-    let m=L.marker([p.lat,p.lng],{icon:icon(p.type,z)}).addTo(map);
-
-    let html=`
-      <b>${fmt(p.time)}</b><br>
-      ${p.desc}
-      <hr>
-      <div id="c${i}">
-        ${p.comments.map(c=>`<div class="comment">${c.text}<div class="time">${fmt(c.time)}</div></div>`).join('')}
-      </div>
-      <input id="in${i}" placeholder="Коментар">
-      <button onclick="addComment(${i})">OK</button>
-    `;
-
-    m.bindPopup(html);
-    markers.push(m);
-  });
-}
-
-window.addComment=function(i){
-  let val=document.getElementById('in'+i).value.trim();
-  if(!val)return;
-
-  data[i].comments.push({text:val,time:Date.now()});
-  save(data);
-  render();
-}
-
-render();
-map.on('zoomend',render);
-
-let add=false,temp=null,sel=null;
-
-document.querySelectorAll('.icon-option').forEach(el=>{
-  el.onclick=()=>{
-    document.querySelectorAll('.icon-option').forEach(e=>e.classList.remove('active'));
-    el.classList.add('active');
-    currentType=el.dataset.type;
+    return L.divIcon({
+      className: '',
+      html: `<img src="icons/${type}.png" class="pin-img">`,
+      iconSize: [s, s],
+      iconAnchor: [s / 2, s / 2]
+    });
   }
-});
 
-addBtn.onclick=()=>{add=true;panel.style.display='block'}
+  function fmt(t) {
+    return new Date(t).toLocaleString('uk-UA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
 
-map.on('click',e=>{
-  if(!add)return;
-  sel=e.latlng;
-  if(temp)map.removeLayer(temp);
-  temp=L.marker(sel,{icon:icon(currentType,map.getZoom())}).addTo(map);
-});
+  function load() {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const filtered = raw.filter(p => Date.now() - p.time < LIFE);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    return filtered;
+  }
 
-saveBtn.onclick=()=>{
-  let d=descInput.value.trim();
-  if(!d)return alert('Опис обовʼязковий');
-  if(d.length>100)return alert('Макс 100 символів');
+  function save(arr) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+  }
 
-  data.push({
-    lat:sel.lat,
-    lng:sel.lng,
-    type:currentType,
-    desc:d,
-    time:Date.now(),
-    comments:[]
+  function escapeHtml(text) {
+    return String(text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function popupHtml(point, index) {
+    const commentsHtml = (point.comments || []).map(c => `
+      <div class="comment">
+        ${escapeHtml(c.text)}
+        <div class="comment-time">${fmt(c.time)}</div>
+      </div>
+    `).join('');
+
+    return `
+      <div><b>${escapeHtml(labelMap[point.type] || point.type)}</b></div>
+      <div class="popup-time">${fmt(point.time)}</div>
+      <div class="popup-desc">${escapeHtml(point.desc)}</div>
+      ${commentsHtml}
+      <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Коментар до 100 символів">
+      <button class="popup-btn" onclick="addComment(${index})">Додати коментар</button>
+    `;
+  }
+
+  let markers = [];
+
+  function render() {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    data = load();
+    const zoom = map.getZoom();
+
+    data.forEach((p, i) => {
+      const marker = L.marker([p.lat, p.lng], {
+        icon: getIcon(p.type, zoom)
+      }).addTo(map);
+
+      marker.bindPopup(popupHtml(p, i));
+      markers.push(marker);
+    });
+  }
+
+  window.addComment = function(index) {
+    const input = document.getElementById(`commentInput_${index}`);
+    if (!input) return;
+
+    const text = input.value.trim();
+    if (!text) {
+      alert('Введи коментар');
+      return;
+    }
+    if (text.length > 100) {
+      alert('Максимум 100 символів');
+      return;
+    }
+
+    if (!Array.isArray(data[index].comments)) {
+      data[index].comments = [];
+    }
+
+    data[index].comments.push({
+      text,
+      time: Date.now()
+    });
+
+    save(data);
+    render();
+    markers[index].openPopup();
+  };
+
+  iconOptions.forEach(el => {
+    el.addEventListener('click', () => {
+      iconOptions.forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      currentType = el.dataset.type;
+
+      if (temp && selected) {
+        temp.setIcon(getIcon(currentType, map.getZoom()));
+      }
+    });
   });
 
-  save(data);
+  addBtn.addEventListener('click', () => {
+    addMode = true;
+    panel.style.display = 'block';
+  });
+
+  map.on('click', e => {
+    if (!addMode) return;
+
+    selected = e.latlng;
+
+    if (temp) {
+      map.removeLayer(temp);
+    }
+
+    temp = L.marker(selected, {
+      icon: getIcon(currentType, map.getZoom())
+    }).addTo(map);
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const desc = descInput.value.trim();
+
+    if (!selected) {
+      alert('Ткни на карту');
+      return;
+    }
+
+    if (!desc) {
+      alert("Опис обов'язковий");
+      return;
+    }
+
+    if (desc.length > 100) {
+      alert('Максимум 100 символів');
+      return;
+    }
+
+    data.push({
+      lat: selected.lat,
+      lng: selected.lng,
+      type: currentType,
+      desc: desc,
+      time: Date.now(),
+      comments: []
+    });
+
+    save(data);
+    render();
+
+    if (temp) {
+      map.removeLayer(temp);
+      temp = null;
+    }
+
+    selected = null;
+    addMode = false;
+    panel.style.display = 'none';
+    descInput.value = '';
+  });
+
+  map.on('zoomend', render);
+
   render();
-
-  descInput.value='';
-  panel.style.display='none';
-  add=false;
-  if(temp)map.removeLayer(temp);
-};
 </script>
-
 </body>
 </html>
