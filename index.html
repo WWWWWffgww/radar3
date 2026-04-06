@@ -27,7 +27,6 @@
       display: block;
     }
 
-    /* Кнопка + */
     #addBtn {
       position: fixed;
       right: 16px;
@@ -45,7 +44,22 @@
       box-shadow: 0 12px 28px rgba(0,0,0,0.24);
     }
 
-    /* Панель выбора типа — ДЕСКТОП: возле + */
+    #settingsBtn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(28,28,30,0.92);
+      color: #fff;
+      font-size: 22px;
+      z-index: 1003;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    }
+
     #pickerBar {
       position: fixed;
       right: 16px;
@@ -78,7 +92,9 @@
       font-size: 13px;
     }
 
-    #pickerClose {
+    #pickerClose,
+    #sheetClose,
+    #settingsClose {
       border: none;
       background: rgba(255,255,255,0.12);
       color: #fff;
@@ -125,8 +141,8 @@
       font-size: 12px;
     }
 
-    /* Окно описания — ДЕСКТОП: возле + */
-    #descSheet {
+    #descSheet,
+    #settingsSheet {
       position: fixed;
       right: 16px;
       bottom: 84px;
@@ -144,7 +160,8 @@
       box-sizing: border-box;
     }
 
-    #sheetHead {
+    #sheetHead,
+    #settingsHead {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -166,30 +183,17 @@
       flex: 0 0 auto;
     }
 
-    #sheetTitle {
+    #sheetTitle,
+    #settingsTitle {
       font-size: 18px;
       font-weight: 700;
     }
 
-    #sheetClose {
-      border: none;
-      background: rgba(255,255,255,0.12);
-      color: #fff;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      font-size: 22px;
-      line-height: 1;
-      cursor: pointer;
-      flex: 0 0 auto;
-    }
-
-    #descInput {
+    #descInput,
+    .settings-select {
       width: 100%;
       box-sizing: border-box;
       border: none;
-      resize: none;
-      min-height: 96px;
       border-radius: 18px;
       padding: 14px 15px;
       background: rgba(255,255,255,0.12);
@@ -199,11 +203,17 @@
       outline: none;
     }
 
+    #descInput {
+      resize: none;
+      min-height: 96px;
+    }
+
     #descInput::placeholder {
       color: rgba(255,255,255,0.5);
     }
 
-    #descCounter {
+    #descCounter,
+    .popup-counter {
       text-align: right;
       font-size: 12px;
       color: rgba(255,255,255,0.55);
@@ -211,7 +221,9 @@
       margin-bottom: 10px;
     }
 
-    #saveBtn {
+    #saveBtn,
+    #saveSettingsBtn,
+    .popup-btn {
       width: 100%;
       border: none;
       border-radius: 18px;
@@ -225,7 +237,16 @@
       box-shadow: 0 10px 22px rgba(10,132,255,0.28);
     }
 
-    /* Popup */
+    .settings-group {
+      margin-bottom: 12px;
+    }
+
+    .settings-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.66);
+      margin-bottom: 8px;
+    }
+
     .leaflet-popup-content-wrapper {
       border-radius: 26px;
       padding: 0;
@@ -242,10 +263,7 @@
       max-width: calc(100vw - 24px) !important;
     }
 
-    .leaflet-popup-tip {
-      display: none;
-    }
-
+    .leaflet-popup-tip,
     .leaflet-popup-close-button {
       display: none;
     }
@@ -358,7 +376,6 @@
       color: rgba(255,255,255,0.58);
     }
 
-    /* Маленькие лайки */
     .reaction-row {
       display: flex;
       gap: 6px;
@@ -408,29 +425,6 @@
       color: rgba(255,255,255,0.5);
     }
 
-    .popup-counter {
-      margin-top: 6px;
-      text-align: right;
-      font-size: 12px;
-      color: rgba(255,255,255,0.5);
-    }
-
-    .popup-btn {
-      width: 100%;
-      margin-top: 10px;
-      border: none;
-      border-radius: 18px;
-      padding: 14px 16px;
-      background: linear-gradient(180deg, #1c8cff, #007aff);
-      color: white;
-      font-size: 17px;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      box-shadow: 0 10px 22px rgba(10,132,255,0.28);
-    }
-
-    /* MOBILE: по центру снизу */
     @media (max-width: 600px) {
       #addBtn {
         right: 14px;
@@ -439,8 +433,16 @@
         height: 56px;
       }
 
+      #settingsBtn {
+        top: 12px;
+        right: 12px;
+        width: 44px;
+        height: 44px;
+      }
+
       #pickerBar,
-      #descSheet {
+      #descSheet,
+      #settingsSheet {
         left: 50%;
         right: auto;
         transform: translateX(-50%);
@@ -467,6 +469,7 @@
 
 <div id="map"></div>
 
+<button id="settingsBtn">⚙️</button>
 <button id="addBtn">+</button>
 
 <div id="pickerBar">
@@ -509,9 +512,27 @@
   <button id="saveBtn">Зберегти</button>
 </div>
 
+<div id="settingsSheet">
+  <div id="settingsHead">
+    <div id="settingsTitle">Налаштування</div>
+    <button id="settingsClose">×</button>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">Тема карти</div>
+    <select id="mapThemeSelect" class="settings-select">
+      <option value="day">Денна</option>
+      <option value="night">Нічна</option>
+    </select>
+  </div>
+
+  <button id="saveSettingsBtn">Зберегти</button>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   const STORAGE_KEY = 'radar_points';
+  const SETTINGS_KEY = 'radar_settings';
   const LIFE = 24 * 60 * 60 * 1000;
 
   const labelMap = {
@@ -521,13 +542,44 @@
     trash: 'Сміття'
   };
 
-  const map = L.map('map').setView([50.45, 30.52], 13);
+  const mapThemes = {
+    day: {
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; OpenStreetMap contributors'
+    },
+    night: {
+      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }
+  };
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+  const map = L.map('map').setView([50.45, 30.52], 13);
+  let currentTileLayer = null;
+
+  function loadSettings() {
+    return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"mapTheme":"day"}');
+  }
+
+  function saveSettings(settings) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  }
+
+  let settings = loadSettings();
+
+  function applyMapTheme(theme) {
+    if (currentTileLayer) {
+      map.removeLayer(currentTileLayer);
+    }
+    currentTileLayer = L.tileLayer(mapThemes[theme].url, {
+      attribution: mapThemes[theme].attribution
+    }).addTo(map);
+  }
+
+  applyMapTheme(settings.mapTheme || 'day');
 
   const addBtn = document.getElementById('addBtn');
+  const settingsBtn = document.getElementById('settingsBtn');
+
   const pickerBar = document.getElementById('pickerBar');
   const pickerClose = document.getElementById('pickerClose');
   const pickerItems = document.querySelectorAll('.picker-item');
@@ -540,11 +592,18 @@
   const descCounter = document.getElementById('descCounter');
   const saveBtn = document.getElementById('saveBtn');
 
+  const settingsSheet = document.getElementById('settingsSheet');
+  const settingsClose = document.getElementById('settingsClose');
+  const mapThemeSelect = document.getElementById('mapThemeSelect');
+  const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+
   let addMode = false;
   let selected = null;
   let temp = null;
   let currentType = 'safe';
   let data = load();
+
+  mapThemeSelect.value = settings.mapTheme || 'day';
 
   function getIcon(type, zoom) {
     let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
@@ -600,7 +659,6 @@
 
     const hours = Math.floor(left / (1000 * 60 * 60));
     const minutes = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
-
     return `ще ${hours}:${String(minutes).padStart(2, '0')} год`;
   }
 
@@ -754,12 +812,29 @@
   addBtn.addEventListener('click', () => {
     addMode = true;
     addBtn.style.display = 'none';
+    settingsSheet.style.display = 'none';
     pickerBar.style.display = 'block';
+    descSheet.style.display = 'none';
+  });
+
+  settingsBtn.addEventListener('click', () => {
+    settingsSheet.style.display = 'block';
+    pickerBar.style.display = 'none';
     descSheet.style.display = 'none';
   });
 
   pickerClose.addEventListener('click', closeCreateMode);
   sheetClose.addEventListener('click', closeCreateMode);
+  settingsClose.addEventListener('click', () => {
+    settingsSheet.style.display = 'none';
+  });
+
+  saveSettingsBtn.addEventListener('click', () => {
+    settings.mapTheme = mapThemeSelect.value;
+    saveSettings(settings);
+    applyMapTheme(settings.mapTheme);
+    settingsSheet.style.display = 'none';
+  });
 
   descInput.addEventListener('input', () => {
     descCounter.textContent = `${descInput.value.length} / 100`;
