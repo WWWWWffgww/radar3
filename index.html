@@ -65,26 +65,18 @@
       padding: 10px;
     }
 
+    /* 🔥 ЧИСТАЯ МЕТКА */
     .pin {
       width: 100%;
       height: 100%;
-      background: white;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
+      transform: translateY(0);
       position: relative;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      overflow: hidden;
     }
 
     .pin-img {
-      width: 70%;
-      height: 70%;
-      position: absolute;
-      top: 15%;
-      left: 15%;
-      border-radius: 50%;
-      transform: rotate(45deg);
-      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
   </style>
 </head>
@@ -120,10 +112,10 @@
   function getIcon(type, zoom) {
     let size;
 
-    if (zoom <= 10) size = 20;
-    else if (zoom <= 12) size = 26;
-    else if (zoom <= 14) size = 32;
-    else size = 40;
+    if (zoom <= 10) size = 18;
+    else if (zoom <= 12) size = 24;
+    else if (zoom <= 14) size = 30;
+    else size = 36;
 
     return L.divIcon({
       className: '',
@@ -133,7 +125,7 @@
         </div>
       `,
       iconSize: [size, size],
-      iconAnchor: [size / 2, size]
+      iconAnchor: [size / 2, size / 2]
     });
   }
 
@@ -178,6 +170,10 @@
   let addMode = false;
   let temp = null;
   let selected = null;
+
+  const panel = document.getElementById('panel');
+  const typeSelect = document.getElementById('typeSelect');
+  const saveBtn = document.getElementById('saveBtn');
 
   document.getElementById('addBtn').onclick = () => {
     addMode = true;
