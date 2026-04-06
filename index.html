@@ -45,7 +45,7 @@
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       display: none;
-      width: 220px;
+      width: 260px;
     }
 
     #panel::after {
@@ -58,33 +58,65 @@
       border-top: 8px solid white;
     }
 
-    #panel select,
-    #panel button {
+    #status {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    #saveBtn {
       width: 100%;
-      margin-top: 10px;
+      margin-top: 12px;
       padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: black;
+      color: white;
+      cursor: pointer;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .icon-option {
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 6px;
+      cursor: pointer;
+      background: #f7f7f7;
+      text-align: center;
+    }
+
+    .icon-option.active {
+      border-color: #1e90ff;
+      background: #eef6ff;
+    }
+
+    .icon-option img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 4px;
+    }
+
+    .icon-option span {
+      font-size: 12px;
     }
 
     .pin {
       width: 100%;
       height: 100%;
-      background: white;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      position: relative;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      overflow: hidden;
     }
 
     .pin-img {
-      width: 70%;
-      height: 70%;
-      position: absolute;
-      top: 15%;
-      left: 15%;
-      border-radius: 50%;
-      transform: rotate(45deg);
-      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
     }
   </style>
 </head>
@@ -96,12 +128,31 @@
 
 <div id="panel">
   <b>Нова точка</b>
-  <div id="status">Натисни + і вибери місце</div>
+  <div id="status">Обери тип і ткни на карту</div>
 
-  <select id="typeSelect">
-    <option value="block">Перекрито</option>
-    <option value="danger">Безпорядки</option>
-  </select>
+  <div class="icon-grid">
+
+    <div class="icon-option active" data-type="safe">
+      <img src="icons/safe.png">
+      <span>Безпечно</span>
+    </div>
+
+    <div class="icon-option" data-type="block">
+      <img src="icons/block.png">
+      <span>Перекрито</span>
+    </div>
+
+    <div class="icon-option" data-type="danger">
+      <img src="icons/danger.png">
+      <span>Небезпека</span>
+    </div>
+
+    <div class="icon-option" data-type="police">
+      <img src="icons/police.png">
+      <span>Патруль</span>
+    </div>
+
+  </div>
 
   <button id="saveBtn">Зберегти</button>
 </div>
@@ -113,17 +164,21 @@
   const POINT_LIFETIME = 86400000;
 
   const labels = {
+    safe: 'Безпечно',
     block: 'Перекрито',
-    danger: 'Безпорядки'
+    danger: 'Небезпека',
+    police: 'Патруль'
   };
+
+  let currentType = 'safe';
 
   function getIcon(type, zoom) {
     let size;
 
-    if (zoom <= 10) size = 20;
-    else if (zoom <= 12) size = 26;
-    else if (zoom <= 14) size = 32;
-    else size = 40;
+    if (zoom <= 10) size = 18;
+    else if (zoom <= 12) size = 24;
+    else if (zoom <= 14) size = 30;
+    else size = 36;
 
     return L.divIcon({
       className: '',
@@ -133,7 +188,7 @@
         </div>
       `,
       iconSize: [size, size],
-      iconAnchor: [size / 2, size]
+      iconAnchor: [size / 2, size / 2]
     });
   }
 
@@ -160,6 +215,7 @@
     markers.forEach(m => map.removeLayer(m));
     markers = [];
 
+    savedPoints = loadPoints();
     const zoom = map.getZoom();
 
     savedPoints.forEach(p => {
@@ -172,12 +228,27 @@
   }
 
   render();
-
   map.on('zoomend', render);
 
   let addMode = false;
   let temp = null;
   let selected = null;
+
+  const panel = document.getElementById('panel');
+  const saveBtn = document.getElementById('saveBtn');
+  const options = document.querySelectorAll('.icon-option');
+
+  options.forEach(opt => {
+    opt.onclick = () => {
+      options.forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      currentType = opt.dataset.type;
+
+      if (temp && selected) {
+        temp.setIcon(getIcon(currentType, map.getZoom()));
+      }
+    };
+  });
 
   document.getElementById('addBtn').onclick = () => {
     addMode = true;
@@ -192,15 +263,9 @@
     if (temp) map.removeLayer(temp);
 
     temp = L.marker(selected, {
-      icon: getIcon(typeSelect.value, map.getZoom())
+      icon: getIcon(currentType, map.getZoom())
     }).addTo(map);
   });
-
-  typeSelect.onchange = () => {
-    if (temp && selected) {
-      temp.setIcon(getIcon(typeSelect.value, map.getZoom()));
-    }
-  };
 
   saveBtn.onclick = () => {
     if (!selected) return alert('Ткни на карту');
@@ -208,7 +273,7 @@
     savedPoints.push({
       lat: selected.lat,
       lng: selected.lng,
-      type: typeSelect.value,
+      type: currentType,
       time: Date.now()
     });
 
