@@ -23,86 +23,109 @@
       position: absolute;
       right: 20px;
       bottom: 20px;
-      width: 56px;
-      height: 56px;
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
       border: none;
-      background: black;
+      background: linear-gradient(135deg, #111, #2b2b2b);
       color: white;
-      font-size: 30px;
+      font-size: 32px;
       z-index: 1000;
       cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
     }
 
     #panel {
       position: absolute;
       right: 20px;
-      bottom: 90px;
-      background: white;
-      padding: 12px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      bottom: 92px;
+      background: rgba(255,255,255,0.98);
+      padding: 14px;
+      border-radius: 16px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.18);
       display: none;
-      width: 280px;
+      width: 300px;
       z-index: 1000;
+    }
+
+    #panelTitle {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    #panelHint {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
     }
 
     .icon-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     .icon-option {
       border: 2px solid transparent;
-      border-radius: 10px;
-      padding: 5px;
+      border-radius: 14px;
+      padding: 8px 6px;
       text-align: center;
       cursor: pointer;
-      background: #f7f7f7;
+      background: #f7f7f8;
     }
 
     .icon-option.active {
-      border-color: #1e90ff;
-      background: #eef6ff;
+      border-color: #2d7ff9;
+      background: #eef5ff;
     }
 
     .icon-option img {
-      width: 50px;
-      height: 50px;
+      width: 52px;
+      height: 52px;
       object-fit: contain;
       display: block;
-      margin: 0 auto;
+      margin: 0 auto 4px;
     }
 
     .icon-option span {
       display: block;
-      margin-top: 4px;
       font-size: 12px;
+      color: #333;
     }
 
-    textarea {
+    #descInput {
       width: 100%;
-      margin-top: 10px;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      margin-top: 12px;
+      padding: 12px 13px;
+      border-radius: 12px;
+      border: 1px solid #d9d9de;
       box-sizing: border-box;
-      resize: vertical;
-      min-height: 80px;
+      resize: none;
+      min-height: 88px;
       font-size: 14px;
+      outline: none;
+    }
+
+    #descCounter {
+      margin-top: 6px;
+      text-align: right;
+      font-size: 12px;
+      color: #777;
     }
 
     #saveBtn {
-      margin-top: 10px;
+      margin-top: 12px;
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       border: none;
-      border-radius: 8px;
-      background: black;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #111, #2b2b2b);
       color: white;
       cursor: pointer;
+      font-size: 15px;
+      font-weight: 700;
     }
 
     .pin-img {
@@ -112,49 +135,115 @@
       display: block;
     }
 
-    .popup-time {
-      font-size: 12px;
-      color: #666;
+    .leaflet-popup-content-wrapper {
+      border-radius: 18px;
+      box-shadow: 0 16px 38px rgba(0,0,0,0.18);
+      padding: 0;
+    }
+
+    .leaflet-popup-content {
+      margin: 0 !important;
+      width: 430px !important;
+    }
+
+    .leaflet-popup-tip {
+      box-shadow: none;
+    }
+
+    .radar-popup {
+      display: flex;
+      gap: 14px;
+      padding: 16px;
+      align-items: flex-start;
+    }
+
+    .popup-left {
+      flex: 1 1 52%;
+      min-width: 0;
+    }
+
+    .popup-right {
+      flex: 1 1 48%;
+      min-width: 0;
+    }
+
+    .popup-title {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.1;
       margin-bottom: 8px;
+      color: #111;
+    }
+
+    .popup-time {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 10px;
     }
 
     .popup-desc {
-      font-size: 14px;
-      margin-bottom: 10px;
+      font-size: 15px;
+      color: #1f2937;
+      line-height: 1.45;
       white-space: pre-wrap;
+      word-break: break-word;
     }
 
-    .comment {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid #eee;
+    .popup-comments-title {
       font-size: 13px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 8px;
+    }
+
+    .popup-comments {
+      max-height: 160px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-bottom: 10px;
+    }
+
+    .comment-item {
+      background: #f7f8fa;
+      border-radius: 12px;
+      padding: 10px 11px;
+      margin-bottom: 8px;
+    }
+
+    .comment-text {
+      font-size: 14px;
+      color: #111827;
+      line-height: 1.35;
       white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .comment-time {
-      font-size: 11px;
-      color: #777;
-      margin-top: 2px;
+      margin-top: 5px;
+      font-size: 12px;
+      color: #6b7280;
     }
 
     .popup-input {
       width: 100%;
       box-sizing: border-box;
-      margin-top: 10px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      border: 1px solid #d9d9de;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      outline: none;
     }
 
     .popup-btn {
       width: 100%;
       margin-top: 8px;
-      padding: 8px;
       border: none;
-      border-radius: 8px;
-      background: black;
+      border-radius: 12px;
+      padding: 11px 12px;
+      background: linear-gradient(135deg, #111, #2b2b2b);
       color: white;
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
     }
   </style>
@@ -162,24 +251,26 @@
 <body>
 
 <div id="map"></div>
+
 <button id="addBtn">+</button>
 
 <div id="panel">
-  <b>Нова точка</b>
+  <div id="panelTitle">Нова точка</div>
+  <div id="panelHint">Обери тип, додай опис і ткни на карту</div>
 
   <div class="icon-grid">
     <div class="icon-option active" data-type="safe">
-      <img src="icons/safe.png" alt="Безпечно">
+      <img src="icons/safe.png" alt="Safe">
       <span>Safe</span>
     </div>
 
     <div class="icon-option" data-type="block">
-      <img src="icons/block.png" alt="Перекрито">
+      <img src="icons/block.png" alt="Block">
       <span>Block</span>
     </div>
 
     <div class="icon-option" data-type="danger2">
-      <img src="icons/danger2.png" alt="Небезпека">
+      <img src="icons/danger2.png" alt="Danger">
       <span>Danger</span>
     </div>
 
@@ -190,6 +281,7 @@
   </div>
 
   <textarea id="descInput" maxlength="100" placeholder="Опис обов'язковий, до 100 символів"></textarea>
+  <div id="descCounter">0 / 100</div>
   <button id="saveBtn">Зберегти</button>
 </div>
 
@@ -214,6 +306,7 @@
   const addBtn = document.getElementById('addBtn');
   const panel = document.getElementById('panel');
   const descInput = document.getElementById('descInput');
+  const descCounter = document.getElementById('descCounter');
   const saveBtn = document.getElementById('saveBtn');
   const iconOptions = document.querySelectorAll('.icon-option');
 
@@ -234,11 +327,20 @@
     });
   }
 
-  function fmt(t) {
-    return new Date(t).toLocaleString('uk-UA', {
+  function formatDateTime(t) {
+    const d = new Date(t);
+    return d.toLocaleString('uk-UA', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function formatTime(t) {
+    const d = new Date(t);
+    return d.toLocaleTimeString('uk-UA', {
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -266,19 +368,29 @@
 
   function popupHtml(point, index) {
     const commentsHtml = (point.comments || []).map(c => `
-      <div class="comment">
-        ${escapeHtml(c.text)}
-        <div class="comment-time">${fmt(c.time)}</div>
+      <div class="comment-item">
+        <div class="comment-text">${escapeHtml(c.text)}</div>
+        <div class="comment-time">${formatTime(c.time)}</div>
       </div>
     `).join('');
 
     return `
-      <div><b>${escapeHtml(labelMap[point.type] || point.type)}</b></div>
-      <div class="popup-time">${fmt(point.time)}</div>
-      <div class="popup-desc">${escapeHtml(point.desc)}</div>
-      ${commentsHtml}
-      <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Коментар до 100 символів">
-      <button class="popup-btn" onclick="addComment(${index})">Додати коментар</button>
+      <div class="radar-popup">
+        <div class="popup-left">
+          <div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div>
+          <div class="popup-time">${formatDateTime(point.time)}</div>
+          <div class="popup-desc">${escapeHtml(point.desc)}</div>
+        </div>
+
+        <div class="popup-right">
+          <div class="popup-comments-title">Коментарі</div>
+          <div class="popup-comments">
+            ${commentsHtml || '<div class="comment-item"><div class="comment-text">Ще немає коментарів</div></div>'}
+          </div>
+          <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Коментар до 100 символів">
+          <button class="popup-btn" onclick="addComment(${index})">Додати коментар</button>
+        </div>
+      </div>
     `;
   }
 
@@ -346,6 +458,10 @@
     panel.style.display = 'block';
   });
 
+  descInput.addEventListener('input', () => {
+    descCounter.textContent = `${descInput.value.length} / 100`;
+  });
+
   map.on('click', e => {
     if (!addMode) return;
 
@@ -399,6 +515,7 @@
     addMode = false;
     panel.style.display = 'none';
     descInput.value = '';
+    descCounter.textContent = '0 / 100';
   });
 
   map.on('zoomend', render);
