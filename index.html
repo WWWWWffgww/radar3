@@ -885,7 +885,9 @@
     doc,
     updateDoc,
     query,
-    orderBy
+    orderBy,
+    getDocs,
+    deleteDoc
   } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -904,6 +906,10 @@
   const SETTINGS_KEY = 'radar_settings';
   const LIFE = 24 * 60 * 60 * 1000;
   const VOTES_KEY = 'radar_votes';
+
+  const MERGE_RADIUS_METERS = 80;
+  const MERGE_MIN_COUNT = 3;
+  const GROUP_CIRCLE_RADIUS = 250;
 
   const labelMap = {
     safe: 'Безпечно',
@@ -1047,7 +1053,7 @@
   let temp = null;
   let currentType = 'safe';
   let data = [];
-  let markers = [];
+  let layers = [];
   let currentOpenPointId = null;
 
   function clampMinutes(value) {
@@ -1199,6 +1205,115 @@
     return `зникне через ${hours}:${String(minutes).padStart(2, '0')} год`;
   }
 
+  function distanceMeters(lat1, lng1, lat2, lng2) {
+    const R = 6371000;
+    const toRad = deg => deg * Math.PI / 180;
+
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function getBaseDescriptions(point) {
+    if (Array.isArray(point.mergedDescriptions) && point.mergedDescriptions.length) {
+      return point.mergedDescriptions;
+    }
+
+    return [{
+      type: point.type,
+      desc: point.desc || '',
+      time: point.time,
+      pointId: point.id
+    }];
+  }
+
+  function getBaseSourceIds(point) {
+    if (Array.isArray(point.mergedSourceIds) && point.mergedSourceIds.length) {
+      return point.mergedSourceIds;
+    }
+    return [point.id];
+  }
+
+  async function mergeNearbyPoints(newPointId) {
+    const snap = await getDocs(query(collection(db, "points"), orderBy("time", "asc")));
+
+    const allPoints = [];
+    snap.forEach(itemDoc => {
+      const point = { id: itemDoc.id, ...itemDoc.data() };
+      if (Date.now() - point.time < LIFE) {
+        allPoints.push(point);
+      }
+    });
+
+    const target = allPoints.find(p => p.id === newPointId);
+    if (!target) return;
+
+    const nearby = allPoints.filter(p =>
+      distanceMeters(target.lat, target.lng, p.lat, p.lng) <= MERGE_RADIUS_METERS
+    );
+
+    if (nearby.length < MERGE_MIN_COUNT) return;
+
+    nearby.sort((a, b) => a.time - b.time);
+    const leader = nearby[0];
+
+    const mergedDescriptions = nearby
+      .flatMap(getBaseDescriptions)
+      .sort((a, b) => (a.time || 0) - (b.time || 0));
+
+    const mergedComments = nearby
+      .flatMap(p => Array.isArray(p.comments) ? p.comments : [])
+      .sort((a, b) => (a.time || 0) - (b.time || 0));
+
+    const totalLikes = nearby.reduce((sum, p) => sum + (p.likes || 0), 0);
+    const totalDislikes = nearby.reduce((sum, p) => sum + (p.dislikes || 0), 0);
+    const mergedSourceIds = [...new Set(nearby.flatMap(getBaseSourceIds))];
+
+    const onlySafe = mergedDescriptions.every(item => item.type === 'safe');
+
+    await updateDoc(doc(db, "points", leader.id), {
+      merged: true,
+      mergedKind: onlySafe ? 'safe' : 'danger',
+      mergedCount: mergedDescriptions.length,
+      mergedRadius: GROUP_CIRCLE_RADIUS,
+      mergedDescriptions,
+      mergedSourceIds,
+      comments: mergedComments,
+      likes: totalLikes,
+      dislikes: totalDislikes
+    });
+
+    for (const point of nearby) {
+      if (point.id !== leader.id) {
+        await deleteDoc(doc(db, "points", point.id));
+      }
+    }
+  }
+
+  function buildDescriptionsHtml(point) {
+    if (point.merged && Array.isArray(point.mergedDescriptions) && point.mergedDescriptions.length) {
+      return point.mergedDescriptions.map(item => `
+        <div class="comment-item">
+          <div class="comment-text">
+            <strong>${escapeHtml(labelMap[item.type] || item.type)}</strong><br>
+            ${escapeHtml(item.desc || 'Без опису')}
+          </div>
+          <div class="comment-time">${formatTime(item.time)}</div>
+        </div>
+      `).join('');
+    }
+
+    return `
+      <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
+    `;
+  }
+
   function popupHtml(point, index) {
     const commentsHtml = (point.comments || []).map(c => `
       <div class="comment-item">
@@ -1208,6 +1323,16 @@
     `).join('');
 
     const voted = hasVoted(point.id);
+
+    const mergeBadge = point.merged
+      ? `<div class="popup-time">Об’єднано міток: ${point.mergedCount || 1}</div>`
+      : '';
+
+    const zoneTitle = point.merged
+      ? `<div class="popup-time">${point.mergedKind === 'safe' ? '🟢 Безпечна зона' : '🔴 Небезпечна зона'}</div>`
+      : '';
+
+    const descTitle = point.merged ? 'Опис усіх міток' : 'Опис';
 
     return `
       <div class="radar-popup">
@@ -1220,13 +1345,18 @@
                 <div class="popup-life">${timeLeftText(point.time)}</div>
               </div>
               <div class="popup-time">${formatDateTime(point.time)}</div>
+              ${zoneTitle}
+              ${mergeBadge}
             </div>
           </div>
 
           <button class="popup-close" onclick="window.closePopup()">×</button>
         </div>
 
-        <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
+        <div class="popup-comments-title">${descTitle}</div>
+        <div class="popup-comments">
+          ${buildDescriptionsHtml(point)}
+        </div>
 
         <div class="popup-comments-title">Коментарі</div>
 
@@ -1259,17 +1389,33 @@
 
   function reopenCurrentPopup() {
     if (!currentOpenPointId) return;
-    const markerObj = markers.find(m => m.pointId === currentOpenPointId);
-    if (markerObj?.marker) {
-      markerObj.marker.openPopup();
+    const layerObj = layers.find(m => m.pointId === currentOpenPointId && m.marker);
+    if (layerObj?.marker) {
+      layerObj.marker.openPopup();
     }
+  }
+
+  function addGroupCircle(point) {
+    if (!point.merged || (point.mergedCount || 0) < MERGE_MIN_COUNT) return null;
+
+    return L.circle([point.lat, point.lng], {
+      radius: point.mergedRadius || GROUP_CIRCLE_RADIUS,
+      color: '#ffd400',
+      weight: 2,
+      opacity: 1,
+      fillColor: point.mergedKind === 'safe' ? '#18c964' : '#ff3b30',
+      fillOpacity: 0.22
+    }).addTo(map);
   }
 
   function render() {
     const previouslyOpenPointId = currentOpenPointId;
 
-    markers.forEach(m => map.removeLayer(m.marker));
-    markers = [];
+    layers.forEach(item => {
+      if (item.marker) map.removeLayer(item.marker);
+      if (item.circle) map.removeLayer(item.circle);
+    });
+    layers = [];
 
     const zoom = map.getZoom();
     const now = Date.now();
@@ -1278,6 +1424,8 @@
     data.forEach((p, i) => {
       if (!settings.filters[p.type]) return;
       if (now - p.time > timeLimit) return;
+
+      const circle = addGroupCircle(p);
 
       const marker = L.marker([p.lat, p.lng], {
         icon: getIcon(p.type, zoom)
@@ -1298,7 +1446,7 @@
         }
       });
 
-      markers.push({ marker, pointId: p.id });
+      layers.push({ marker, circle, pointId: p.id });
     });
 
     if (previouslyOpenPointId) {
@@ -1518,7 +1666,7 @@
     if (!desc) return alert("Опис обов’язковий");
     if (desc.length > 100) return alert('Максимум 100 символів');
 
-    await addDoc(collection(db, "points"), {
+    const addedRef = await addDoc(collection(db, "points"), {
       lat: selected.lat,
       lng: selected.lng,
       type: currentType,
@@ -1526,8 +1674,16 @@
       time: Date.now(),
       comments: [],
       likes: 0,
-      dislikes: 0
+      dislikes: 0,
+      merged: false,
+      mergedKind: null,
+      mergedCount: 1,
+      mergedRadius: GROUP_CIRCLE_RADIUS,
+      mergedDescriptions: [],
+      mergedSourceIds: []
     });
+
+    await mergeNearbyPoints(addedRef.id);
 
     closeCreateMode();
     showSuccessModal();
