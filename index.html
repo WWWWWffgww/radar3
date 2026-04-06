@@ -1014,15 +1014,18 @@
     });
   }
 
-  function getIcon(type, zoom) {
-    let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
-    return L.divIcon({
-      className: '',
-      html: `<img src="icons/${type}.png" class="pin-img">`,
-      iconSize: [s, s],
-      iconAnchor: [s / 2, s / 2]
-    });
-  }
+function getIcon(type, zoom) {
+  let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
+
+  s = Math.round(s * 1.2); // 🔥 увеличение на 20%
+
+  return L.divIcon({
+    className: '',
+    html: `<img src="icons/${type}.png" class="pin-img">`,
+    iconSize: [s, s],
+    iconAnchor: [s / 2, s / 2]
+  });
+}
 
   function formatDateTime(t) {
     return new Date(t).toLocaleString('uk-UA', {
