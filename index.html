@@ -1148,14 +1148,14 @@
 
     return L.divIcon({
       className: '',
-      html: `<img src="icons/${type === 'question' ? '????' : type === 'poop' ? 'kaka' : type}.png" class="pin-img">`,
+      html: `<img src="icons/${type === 'question' ? 'question' : type === 'poop' ? 'kaka' : type}.png" class="pin-img">`,
       iconSize: [s, s],
       iconAnchor: [s / 2, s]
     });
   }
 
   function getIconPath(type) {
-    if (type === 'question') return 'icons/????.png';
+    if (type === 'question') return 'icons/question.png';
     if (type === 'poop') return 'icons/kaka.png';
     return `icons/${type}.png`;
   }
