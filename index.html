@@ -61,7 +61,6 @@
       box-shadow: 0 10px 24px rgba(0,0,0,0.22);
     }
 
-    /* --- ОКНА РЯДОМ С КНОПКАМИ --- */
     #pickerBar {
       position: fixed;
       right: 16px;
@@ -349,6 +348,7 @@
       width: 100%;
       height: 4px;
       -webkit-appearance: none;
+      appearance: none;
       background: rgba(255,255,255,0.2);
       border-radius: 4px;
       outline: none;
@@ -356,6 +356,7 @@
 
     .time-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
+      appearance: none;
       width: 20px;
       height: 20px;
       background: #0a84ff;
@@ -364,12 +365,24 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
+    .time-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #0a84ff;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
     .time-slider-value {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-top: 10px;
       font-size: 13px;
       color: rgba(255,255,255,0.7);
+      gap: 8px;
     }
 
     .time-value {
@@ -377,6 +390,7 @@
       padding: 4px 12px;
       border-radius: 20px;
       font-weight: 600;
+      white-space: nowrap;
     }
 
     .leaflet-popup-content-wrapper {
@@ -580,9 +594,11 @@
 
       #pickerBar,
       #descSheet {
+        left: 8px;
         right: 8px;
-        bottom: 72px;
-        left: auto;
+        width: auto;
+        bottom: 8px;
+        top: auto;
         transform: none;
       }
 
@@ -673,9 +689,9 @@
   </div>
 
   <div class="settings-group">
-    <div class="settings-label">⏱️ Фільтр за часом (ползунок)</div>
+    <div class="settings-label">⏱️ Фільтр за часом</div>
     <div class="time-slider-container">
-      <input type="range" id="timeSlider" class="time-slider" min="0.25" max="24" step="0.25" value="24">
+      <input type="range" id="timeSlider" class="time-slider" min="15" max="1440" step="15" value="1440">
       <div class="time-slider-value">
         <span>🕒 15 хв</span>
         <span class="time-value" id="timeValue">24 год</span>
@@ -751,7 +767,7 @@
   function loadSettings() {
     const defaultSettings = {
       mapTheme: 'night',
-      timeFilterHours: 24,
+      timeFilterMinutes: 1440,
       filters: {
         safe: true,
         block: true,
@@ -759,18 +775,29 @@
         trash: true
       }
     };
+
     try {
       const saved = localStorage.getItem(SETTINGS_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
+
+        let timeFilterMinutes = 1440;
+
+        if (typeof parsed.timeFilterMinutes === 'number') {
+          timeFilterMinutes = parsed.timeFilterMinutes;
+        } else if (typeof parsed.timeFilterHours === 'number') {
+          timeFilterMinutes = Math.round(parsed.timeFilterHours * 60);
+        }
+
         return {
           ...defaultSettings,
           ...parsed,
-          filters: { ...defaultSettings.filters, ...(parsed.filters || {}) },
-          timeFilterHours: parsed.timeFilterHours || 24
+          timeFilterMinutes,
+          filters: { ...defaultSettings.filters, ...(parsed.filters || {}) }
         };
       }
     } catch(e) {}
+
     return defaultSettings;
   }
 
@@ -822,21 +849,37 @@
   let currentType = 'safe';
   let data = load();
 
-  timeSlider.value = settings.timeFilterHours;
-  updateTimeDisplay(settings.timeFilterHours);
+  function clampMinutes(value) {
+    const num = Number(value) || 15;
+    return Math.min(1440, Math.max(15, num));
+  }
 
-  function updateTimeDisplay(hours) {
-    if (hours < 1) {
-      const minutes = Math.round(hours * 60);
-      timeValue.textContent = `${minutes} хв`;
-    } else {
-      const whole = Number.isInteger(hours);
-      timeValue.textContent = whole ? `${hours} год` : `${hours} год`;
+  timeSlider.value = clampMinutes(settings.timeFilterMinutes);
+  updateTimeDisplay(clampMinutes(settings.timeFilterMinutes));
+
+  function formatMinutesText(totalMinutes) {
+    totalMinutes = clampMinutes(totalMinutes);
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    if (hours === 0) {
+      return `${minutes} хв`;
     }
+
+    if (minutes === 0) {
+      return `${hours} год`;
+    }
+
+    return `${hours} год ${minutes} хв`;
+  }
+
+  function updateTimeDisplay(minutes) {
+    timeValue.textContent = formatMinutesText(minutes);
   }
 
   timeSlider.addEventListener('input', (e) => {
-    const val = parseFloat(e.target.value);
+    const val = parseInt(e.target.value, 10);
     updateTimeDisplay(val);
   });
 
@@ -847,6 +890,7 @@
       danger2: 'filterDanger2',
       trash: 'filterTrash'
     };
+
     for (const [type, id] of Object.entries(filterIds)) {
       const toggle = document.getElementById(id);
       if (toggle) {
@@ -878,6 +922,7 @@
     filterItems.forEach(item => {
       const type = item.dataset.filterType;
       const toggle = item.querySelector('.filter-toggle');
+
       if (toggle) {
         toggle.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -886,6 +931,7 @@
           render();
         });
       }
+
       item.addEventListener('click', (e) => {
         if (e.target !== toggle) {
           settings.filters[type] = !settings.filters[type];
@@ -1020,7 +1066,7 @@
     data = load();
     const zoom = map.getZoom();
     const now = Date.now();
-    const timeLimit = settings.timeFilterHours * 60 * 60 * 1000;
+    const timeLimit = clampMinutes(settings.timeFilterMinutes) * 60 * 1000;
 
     data.forEach((p, i) => {
       if (!settings.filters[p.type]) return;
@@ -1059,7 +1105,7 @@
   }
 
   function positionSheetNearButton(sheet, button, placement = 'top') {
-    const btnRect = button.getBoundingClientRect();
+    const isMobile = window.innerWidth <= 600;
     const gap = 10;
 
     sheet.style.left = 'auto';
@@ -1068,25 +1114,38 @@
     sheet.style.bottom = 'auto';
 
     sheet.style.display = 'block';
+
+    if (isMobile) {
+      if (sheet === pickerBar || sheet === descSheet) {
+        sheet.style.left = '8px';
+        sheet.style.right = '8px';
+        sheet.style.width = 'auto';
+        sheet.style.bottom = '8px';
+        sheet.style.top = 'auto';
+        return;
+      }
+
+      if (sheet === settingsSheet) {
+        sheet.style.right = '8px';
+        sheet.style.top = '64px';
+        sheet.style.left = 'auto';
+        sheet.style.bottom = 'auto';
+        return;
+      }
+    }
+
+    const btnRect = button.getBoundingClientRect();
     const sheetRect = sheet.getBoundingClientRect();
 
-    let left = window.innerWidth - sheetRect.width - 8;
+    let left = btnRect.right - sheetRect.width;
+    left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
+
     if (placement === 'top') {
-      left = btnRect.right - sheetRect.width;
-      left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
       const top = btnRect.top - sheetRect.height - gap;
       sheet.style.left = `${left}px`;
       sheet.style.top = `${Math.max(8, top)}px`;
     } else if (placement === 'bottom-right') {
-      left = btnRect.right - sheetRect.width;
-      left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
       const top = btnRect.bottom + gap;
-      sheet.style.left = `${left}px`;
-      sheet.style.top = `${Math.max(8, top)}px`;
-    } else {
-      left = btnRect.right - sheetRect.width;
-      left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
-      const top = btnRect.top - sheetRect.height - gap;
       sheet.style.left = `${left}px`;
       sheet.style.top = `${Math.max(8, top)}px`;
     }
@@ -1134,6 +1193,7 @@
     } else {
       data[index].dislikes = (data[index].dislikes || 0) + 1;
     }
+
     save(data);
     render();
     if (markers[index]) markers[index].openPopup();
@@ -1148,6 +1208,7 @@
       alert('Коментар обовʼязковий');
       return;
     }
+
     if (text.length > 100) {
       alert('Максимум 100 символів');
       return;
@@ -1179,11 +1240,9 @@
 
   addBtn.addEventListener('click', () => {
     addMode = true;
-    addBtn.style.display = 'none';
     settingsSheet.style.display = 'none';
     pickerBar.style.display = 'none';
     descSheet.style.display = 'none';
-    addBtn.style.display = 'block';
     showPickerBar();
   });
 
@@ -1200,7 +1259,7 @@
   });
 
   saveSettingsBtn.addEventListener('click', () => {
-    settings.timeFilterHours = parseFloat(timeSlider.value);
+    settings.timeFilterMinutes = clampMinutes(parseInt(timeSlider.value, 10));
     saveSettings(settings);
     applyMapTheme(settings.mapTheme);
     render();
