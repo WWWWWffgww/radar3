@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
   <meta charset="utf-8">
   <title>RADAR</title>
@@ -7,6 +7,23 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
+    :root {
+      --bg-dark: rgba(28, 28, 30, 0.94);
+      --bg-dark-2: rgba(44, 44, 46, 0.96);
+      --bg-soft: rgba(255,255,255,0.10);
+      --bg-soft-2: rgba(255,255,255,0.14);
+      --text-main: #fff;
+      --text-soft: rgba(255,255,255,0.68);
+      --text-dim: rgba(255,255,255,0.5);
+      --blue-1: #1c8cff;
+      --blue-2: #0066ff;
+      --green: #7CFF66;
+      --shadow: 0 18px 40px rgba(0,0,0,0.22);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -25,6 +42,15 @@
       height: 100%;
       object-fit: contain;
       display: block;
+    }
+
+    .glass-card {
+      background: var(--bg-dark);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+      color: var(--text-main);
     }
 
     #addBtn {
@@ -46,34 +72,33 @@
 
     #settingsBtn {
       position: fixed;
-      top: 16px;
-      right: 16px;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+      top: 14px;
+      right: 14px;
+      width: 18px;
+      height: 18px;
       border: none;
-      background: rgba(28,28,30,0.92);
-      color: #fff;
-      font-size: 22px;
+      background: transparent;
+      color: #d9d9de;
+      font-size: 18px;
+      line-height: 1;
       z-index: 1003;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      padding: 0;
+    }
+
+    #settingsBtn:hover {
+      color: #fff;
     }
 
     #pickerBar {
       position: fixed;
       right: 16px;
       bottom: 84px;
-      width: 320px;
+      width: 328px;
       z-index: 1001;
       display: none;
-      background: rgba(28,28,30,0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
       border-radius: 22px;
       padding: 10px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
       box-sizing: border-box;
     }
 
@@ -81,20 +106,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
-      color: #fff;
-      font-size: 14px;
       gap: 10px;
+      margin-bottom: 10px;
     }
 
     #pickerHint {
-      color: rgba(255,255,255,0.65);
+      color: var(--text-soft);
       font-size: 13px;
     }
 
-    #pickerClose,
-    #sheetClose,
-    #settingsClose {
+    .icon-close {
       border: none;
       background: rgba(255,255,255,0.12);
       color: #fff;
@@ -114,13 +135,14 @@
     }
 
     .picker-item {
-      background: rgba(255,255,255,0.08);
+      background: var(--bg-soft);
       border: 2px solid transparent;
       border-radius: 16px;
       padding: 8px 4px;
       text-align: center;
       cursor: pointer;
       color: #fff;
+      user-select: none;
     }
 
     .picker-item.active {
@@ -129,8 +151,8 @@
     }
 
     .picker-item img {
-      width: 48px;
-      height: 48px;
+      width: 46px;
+      height: 46px;
       object-fit: contain;
       display: block;
       margin: 0 auto 4px;
@@ -146,17 +168,11 @@
       position: fixed;
       right: 16px;
       bottom: 84px;
-      width: 320px;
+      width: 328px;
       z-index: 1002;
       display: none;
-      background: rgba(28,28,30,0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 24px;
+      border-radius: var(--radius-xl);
       padding: 14px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: #fff;
       box-sizing: border-box;
     }
 
@@ -177,8 +193,8 @@
     }
 
     #sheetIcon {
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
       object-fit: contain;
       flex: 0 0 auto;
     }
@@ -190,13 +206,14 @@
     }
 
     #descInput,
-    .settings-select {
+    .popup-input {
       width: 100%;
       box-sizing: border-box;
       border: none;
+      resize: none;
       border-radius: 18px;
       padding: 14px 15px;
-      background: rgba(255,255,255,0.12);
+      background: var(--bg-soft-2);
       color: #fff;
       font-size: 16px;
       font-family: inherit;
@@ -204,31 +221,30 @@
     }
 
     #descInput {
-      resize: none;
       min-height: 96px;
     }
 
-    #descInput::placeholder {
-      color: rgba(255,255,255,0.5);
+    #descInput::placeholder,
+    .popup-input::placeholder {
+      color: var(--text-dim);
     }
 
     #descCounter,
     .popup-counter {
       text-align: right;
       font-size: 12px;
-      color: rgba(255,255,255,0.55);
+      color: var(--text-dim);
       margin-top: 6px;
       margin-bottom: 10px;
     }
 
-    #saveBtn,
-    #saveSettingsBtn,
+    .primary-btn,
     .popup-btn {
       width: 100%;
       border: none;
       border-radius: 18px;
       padding: 14px 16px;
-      background: linear-gradient(180deg, #1c8cff, #007aff);
+      background: linear-gradient(180deg, var(--blue-1), var(--blue-2));
       color: #fff;
       font-size: 17px;
       font-weight: 700;
@@ -238,20 +254,43 @@
     }
 
     .settings-group {
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .settings-label {
       font-size: 13px;
-      color: rgba(255,255,255,0.66);
+      color: var(--text-soft);
       margin-bottom: 8px;
+    }
+
+    .theme-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .theme-btn {
+      flex: 1;
+      border: none;
+      border-radius: 16px;
+      padding: 12px 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      background: var(--bg-soft);
+      color: #fff;
+    }
+
+    .theme-btn.active {
+      background: rgba(10,132,255,0.22);
+      border: 1px solid rgba(10,132,255,0.30);
     }
 
     .leaflet-popup-content-wrapper {
       border-radius: 26px;
       padding: 0;
       box-shadow: 0 22px 50px rgba(0,0,0,0.22);
-      background: rgba(28,28,30,0.96);
+      background: var(--bg-dark);
       backdrop-filter: blur(22px);
       -webkit-backdrop-filter: blur(22px);
       color: #fff;
@@ -290,8 +329,8 @@
     }
 
     .popup-icon {
-      width: 54px;
-      height: 54px;
+      width: 52px;
+      height: 52px;
       object-fit: contain;
       flex: 0 0 auto;
     }
@@ -317,7 +356,7 @@
 
     .popup-life {
       font-size: 13px;
-      color: #8be28b;
+      color: var(--green);
     }
 
     .popup-close {
@@ -408,23 +447,6 @@
       border: 1px solid rgba(255,255,255,0.08);
     }
 
-    .popup-input {
-      width: 100%;
-      box-sizing: border-box;
-      border: none;
-      background: rgba(255,255,255,0.14);
-      color: #fff;
-      border-radius: 16px;
-      padding: 14px 15px;
-      font-size: 16px;
-      outline: none;
-      font-family: inherit;
-    }
-
-    .popup-input::placeholder {
-      color: rgba(255,255,255,0.5);
-    }
-
     @media (max-width: 600px) {
       #addBtn {
         right: 14px;
@@ -436,8 +458,9 @@
       #settingsBtn {
         top: 12px;
         right: 12px;
-        width: 44px;
-        height: 44px;
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
       }
 
       #pickerBar,
@@ -469,13 +492,13 @@
 
 <div id="map"></div>
 
-<button id="settingsBtn">⚙️</button>
-<button id="addBtn">+</button>
+<button id="settingsBtn" aria-label="Налаштування">⚙</button>
+<button id="addBtn" aria-label="Додати">+</button>
 
-<div id="pickerBar">
+<div id="pickerBar" class="glass-card">
   <div id="pickerTop">
     <div id="pickerHint">Обери тип і ткни на карту</div>
-    <button id="pickerClose">×</button>
+    <button id="pickerClose" class="icon-close">×</button>
   </div>
 
   <div class="picker-grid">
@@ -498,35 +521,35 @@
   </div>
 </div>
 
-<div id="descSheet">
+<div id="descSheet" class="glass-card">
   <div id="sheetHead">
     <div id="sheetLeft">
       <img id="sheetIcon" src="icons/safe.png" alt="">
       <div id="sheetTitle">Безпечно</div>
     </div>
-    <button id="sheetClose">×</button>
+    <button id="sheetClose" class="icon-close">×</button>
   </div>
 
   <textarea id="descInput" maxlength="100" placeholder="Опис..."></textarea>
   <div id="descCounter">0 / 100</div>
-  <button id="saveBtn">Зберегти</button>
+  <button id="saveBtn" class="primary-btn">Зберегти</button>
 </div>
 
-<div id="settingsSheet">
+<div id="settingsSheet" class="glass-card">
   <div id="settingsHead">
     <div id="settingsTitle">Налаштування</div>
-    <button id="settingsClose">×</button>
+    <button id="settingsClose" class="icon-close">×</button>
   </div>
 
   <div class="settings-group">
     <div class="settings-label">Тема карти</div>
-    <select id="mapThemeSelect" class="settings-select">
-      <option value="day">Денна</option>
-      <option value="night">Нічна</option>
-    </select>
+    <div class="theme-row">
+      <button id="themeDayBtn" class="theme-btn active" data-theme="day">Денна</button>
+      <button id="themeNightBtn" class="theme-btn" data-theme="night">Нічна</button>
+    </div>
   </div>
 
-  <button id="saveSettingsBtn">Зберегти</button>
+  <button id="saveSettingsBtn" class="primary-btn">Зберегти</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -548,12 +571,12 @@
       attribution: '&copy; OpenStreetMap contributors'
     },
     night: {
-      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+      url: 'https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png',
+      attribution: '&copy; Stadia Maps &copy; OpenMapTiles &copy; OpenStreetMap contributors'
     }
   };
 
-  const map = L.map('map').setView([50.45, 30.52], 13);
+  const map = L.map('map', { zoomControl: true }).setView([50.45, 30.52], 13);
   let currentTileLayer = null;
 
   function loadSettings() {
@@ -565,6 +588,7 @@
   }
 
   let settings = loadSettings();
+  let pendingTheme = settings.mapTheme || 'day';
 
   function applyMapTheme(theme) {
     if (currentTileLayer) {
@@ -575,7 +599,14 @@
     }).addTo(map);
   }
 
-  applyMapTheme(settings.mapTheme || 'day');
+  function updateThemeButtons(theme) {
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.theme === theme);
+    });
+  }
+
+  applyMapTheme(pendingTheme);
+  updateThemeButtons(pendingTheme);
 
   const addBtn = document.getElementById('addBtn');
   const settingsBtn = document.getElementById('settingsBtn');
@@ -594,16 +625,14 @@
 
   const settingsSheet = document.getElementById('settingsSheet');
   const settingsClose = document.getElementById('settingsClose');
-  const mapThemeSelect = document.getElementById('mapThemeSelect');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+  const themeBtns = document.querySelectorAll('.theme-btn');
 
   let addMode = false;
   let selected = null;
   let temp = null;
   let currentType = 'safe';
   let data = load();
-
-  mapThemeSelect.value = settings.mapTheme || 'day';
 
   function getIcon(type, zoom) {
     let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
@@ -809,6 +838,13 @@
     });
   });
 
+  themeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      pendingTheme = btn.dataset.theme;
+      updateThemeButtons(pendingTheme);
+    });
+  });
+
   addBtn.addEventListener('click', () => {
     addMode = true;
     addBtn.style.display = 'none';
@@ -830,7 +866,7 @@
   });
 
   saveSettingsBtn.addEventListener('click', () => {
-    settings.mapTheme = mapThemeSelect.value;
+    settings.mapTheme = pendingTheme;
     saveSettings(settings);
     applyMapTheme(settings.mapTheme);
     settingsSheet.style.display = 'none';
