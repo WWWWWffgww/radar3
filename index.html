@@ -462,13 +462,14 @@
       flex: 1;
     }
 
-    .popup-title-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 4px;
-    }
+   .popup-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap; /* ВАЖНО */
+  white-space: nowrap; /* ВАЖНО */
+  margin-bottom: 4px;
+}
 
     .popup-title {
       font-size: 19px;
