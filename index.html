@@ -12,12 +12,13 @@
       padding: 0;
       height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      background: #fff;
+      background: #000;
     }
 
     #map {
       width: 100%;
       height: 100vh;
+      background: #111;
     }
 
     .pin-img {
@@ -238,13 +239,79 @@
     }
 
     .settings-group {
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .settings-label {
       font-size: 13px;
       color: rgba(255,255,255,0.66);
       margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    /* Стилі для фільтрів */
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 14px;
+      cursor: pointer;
+    }
+
+    .filter-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-item-left img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .filter-item-left span {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .filter-toggle {
+      width: 44px;
+      height: 26px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 30px;
+      position: relative;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .filter-toggle.active {
+      background: #0a84ff;
+    }
+
+    .filter-toggle::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: 0.2s;
+    }
+
+    .filter-toggle.active::after {
+      left: 20px;
     }
 
     .leaflet-popup-content-wrapper {
@@ -514,16 +581,50 @@
 
 <div id="settingsSheet">
   <div id="settingsHead">
-    <div id="settingsTitle">Налаштування</div>
+    <div id="settingsTitle">⚙️ Налаштування</div>
     <button id="settingsClose">×</button>
   </div>
 
   <div class="settings-group">
-    <div class="settings-label">Тема карти</div>
+    <div class="settings-label">🌓 Тема карти</div>
     <select id="mapThemeSelect" class="settings-select">
       <option value="day">Денна</option>
-      <option value="night">Нічна</option>
+      <option value="night">Нічна (темна)</option>
     </select>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-label">👁️ Фільтр типів міток</div>
+    <div class="filter-group" id="filterGroup">
+      <div class="filter-item" data-filter-type="safe">
+        <div class="filter-item-left">
+          <img src="icons/safe.png" alt="">
+          <span>Safe (Безпечно)</span>
+        </div>
+        <div class="filter-toggle" id="filterSafe"></div>
+      </div>
+      <div class="filter-item" data-filter-type="block">
+        <div class="filter-item-left">
+          <img src="icons/block.png" alt="">
+          <span>Block (Перекрито)</span>
+        </div>
+        <div class="filter-toggle" id="filterBlock"></div>
+      </div>
+      <div class="filter-item" data-filter-type="danger2">
+        <div class="filter-item-left">
+          <img src="icons/danger2.png" alt="">
+          <span>Danger (Небезпека)</span>
+        </div>
+        <div class="filter-toggle" id="filterDanger2"></div>
+      </div>
+      <div class="filter-item" data-filter-type="trash">
+        <div class="filter-item-left">
+          <img src="icons/trash.png" alt="">
+          <span>Trash (Сміття)</span>
+        </div>
+        <div class="filter-toggle" id="filterTrash"></div>
+      </div>
+    </div>
   </div>
 
   <button id="saveSettingsBtn">Зберегти</button>
@@ -557,7 +658,23 @@
   let currentTileLayer = null;
 
   function loadSettings() {
-    return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"mapTheme":"day"}');
+    const defaultSettings = {
+      mapTheme: 'night',
+      filters: {
+        safe: true,
+        block: true,
+        danger2: true,
+        trash: true
+      }
+    };
+    try {
+      const saved = localStorage.getItem(SETTINGS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return { ...defaultSettings, ...parsed, filters: { ...defaultSettings.filters, ...(parsed.filters || {}) } };
+      }
+    } catch(e) {}
+    return defaultSettings;
   }
 
   function saveSettings(settings) {
@@ -575,7 +692,7 @@
     }).addTo(map);
   }
 
-  applyMapTheme(settings.mapTheme || 'day');
+  applyMapTheme(settings.mapTheme);
 
   const addBtn = document.getElementById('addBtn');
   const settingsBtn = document.getElementById('settingsBtn');
@@ -603,7 +720,49 @@
   let currentType = 'safe';
   let data = load();
 
-  mapThemeSelect.value = settings.mapTheme || 'day';
+  mapThemeSelect.value = settings.mapTheme;
+
+  function updateFilterUI() {
+    const filterIds = {
+      safe: 'filterSafe',
+      block: 'filterBlock',
+      danger2: 'filterDanger2',
+      trash: 'filterTrash'
+    };
+    for (const [type, id] of Object.entries(filterIds)) {
+      const toggle = document.getElementById(id);
+      if (toggle) {
+        if (settings.filters[type]) {
+          toggle.classList.add('active');
+        } else {
+          toggle.classList.remove('active');
+        }
+      }
+    }
+  }
+
+  function initFilterToggles() {
+    const filterItems = document.querySelectorAll('.filter-item');
+    filterItems.forEach(item => {
+      const type = item.dataset.filterType;
+      const toggle = item.querySelector('.filter-toggle');
+      if (toggle) {
+        toggle.addEventListener('click', (e) => {
+          e.stopPropagation();
+          settings.filters[type] = !settings.filters[type];
+          updateFilterUI();
+          render();
+        });
+      }
+      item.addEventListener('click', (e) => {
+        if (e.target !== toggle) {
+          settings.filters[type] = !settings.filters[type];
+          updateFilterUI();
+          render();
+        }
+      });
+    });
+  }
 
   function getIcon(type, zoom) {
     let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
@@ -635,7 +794,9 @@
   function load() {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     const filtered = raw.filter(p => Date.now() - p.time < LIFE);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    if (filtered.length !== raw.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    }
     return filtered;
   }
 
@@ -715,6 +876,8 @@
     const zoom = map.getZoom();
 
     data.forEach((p, i) => {
+      if (!settings.filters[p.type]) return;
+      
       const marker = L.marker([p.lat, p.lng], {
         icon: getIcon(p.type, zoom)
       }).addTo(map);
@@ -722,13 +885,15 @@
       marker.bindPopup(popupHtml(p, i));
 
       marker.on('popupopen', () => {
-        const input = document.getElementById(`commentInput_${i}`);
-        const counter = document.getElementById(`commentCounter_${i}`);
-        if (input && counter) {
-          input.addEventListener('input', () => {
-            counter.textContent = `${input.value.length} / 100`;
-          });
-        }
+        setTimeout(() => {
+          const input = document.getElementById(`commentInput_${i}`);
+          const counter = document.getElementById(`commentCounter_${i}`);
+          if (input && counter) {
+            input.addEventListener('input', () => {
+              counter.textContent = `${input.value.length} / 100`;
+            });
+          }
+        }, 10);
       });
 
       markers.push(marker);
@@ -764,6 +929,9 @@
   };
 
   window.vote = function(index, type) {
+    data = load();
+    if (!data[index]) return;
+    
     if (type === 'like') {
       data[index].likes = (data[index].likes || 0) + 1;
     } else {
@@ -771,7 +939,7 @@
     }
     save(data);
     render();
-    markers[index].openPopup();
+    if (markers[index]) markers[index].openPopup();
   };
 
   window.addComment = function(index) {
@@ -788,6 +956,9 @@
       return;
     }
 
+    data = load();
+    if (!data[index]) return;
+
     if (!Array.isArray(data[index].comments)) {
       data[index].comments = [];
     }
@@ -799,7 +970,7 @@
 
     save(data);
     render();
-    markers[index].openPopup();
+    if (markers[index]) markers[index].openPopup();
   };
 
   pickerItems.forEach(el => {
@@ -833,6 +1004,7 @@
     settings.mapTheme = mapThemeSelect.value;
     saveSettings(settings);
     applyMapTheme(settings.mapTheme);
+    render();
     settingsSheet.style.display = 'none';
   });
 
@@ -875,6 +1047,7 @@
       return;
     }
 
+    data = load();
     data.push({
       lat: selected.lat,
       lng: selected.lng,
@@ -891,12 +1064,16 @@
     closeCreateMode();
   });
 
-  map.on('zoomend', render);
+  map.on('zoomend', () => {
+    render();
+  });
 
   setInterval(() => {
     render();
   }, 60000);
 
+  updateFilterUI();
+  initFilterToggles();
   updatePickerActive();
   render();
 </script>
