@@ -462,14 +462,14 @@
       flex: 1;
     }
 
-   .popup-title-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: nowrap; /* ВАЖНО */
-  white-space: nowrap; /* ВАЖНО */
-  margin-bottom: 4px;
-}
+    .popup-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      margin-bottom: 4px;
+    }
 
     .popup-title {
       font-size: 19px;
@@ -603,6 +603,59 @@
 
     .popup-input::placeholder {
       color: rgba(255,255,255,0.5);
+    }
+
+    .success-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(80, 80, 80, 0.22);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .success-modal {
+      width: min(420px, calc(100vw - 32px));
+      border-radius: 28px;
+      padding: 20px;
+      box-sizing: border-box;
+      background: rgba(72, 72, 74, 0.55);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+    }
+
+    .success-modal-text {
+      font-size: 17px;
+      line-height: 1.4;
+      color: #fff;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .success-modal-btn {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .success-modal-btn:active {
+      transform: scale(0.98);
     }
 
     @media (max-width: 600px) {
@@ -779,6 +832,16 @@
   <button id="saveSettingsBtn">Зберегти</button>
 </div>
 
+<div id="successModalBackdrop" class="success-modal-backdrop">
+  <div class="success-modal">
+    <div class="success-modal-text">
+      Мітку успішно додано.<br>
+      Вона з’явиться на мапі протягом 5 хвилин
+    </div>
+    <button id="successModalClose" class="success-modal-btn">Закрити</button>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script type="module">
@@ -935,6 +998,9 @@
   const timeValue = document.getElementById('timeValue');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 
+  const successModalBackdrop = document.getElementById('successModalBackdrop');
+  const successModalClose = document.getElementById('successModalClose');
+
   let addMode = false;
   let selected = null;
   let temp = null;
@@ -1043,7 +1109,7 @@
 
   function getIcon(type, zoom) {
     let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
-    s = Math.round(s * 1.6);
+    s = Math.round(s * 2.4);
 
     return L.divIcon({
       className: '',
@@ -1270,6 +1336,14 @@
     positionSheetNearButton(settingsSheet, settingsBtn, 'bottom-right');
   }
 
+  function showSuccessModal() {
+    successModalBackdrop.style.display = 'flex';
+  }
+
+  function hideSuccessModal() {
+    successModalBackdrop.style.display = 'none';
+  }
+
   function closeCreateMode() {
     addMode = false;
     pickerBar.style.display = 'none';
@@ -1352,6 +1426,14 @@
     settingsSheet.style.display = 'none';
   });
 
+  successModalClose.addEventListener('click', hideSuccessModal);
+
+  successModalBackdrop.addEventListener('click', (e) => {
+    if (e.target === successModalBackdrop) {
+      hideSuccessModal();
+    }
+  });
+
   saveSettingsBtn.addEventListener('click', () => {
     settings.timeFilterMinutes = clampMinutes(parseInt(timeSlider.value, 10));
     saveSettings(settings);
@@ -1385,8 +1467,8 @@
   saveBtn.addEventListener('click', async () => {
     const desc = descInput.value.trim();
 
-    if (!selected) return alert('Ткни на карту');
-    if (!desc) return alert("Опис обов'язковий");
+    if (!selected) return alert('Торкнись мапи');
+    if (!desc) return alert("Опис обов’язковий");
     if (desc.length > 100) return alert('Максимум 100 символів');
 
     await addDoc(collection(db, "points"), {
@@ -1401,6 +1483,7 @@
     });
 
     closeCreateMode();
+    showSuccessModal();
   });
 
   map.on('zoomend', () => {
