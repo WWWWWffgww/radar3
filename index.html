@@ -909,7 +909,7 @@
 
   const MERGE_RADIUS_METERS = 80;
   const MERGE_MIN_COUNT = 3;
-  const GROUP_CIRCLE_RADIUS = 250;
+  const GROUP_CIRCLE_RADIUS = 175;
 
   const labelMap = {
     safe: 'Безпечно',
@@ -1055,6 +1055,7 @@
   let data = [];
   let layers = [];
   let currentOpenPointId = null;
+  let mergeInProgress = false;
 
   function clampMinutes(value) {
     const num = Number(value) || 15;
@@ -1298,15 +1299,14 @@
 
   function buildDescriptionsHtml(point) {
     if (point.merged && Array.isArray(point.mergedDescriptions) && point.mergedDescriptions.length) {
-      return point.mergedDescriptions.map(item => `
-        <div class="comment-item">
-          <div class="comment-text">
-            <strong>${escapeHtml(labelMap[item.type] || item.type)}</strong><br>
-            ${escapeHtml(item.desc || 'Без опису')}
-          </div>
-          <div class="comment-time">${formatTime(item.time)}</div>
-        </div>
-      `).join('');
+      const mergedText = point.mergedDescriptions
+        .map(item => (item.desc || '').trim())
+        .filter(Boolean)
+        .join(', ');
+
+      return `
+        <div class="popup-desc">${escapeHtml(mergedText || 'Без опису')}</div>
+      `;
     }
 
     return `
@@ -1332,7 +1332,7 @@
       ? `<div class="popup-time">${point.mergedKind === 'safe' ? '🟢 Безпечна зона' : '🔴 Небезпечна зона'}</div>`
       : '';
 
-    const descTitle = point.merged ? 'Опис усіх міток' : 'Опис';
+    const descTitle = point.merged ? 'Опис' : 'Опис';
 
     return `
       <div class="radar-popup">
@@ -1354,9 +1354,7 @@
         </div>
 
         <div class="popup-comments-title">${descTitle}</div>
-        <div class="popup-comments">
-          ${buildDescriptionsHtml(point)}
-        </div>
+        ${buildDescriptionsHtml(point)}
 
         <div class="popup-comments-title">Коментарі</div>
 
@@ -1404,7 +1402,7 @@
       weight: 2,
       opacity: 1,
       fillColor: point.mergedKind === 'safe' ? '#18c964' : '#ff3b30',
-      fillOpacity: 0.22
+      fillOpacity: 0.32
     }).addTo(map);
   }
 
@@ -1701,7 +1699,7 @@
 
   const pointsQuery = query(collection(db, "points"), orderBy("time", "desc"));
 
-  onSnapshot(pointsQuery, (snapshot) => {
+  onSnapshot(pointsQuery, async (snapshot) => {
     data = [];
 
     snapshot.forEach((itemDoc) => {
@@ -1711,6 +1709,20 @@
         data.push(point);
       }
     });
+
+    if (!mergeInProgress) {
+      mergeInProgress = true;
+
+      try {
+        for (const point of data) {
+          await mergeNearbyPoints(point.id);
+        }
+      } catch (e) {
+        console.error('merge error', e);
+      }
+
+      mergeInProgress = false;
+    }
 
     render();
   });
