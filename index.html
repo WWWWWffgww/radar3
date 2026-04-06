@@ -249,7 +249,6 @@
       font-weight: 600;
     }
 
-    /* Стилі для фільтрів */
     .filter-group {
       display: flex;
       flex-direction: column;
@@ -285,11 +284,12 @@
     }
 
     #themeIcon {
-  width: 32px;
-  text-align: center;
-  font-size: 22px;
-  line-height: 1;
-}
+      width: 32px;
+      text-align: center;
+      font-size: 22px;
+      line-height: 1;
+      display: inline-block;
+    }
 
     .filter-toggle {
       width: 44px;
@@ -321,7 +321,6 @@
       left: 20px;
     }
 
-    /* Стиль для ползунка часу */
     .time-slider-container {
       background: rgba(255,255,255,0.08);
       border-radius: 16px;
@@ -633,16 +632,16 @@
     <button id="settingsClose">×</button>
   </div>
 
- <div class="settings-group">
-  <div class="settings-label">🌓 Тема карти</div>
-  <div class="filter-item" id="themeToggleRow">
-    <div class="filter-item-left">
-      <span id="themeIcon">🌙</span>
-      <span id="themeLabel">Нічна тема</span>
+  <div class="settings-group">
+    <div class="settings-label">🌓 Тема карти</div>
+    <div class="filter-item" id="themeToggleRow">
+      <div class="filter-item-left">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Нічна тема</span>
+      </div>
+      <div class="filter-toggle" id="themeToggle"></div>
     </div>
-    <div class="filter-toggle" id="themeToggle"></div>
   </div>
-</div>
 
   <div class="settings-group">
     <div class="settings-label">⏱️ Фільтр за часом (ползунок)</div>
@@ -707,15 +706,15 @@
   };
 
   const mapThemes = {
-  day: {
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; OpenStreetMap contributors'
-  },
-night: {
-  url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-  attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-}
-};
+    day: {
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; OpenStreetMap contributors'
+    },
+    night: {
+      url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }
+  };
 
   const map = L.map('map').setView([50.45, 30.52], 13);
   let currentTileLayer = null;
@@ -735,9 +734,9 @@ night: {
       const saved = localStorage.getItem(SETTINGS_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        return { 
-          ...defaultSettings, 
-          ...parsed, 
+        return {
+          ...defaultSettings,
+          ...parsed,
           filters: { ...defaultSettings.filters, ...(parsed.filters || {}) },
           timeFilterHours: parsed.timeFilterHours || 24
         };
@@ -780,10 +779,10 @@ night: {
 
   const settingsSheet = document.getElementById('settingsSheet');
   const settingsClose = document.getElementById('settingsClose');
-  cconst themeToggle = document.getElementById('themeToggle');
-const themeToggleRow = document.getElementById('themeToggleRow');
-const themeLabel = document.getElementById('themeLabel');
-const themeIcon = document.getElementById('themeIcon');
+  const themeToggle = document.getElementById('themeToggle');
+  const themeToggleRow = document.getElementById('themeToggleRow');
+  const themeLabel = document.getElementById('themeLabel');
+  const themeIcon = document.getElementById('themeIcon');
   const timeSlider = document.getElementById('timeSlider');
   const timeValue = document.getElementById('timeValue');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
@@ -794,9 +793,6 @@ const themeIcon = document.getElementById('themeIcon');
   let currentType = 'safe';
   let data = load();
 
- 
-  
-  // Встановлюємо значення ползунка
   timeSlider.value = settings.timeFilterHours;
   updateTimeDisplay(settings.timeFilterHours);
 
@@ -833,8 +829,22 @@ const themeIcon = document.getElementById('themeIcon');
     }
   }
 
+  function updateThemeUI() {
+    const isNight = settings.mapTheme === 'night';
+
+    if (isNight) {
+      themeToggle.classList.add('active');
+      themeLabel.textContent = 'Нічна тема';
+      themeIcon.textContent = '🌙';
+    } else {
+      themeToggle.classList.remove('active');
+      themeLabel.textContent = 'Денна тема';
+      themeIcon.textContent = '☀️';
+    }
+  }
+
   function initFilterToggles() {
-    const filterItems = document.querySelectorAll('.filter-item');
+    const filterItems = document.querySelectorAll('.filter-item[data-filter-type]');
     filterItems.forEach(item => {
       const type = item.dataset.filterType;
       const toggle = item.querySelector('.filter-toggle');
@@ -853,6 +863,19 @@ const themeIcon = document.getElementById('themeIcon');
           render();
         }
       });
+    });
+  }
+
+  function initThemeToggle() {
+    themeToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
+      updateThemeUI();
+    });
+
+    themeToggleRow.addEventListener('click', () => {
+      settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
+      updateThemeUI();
     });
   }
 
@@ -1026,7 +1049,7 @@ const themeIcon = document.getElementById('themeIcon');
   window.vote = function(index, type) {
     data = load();
     if (!data[index]) return;
-    
+
     if (type === 'like') {
       data[index].likes = (data[index].likes || 0) + 1;
     } else {
@@ -1095,13 +1118,13 @@ const themeIcon = document.getElementById('themeIcon');
     settingsSheet.style.display = 'none';
   });
 
- saveSettingsBtn.addEventListener('click', () => {
-  settings.timeFilterHours = parseFloat(timeSlider.value);
-  saveSettings(settings);
-  applyMapTheme(settings.mapTheme);
-  render();
-  settingsSheet.style.display = 'none';
-});
+  saveSettingsBtn.addEventListener('click', () => {
+    settings.timeFilterHours = parseFloat(timeSlider.value);
+    saveSettings(settings);
+    applyMapTheme(settings.mapTheme);
+    render();
+    settingsSheet.style.display = 'none';
+  });
 
   descInput.addEventListener('input', () => {
     descCounter.textContent = `${descInput.value.length} / 100`;
@@ -1166,37 +1189,13 @@ const themeIcon = document.getElementById('themeIcon');
   setInterval(() => {
     render();
   }, 60000);
-function updateThemeUI() {
-  const isNight = settings.mapTheme === 'night';
 
-  if (isNight) {
-    themeToggle.classList.add('active');
-    themeLabel.textContent = 'Нічна тема';
-    themeIcon.textContent = '🌙';
-  } else {
-    themeToggle.classList.remove('active');
-    themeLabel.textContent = 'Денна тема';
-    themeIcon.textContent = '☀️';
-  }
-}
-updateFilterUI();
-updateThemeUI();
-initFilterToggles();
-initThemeToggle();
-updatePickerActive();
-render();
-  function initThemeToggle() {
-  themeToggle.addEventListener('click', (e) => {
-    e.stopPropagation();
-    settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
-    updateThemeUI();
-  });
-
-  themeToggleRow.addEventListener('click', () => {
-    settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
-    updateThemeUI();
-  });
-}
+  updateFilterUI();
+  updateThemeUI();
+  initFilterToggles();
+  initThemeToggle();
+  updatePickerActive();
+  render();
 </script>
 </body>
 </html>
