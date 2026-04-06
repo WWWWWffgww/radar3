@@ -2,24 +2,30 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>RADAR</title>
+  <title>RADAR — інтерактивна карта</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
   <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      background: #fff;
+      background: #000;
     }
 
     #map {
       width: 100%;
       height: 100vh;
+      background: #111;
     }
 
+    /* кастомні піни — без фонового кольору */
     .pin-img {
       width: 100%;
       height: 100%;
@@ -27,6 +33,7 @@
       display: block;
     }
 
+    /* головні кнопки */
     #addBtn {
       position: fixed;
       right: 16px;
@@ -41,7 +48,13 @@
       line-height: 1;
       z-index: 1000;
       cursor: pointer;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.24);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+      transition: transform 0.1s ease, background 0.2s;
+    }
+
+    #addBtn:active {
+      transform: scale(0.96);
+      background: #2c2c2e;
     }
 
     #settingsBtn {
@@ -53,13 +66,20 @@
       border-radius: 50%;
       border: none;
       background: rgba(28,28,30,0.92);
+      backdrop-filter: blur(8px);
       color: #fff;
       font-size: 22px;
       z-index: 1003;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+      transition: 0.1s;
     }
 
+    #settingsBtn:active {
+      transform: scale(0.96);
+    }
+
+    /* панель вибору типу */
     #pickerBar {
       position: fixed;
       right: 16px;
@@ -68,43 +88,41 @@
       z-index: 1001;
       display: none;
       background: rgba(28,28,30,0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 22px;
-      padding: 10px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
-      box-sizing: border-box;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 12px;
+      box-shadow: 0 20px 44px rgba(0,0,0,0.3);
+      border: 0.5px solid rgba(255,255,255,0.12);
     }
 
     #pickerTop {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       color: #fff;
       font-size: 14px;
       gap: 10px;
     }
 
     #pickerHint {
-      color: rgba(255,255,255,0.65);
+      color: rgba(255,255,255,0.7);
       font-size: 13px;
+      font-weight: 500;
     }
 
-    #pickerClose,
-    #sheetClose,
-    #settingsClose {
+    #pickerClose, #sheetClose, #settingsClose {
       border: none;
       background: rgba(255,255,255,0.12);
       color: #fff;
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      font-size: 20px;
+      font-size: 22px;
       line-height: 1;
       cursor: pointer;
-      flex: 0 0 auto;
+      transition: 0.1s;
     }
 
     .picker-grid {
@@ -116,31 +134,33 @@
     .picker-item {
       background: rgba(255,255,255,0.08);
       border: 2px solid transparent;
-      border-radius: 16px;
+      border-radius: 20px;
       padding: 8px 4px;
       text-align: center;
       cursor: pointer;
       color: #fff;
+      transition: 0.1s;
     }
 
     .picker-item.active {
       border-color: #0a84ff;
-      background: rgba(10,132,255,0.18);
+      background: rgba(10,132,255,0.2);
     }
 
     .picker-item img {
       width: 48px;
       height: 48px;
       object-fit: contain;
+      margin: 0 auto 6px;
       display: block;
-      margin: 0 auto 4px;
     }
 
     .picker-item span {
-      display: block;
       font-size: 12px;
+      font-weight: 500;
     }
 
+    /* форма опису */
     #descSheet,
     #settingsSheet {
       position: fixed;
@@ -150,126 +170,125 @@
       z-index: 1002;
       display: none;
       background: rgba(28,28,30,0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 24px;
-      padding: 14px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 16px;
+      box-shadow: 0 20px 44px rgba(0,0,0,0.3);
+      border: 0.5px solid rgba(255,255,255,0.1);
       color: #fff;
-      box-sizing: border-box;
     }
 
-    #sheetHead,
-    #settingsHead {
+    #sheetHead, #settingsHead {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     #sheetLeft {
       display: flex;
       align-items: center;
-      gap: 10px;
-      min-width: 0;
+      gap: 12px;
     }
 
     #sheetIcon {
-      width: 46px;
-      height: 46px;
+      width: 44px;
+      height: 44px;
       object-fit: contain;
-      flex: 0 0 auto;
     }
 
-    #sheetTitle,
-    #settingsTitle {
-      font-size: 18px;
+    #sheetTitle, #settingsTitle {
+      font-size: 20px;
       font-weight: 700;
     }
 
-    #descInput,
-    .settings-select {
+    #descInput, .settings-select {
       width: 100%;
-      box-sizing: border-box;
       border: none;
-      border-radius: 18px;
-      padding: 14px 15px;
+      border-radius: 20px;
+      padding: 14px 16px;
       background: rgba(255,255,255,0.12);
       color: #fff;
       font-size: 16px;
       font-family: inherit;
       outline: none;
+      resize: vertical;
     }
 
     #descInput {
-      resize: none;
-      min-height: 96px;
+      min-height: 100px;
     }
 
     #descInput::placeholder {
       color: rgba(255,255,255,0.5);
     }
 
-    #descCounter,
-    .popup-counter {
+    #descCounter {
       text-align: right;
       font-size: 12px;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255,255,255,0.6);
       margin-top: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
     }
 
-    #saveBtn,
-    #saveSettingsBtn,
-    .popup-btn {
+    #saveBtn, #saveSettingsBtn, .popup-btn {
       width: 100%;
       border: none;
-      border-radius: 18px;
+      border-radius: 28px;
       padding: 14px 16px;
       background: linear-gradient(180deg, #1c8cff, #007aff);
       color: #fff;
       font-size: 17px;
-      font-weight: 700;
-      font-family: inherit;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 10px 22px rgba(10,132,255,0.28);
+      transition: 0.1s;
+      box-shadow: 0 6px 14px rgba(0,122,255,0.3);
+    }
+
+    #saveBtn:active, #saveSettingsBtn:active, .popup-btn:active {
+      opacity: 0.85;
+      transform: scale(0.97);
     }
 
     .settings-group {
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .settings-label {
       font-size: 13px;
-      color: rgba(255,255,255,0.66);
+      color: rgba(255,255,255,0.7);
       margin-bottom: 8px;
+      font-weight: 500;
     }
 
+    .settings-select {
+      background: rgba(255,255,255,0.12);
+      cursor: pointer;
+    }
+
+    /* стилізація popup (кастомний) */
     .leaflet-popup-content-wrapper {
-      border-radius: 26px;
+      border-radius: 28px;
       padding: 0;
-      box-shadow: 0 22px 50px rgba(0,0,0,0.22);
       background: rgba(28,28,30,0.96);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      color: #fff;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+      border: 0.5px solid rgba(255,255,255,0.1);
     }
 
     .leaflet-popup-content {
       margin: 0 !important;
       width: 360px !important;
-      max-width: calc(100vw - 24px) !important;
+      max-width: calc(100vw - 28px) !important;
     }
 
-    .leaflet-popup-tip,
-    .leaflet-popup-close-button {
+    .leaflet-popup-tip, .leaflet-popup-close-button {
       display: none;
     }
 
     .radar-popup {
-      padding: 16px;
+      padding: 18px;
       color: #fff;
     }
 
@@ -285,68 +304,63 @@
       display: flex;
       gap: 12px;
       align-items: flex-start;
-      min-width: 0;
       flex: 1;
     }
 
     .popup-icon {
-      width: 54px;
-      height: 54px;
+      width: 52px;
+      height: 52px;
       object-fit: contain;
-      flex: 0 0 auto;
     }
 
     .popup-meta {
-      min-width: 0;
       flex: 1;
     }
 
     .popup-title {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 700;
-      line-height: 1.15;
-      color: #fff;
       margin-bottom: 4px;
     }
 
     .popup-time {
-      font-size: 13px;
-      color: rgba(255,255,255,0.74);
-      margin-bottom: 3px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 2px;
     }
 
     .popup-life {
-      font-size: 13px;
-      color: #8be28b;
+      font-size: 12px;
+      color: #6cd96c;
+      font-weight: 500;
     }
 
     .popup-close {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border: none;
       border-radius: 50%;
-      background: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.12);
       color: #fff;
-      font-size: 24px;
-      line-height: 1;
+      font-size: 22px;
       cursor: pointer;
-      flex: 0 0 auto;
     }
 
     .popup-desc {
-      font-size: 17px;
+      font-size: 16px;
       line-height: 1.4;
-      color: #fff;
+      background: rgba(255,255,255,0.07);
+      padding: 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
       white-space: pre-wrap;
-      word-break: break-word;
-      margin-bottom: 14px;
     }
 
     .popup-comments-title {
       font-size: 14px;
-      color: rgba(255,255,255,0.72);
-      margin-bottom: 8px;
       font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 8px;
     }
 
     .popup-comments {
@@ -356,109 +370,92 @@
     }
 
     .comment-item {
-      background: rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 12px 13px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 10px 12px;
       margin-bottom: 8px;
     }
 
     .comment-text {
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.35;
-      color: #fff;
-      white-space: pre-wrap;
-      word-break: break-word;
     }
 
     .comment-time {
-      margin-top: 6px;
-      font-size: 12px;
-      color: rgba(255,255,255,0.58);
+      margin-top: 5px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
     }
 
     .reaction-row {
       display: flex;
-      gap: 6px;
-      margin-top: 6px;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin: 10px 0 14px;
     }
 
     .reaction-btn {
       border: none;
-      border-radius: 10px;
-      padding: 5px 9px;
-      font-size: 12px;
-      cursor: pointer;
-      background: rgba(255,255,255,0.10);
+      border-radius: 30px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.12);
       color: #fff;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      font-family: inherit;
-      font-weight: 600;
+      gap: 6px;
+      cursor: pointer;
     }
 
     .reaction-btn.like {
-      background: rgba(10,132,255,0.14);
-      border: 1px solid rgba(10,132,255,0.22);
-    }
-
-    .reaction-btn.dislike {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(10,132,255,0.2);
     }
 
     .popup-input {
       width: 100%;
-      box-sizing: border-box;
       border: none;
-      background: rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 12px 16px;
       color: #fff;
-      border-radius: 16px;
-      padding: 14px 15px;
-      font-size: 16px;
+      font-size: 15px;
       outline: none;
-      font-family: inherit;
     }
 
-    .popup-input::placeholder {
+    .popup-counter {
+      font-size: 11px;
       color: rgba(255,255,255,0.5);
+      text-align: right;
+      margin-top: 5px;
+      margin-bottom: 12px;
     }
 
     @media (max-width: 600px) {
       #addBtn {
         right: 14px;
-        bottom: 8px;
+        bottom: 12px;
         width: 56px;
         height: 56px;
+        font-size: 32px;
       }
-
       #settingsBtn {
         top: 12px;
         right: 12px;
         width: 44px;
         height: 44px;
+        font-size: 20px;
       }
-
-      #pickerBar,
-      #descSheet,
-      #settingsSheet {
+      #pickerBar, #descSheet, #settingsSheet {
         left: 50%;
         right: auto;
         transform: translateX(-50%);
-        width: calc(100vw - 16px);
-        bottom: 8px;
+        width: calc(100vw - 24px);
+        bottom: 12px;
       }
-
       .picker-item img {
         width: 42px;
         height: 42px;
       }
-
-      .picker-item span {
-        font-size: 11px;
-      }
-
       .leaflet-popup-content {
         width: 320px !important;
       }
@@ -468,437 +465,473 @@
 <body>
 
 <div id="map"></div>
+<button id="settingsBtn" aria-label="Налаштування">⚙️</button>
+<button id="addBtn" aria-label="Додати мітку">+</button>
 
-<button id="settingsBtn">⚙️</button>
-<button id="addBtn">+</button>
-
+<!-- панель вибору типу -->
 <div id="pickerBar">
   <div id="pickerTop">
-    <div id="pickerHint">Обери тип і ткни на карту</div>
-    <button id="pickerClose">×</button>
+    <div id="pickerHint">🎯 Обери тип і торкнись карти</div>
+    <button id="pickerClose">✕</button>
   </div>
-
   <div class="picker-grid">
     <div class="picker-item active" data-type="safe">
-      <img src="icons/safe.png" alt="Safe">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234cd964'%3E%3Cpath d='M12 2L4 5v6c0 5.5 8 11 8 11s8-5.5 8-11V5l-8-3z'/%3E%3C/svg%3E" alt="Safe">
       <span>Safe</span>
     </div>
     <div class="picker-item" data-type="block">
-      <img src="icons/block.png" alt="Block">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9f4a'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-1.8 0-3.4-1-4.3-2.5.7-1.3 2-2.5 4.3-2.5s3.6 1.2 4.3 2.5c-.9 1.5-2.5 2.5-4.3 2.5z'/%3E%3C/svg%3E" alt="Block">
       <span>Block</span>
     </div>
     <div class="picker-item" data-type="danger2">
-      <img src="icons/danger2.png" alt="Danger">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff5e5e'%3E%3Cpath d='M12 2L1 21h22L12 2zm0 4.2L18.5 19h-13L12 6.2zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z'/%3E%3C/svg%3E" alt="Danger">
       <span>Danger</span>
     </div>
     <div class="picker-item" data-type="trash">
-      <img src="icons/trash.png" alt="Trash">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0a0b0'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/%3E%3C/svg%3E" alt="Trash">
       <span>Trash</span>
     </div>
   </div>
 </div>
 
+<!-- панель опису нової мітки -->
 <div id="descSheet">
   <div id="sheetHead">
     <div id="sheetLeft">
-      <img id="sheetIcon" src="icons/safe.png" alt="">
+      <img id="sheetIcon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234cd964'%3E%3Cpath d='M12 2L4 5v6c0 5.5 8 11 8 11s8-5.5 8-11V5l-8-3z'/%3E%3C/svg%3E" alt="">
       <div id="sheetTitle">Безпечно</div>
     </div>
-    <button id="sheetClose">×</button>
+    <button id="sheetClose">✕</button>
   </div>
-
-  <textarea id="descInput" maxlength="100" placeholder="Опис..."></textarea>
+  <textarea id="descInput" maxlength="100" placeholder="Опис мітки (обов'язково)"></textarea>
   <div id="descCounter">0 / 100</div>
-  <button id="saveBtn">Зберегти</button>
+  <button id="saveBtn">✅ Зберегти</button>
 </div>
 
+<!-- налаштування -->
 <div id="settingsSheet">
   <div id="settingsHead">
-    <div id="settingsTitle">Налаштування</div>
-    <button id="settingsClose">×</button>
+    <div id="settingsTitle">⚙️ Налаштування</div>
+    <button id="settingsClose">✕</button>
   </div>
-
   <div class="settings-group">
-    <div class="settings-label">Тема карти</div>
+    <div class="settings-label">🌓 Тема карти</div>
     <select id="mapThemeSelect" class="settings-select">
-      <option value="day">Денна</option>
-      <option value="night">Нічна</option>
+      <option value="day">Денна (світла)</option>
+      <option value="night">Нічна (темна)</option>
     </select>
   </div>
-
-  <button id="saveSettingsBtn">Зберегти</button>
+  <button id="saveSettingsBtn">Застосувати</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  const STORAGE_KEY = 'radar_points';
-  const SETTINGS_KEY = 'radar_settings';
-  const LIFE = 24 * 60 * 60 * 1000;
+  (function() {
+    // ---------- КОНФІГУРАЦІЯ ----------
+    const STORAGE_KEY = 'radar_points';
+    const SETTINGS_KEY = 'radar_settings';
+    const LIFE = 24 * 60 * 60 * 1000; // 24 години
 
-  const labelMap = {
-    safe: 'Безпечно',
-    block: 'Перекрито',
-    danger2: 'Небезпека',
-    trash: 'Сміття'
-  };
+    const labelMap = {
+      safe: 'Безпечно',
+      block: 'Перекрито',
+      danger2: 'Небезпека',
+      trash: 'Сміттєзвалище'
+    };
 
-  const mapThemes = {
-    day: {
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution: '&copy; OpenStreetMap contributors'
-    },
-    night: {
-      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    const mapThemes = {
+      day: {
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; OpenStreetMap contributors'
+      },
+      night: {
+        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        attribution: '&copy; OpenStreetMap & CARTO'
+      }
+    };
+
+    // глобальні змінні
+    let map = L.map('map').setView([50.45, 30.52], 13);
+    let currentTileLayer = null;
+    let data = [];
+    let markers = [];
+    let addMode = false;
+    let selectedLatLng = null;
+    let tempMarker = null;
+    let currentType = 'safe';
+
+    // DOM елементи
+    const addBtn = document.getElementById('addBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const pickerBar = document.getElementById('pickerBar');
+    const pickerClose = document.getElementById('pickerClose');
+    const pickerItems = document.querySelectorAll('.picker-item');
+    const descSheet = document.getElementById('descSheet');
+    const sheetClose = document.getElementById('sheetClose');
+    const sheetIcon = document.getElementById('sheetIcon');
+    const sheetTitle = document.getElementById('sheetTitle');
+    const descInput = document.getElementById('descInput');
+    const descCounter = document.getElementById('descCounter');
+    const saveBtn = document.getElementById('saveBtn');
+    const settingsSheet = document.getElementById('settingsSheet');
+    const settingsClose = document.getElementById('settingsClose');
+    const mapThemeSelect = document.getElementById('mapThemeSelect');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+
+    // ---------- ФУНКЦІЇ РОБОТИ З ДАНИМИ ----------
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        let parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        // фільтруємо тільки живі мітки
+        const now = Date.now();
+        const filtered = parsed.filter(p => p && p.time && (now - p.time) < LIFE);
+        if (filtered.length !== parsed.length) {
+          saveData(filtered);
+        }
+        // гарантуємо поля
+        return filtered.map(p => ({
+          ...p,
+          comments: Array.isArray(p.comments) ? p.comments : [],
+          likes: p.likes || 0,
+          dislikes: p.dislikes || 0,
+          desc: p.desc || ''
+        }));
+      } catch(e) {
+        console.warn(e);
+        return [];
+      }
     }
-  };
 
-  const map = L.map('map').setView([50.45, 30.52], 13);
-  let currentTileLayer = null;
-
-  function loadSettings() {
-    return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"mapTheme":"day"}');
-  }
-
-  function saveSettings(settings) {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  }
-
-  let settings = loadSettings();
-
-  function applyMapTheme(theme) {
-    if (currentTileLayer) {
-      map.removeLayer(currentTileLayer);
+    function saveData(arr) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
     }
-    currentTileLayer = L.tileLayer(mapThemes[theme].url, {
-      attribution: mapThemes[theme].attribution
-    }).addTo(map);
-  }
 
-  applyMapTheme(settings.mapTheme || 'day');
+    // функція оновлення data + збереження
+    function syncAndSave() {
+      saveData(data);
+    }
 
-  const addBtn = document.getElementById('addBtn');
-  const settingsBtn = document.getElementById('settingsBtn');
+    // ---------- ОТРИМАТИ ІКОНКУ (динамічний розмір) ----------
+    function getIcon(type, zoom) {
+      let size = 30;
+      if (zoom < 12) size = 24;
+      else if (zoom < 14) size = 32;
+      else size = 40;
+      
+      // для типів, якщо немає реальних зображень, використовуємо колірні SVG, але підставимо замість відсутніх іконок
+      // Оскільки у нас немає реальних файлів icons/*.png, створимо прості кольорові мітки на основі SVG
+      let color = '#4cd964';
+      if (type === 'block') color = '#ff9f4a';
+      else if (type === 'danger2') color = '#ff5e5e';
+      else if (type === 'trash') color = '#a0a0b0';
+      
+      const svgCircle = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+        <circle cx="16" cy="16" r="14" fill="${color}" stroke="white" stroke-width="2"/>
+        ${type === 'safe' ? '<text x="16" y="22" text-anchor="middle" fill="white" font-weight="bold" font-size="14">✓</text>' : ''}
+        ${type === 'block' ? '<text x="16" y="22" text-anchor="middle" fill="white" font-size="14">⛔</text>' : ''}
+        ${type === 'danger2' ? '<text x="16" y="22" text-anchor="middle" fill="white" font-size="14">⚠️</text>' : ''}
+        ${type === 'trash' ? '<text x="16" y="22" text-anchor="middle" fill="white" font-size="12">🗑</text>' : ''}
+      </svg>`;
+      
+      return L.divIcon({
+        html: svgCircle,
+        className: 'custom-pin',
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2],
+        popupAnchor: [0, -size/2]
+      });
+    }
 
-  const pickerBar = document.getElementById('pickerBar');
-  const pickerClose = document.getElementById('pickerClose');
-  const pickerItems = document.querySelectorAll('.picker-item');
+    function formatDateTime(t) {
+      return new Date(t).toLocaleString('uk-UA', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
 
-  const descSheet = document.getElementById('descSheet');
-  const sheetClose = document.getElementById('sheetClose');
-  const sheetIcon = document.getElementById('sheetIcon');
-  const sheetTitle = document.getElementById('sheetTitle');
-  const descInput = document.getElementById('descInput');
-  const descCounter = document.getElementById('descCounter');
-  const saveBtn = document.getElementById('saveBtn');
+    function timeLeftText(createdAt) {
+      const end = createdAt + LIFE;
+      const left = end - Date.now();
+      if (left <= 0) return '⌛ Зникла';
+      const hours = Math.floor(left / (1000 * 60 * 60));
+      const minutes = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
+      return `🕒 ще ${hours}:${String(minutes).padStart(2, '0')} год`;
+    }
 
-  const settingsSheet = document.getElementById('settingsSheet');
-  const settingsClose = document.getElementById('settingsClose');
-  const mapThemeSelect = document.getElementById('mapThemeSelect');
-  const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+        return c;
+      });
+    }
 
-  let addMode = false;
-  let selected = null;
-  let temp = null;
-  let currentType = 'safe';
-  let data = load();
-
-  mapThemeSelect.value = settings.mapTheme || 'day';
-
-  function getIcon(type, zoom) {
-    let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
-    return L.divIcon({
-      className: '',
-      html: `<img src="icons/${type}.png" class="pin-img">`,
-      iconSize: [s, s],
-      iconAnchor: [s / 2, s / 2]
-    });
-  }
-
-  function formatDateTime(t) {
-    return new Date(t).toLocaleString('uk-UA', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  function formatTime(t) {
-    return new Date(t).toLocaleTimeString('uk-UA', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  function load() {
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const filtered = raw.filter(p => Date.now() - p.time < LIFE);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    return filtered;
-  }
-
-  function save(arr) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-  }
-
-  function escapeHtml(text) {
-    return String(text || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function timeLeftText(createdAt) {
-    const end = createdAt + LIFE;
-    const left = end - Date.now();
-    if (left <= 0) return 'Закінчилась';
-
-    const hours = Math.floor(left / (1000 * 60 * 60));
-    const minutes = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
-    return `ще ${hours}:${String(minutes).padStart(2, '0')} год`;
-  }
-
-  function popupHtml(point, index) {
-    const commentsHtml = (point.comments || []).map(c => `
-      <div class="comment-item">
-        <div class="comment-text">${escapeHtml(c.text)}</div>
-        <div class="comment-time">${formatTime(c.time)}</div>
-      </div>
-    `).join('');
-
-    return `
-      <div class="radar-popup">
-        <div class="popup-head">
-          <div class="popup-head-left">
-            <img src="icons/${point.type}.png" class="popup-icon">
-            <div class="popup-meta">
-              <div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div>
-              <div class="popup-time">${formatDateTime(point.time)}</div>
-              <div class="popup-life">${timeLeftText(point.time)}</div>
+    // створення HTML для popup
+    function popupHtml(point, idx) {
+      const commentsArr = point.comments || [];
+      const commentsHtml = commentsArr.map(c => `
+        <div class="comment-item">
+          <div class="comment-text">${escapeHtml(c.text)}</div>
+          <div class="comment-time">${new Date(c.time).toLocaleTimeString('uk-UA', {hour:'2-digit', minute:'2-digit'})}</div>
+        </div>
+      `).join('');
+      
+      return `
+        <div class="radar-popup">
+          <div class="popup-head">
+            <div class="popup-head-left">
+              <div class="popup-icon" style="background:transparent;">⬤</div>
+              <div class="popup-meta">
+                <div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div>
+                <div class="popup-time">${formatDateTime(point.time)}</div>
+                <div class="popup-life">${timeLeftText(point.time)}</div>
+              </div>
             </div>
+            <button class="popup-close" onclick="window.radarClosePopup()">✕</button>
           </div>
-
-          <button class="popup-close" onclick="closePopup()">×</button>
+          <div class="popup-desc">${escapeHtml(point.desc) || '—'}</div>
+          <div class="popup-comments-title">💬 Коментарі (${commentsArr.length})</div>
+          <div class="popup-comments">
+            ${commentsHtml || '<div class="comment-item"><div class="comment-text">Немає коментарів</div></div>'}
+          </div>
+          <div class="reaction-row">
+            <button class="reaction-btn like" onclick="window.radarVote(${idx}, 'like')">👍 ${point.likes || 0}</button>
+            <button class="reaction-btn dislike" onclick="window.radarVote(${idx}, 'dislike')">👎 ${point.dislikes || 0}</button>
+          </div>
+          <input id="radarCommentInput_${idx}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
+          <div class="popup-counter" id="radarCommentCounter_${idx}">0 / 100</div>
+          <button class="popup-btn" onclick="window.radarAddComment(${idx})">Додати коментар</button>
         </div>
+      `;
+    }
 
-        <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
+    // рендер усіх маркерів
+    function renderMap() {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+      const zoom = map.getZoom();
+      
+      data.forEach((point, i) => {
+        const marker = L.marker([point.lat, point.lng], {
+          icon: getIcon(point.type, zoom)
+        }).bindPopup(popupHtml(point, i), { maxWidth: 360, minWidth: 280 });
+        
+        marker.on('popupopen', () => {
+          setTimeout(() => {
+            const input = document.getElementById(`radarCommentInput_${i}`);
+            const counter = document.getElementById(`radarCommentCounter_${i}`);
+            if (input && counter) {
+              const updateCounter = () => { counter.textContent = `${input.value.length} / 100`; };
+              input.addEventListener('input', updateCounter);
+              updateCounter();
+            }
+          }, 10);
+        });
+        marker.addTo(map);
+        markers.push(marker);
+      });
+    }
 
-        <div class="popup-comments-title">Коментарі</div>
+    function fullRefresh() {
+      data = loadData();
+      renderMap();
+    }
 
-        <div class="popup-comments">
-          ${commentsHtml || '<div class="comment-item"><div class="comment-text">Немає коментарів</div></div>'}
-        </div>
-
-        <div class="reaction-row">
-          <button class="reaction-btn like" onclick="vote(${index}, 'like')">👍 ${point.likes || 0}</button>
-          <button class="reaction-btn dislike" onclick="vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
-        </div>
-
-        <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
-        <div class="popup-counter" id="commentCounter_${index}">0 / 100</div>
-        <button class="popup-btn" onclick="addComment(${index})">Додати коментар</button>
-      </div>
-    `;
-  }
-
-  let markers = [];
-
-  function render() {
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
-
-    data = load();
-    const zoom = map.getZoom();
-
-    data.forEach((p, i) => {
-      const marker = L.marker([p.lat, p.lng], {
-        icon: getIcon(p.type, zoom)
-      }).addTo(map);
-
-      marker.bindPopup(popupHtml(p, i));
-
-      marker.on('popupopen', () => {
-        const input = document.getElementById(`commentInput_${i}`);
-        const counter = document.getElementById(`commentCounter_${i}`);
-        if (input && counter) {
-          input.addEventListener('input', () => {
-            counter.textContent = `${input.value.length} / 100`;
-          });
+    // ---------- ГОЛОСУВАННЯ ТА КОМЕНТАРІ ----------
+    window.radarVote = function(idx, typeVote) {
+      if (!data[idx]) return;
+      if (typeVote === 'like') data[idx].likes = (data[idx].likes || 0) + 1;
+      else data[idx].dislikes = (data[idx].dislikes || 0) + 1;
+      syncAndSave();
+      renderMap();
+      // відкрити знову той самий попап
+      if (markers[idx]) markers[idx].openPopup();
+    };
+    
+    window.radarAddComment = function(idx) {
+      const input = document.getElementById(`radarCommentInput_${idx}`);
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) {
+        alert("Напишіть коментар");
+        return;
+      }
+      if (text.length > 100) {
+        alert("Коментар не більше 100 символів");
+        return;
+      }
+      if (!data[idx]) return;
+      if (!data[idx].comments) data[idx].comments = [];
+      data[idx].comments.push({ text: text, time: Date.now() });
+      syncAndSave();
+      renderMap();
+      if (markers[idx]) markers[idx].openPopup();
+    };
+    
+    window.radarClosePopup = function() {
+      map.closePopup();
+    };
+    
+    // ---------- УПРАВЛІННЯ РЕЖИМОМ ДОДАВАННЯ ----------
+    function closeCreateMode() {
+      addMode = false;
+      pickerBar.style.display = 'none';
+      descSheet.style.display = 'none';
+      addBtn.style.display = 'block';
+      if (tempMarker) {
+        map.removeLayer(tempMarker);
+        tempMarker = null;
+      }
+      selectedLatLng = null;
+      descInput.value = '';
+      descCounter.textContent = '0 / 100';
+    }
+    
+    function updatePickerActive() {
+      pickerItems.forEach(el => el.classList.remove('active'));
+      const activeItem = document.querySelector(`.picker-item[data-type="${currentType}"]`);
+      if (activeItem) activeItem.classList.add('active');
+      // оновити іконку в descSheet
+      sheetTitle.textContent = labelMap[currentType] || currentType;
+      // просто покажемо символ
+    }
+    
+    // ---------- ТЕМА КАРТИ ----------
+    function loadSettings() {
+      const def = { mapTheme: 'day' };
+      try {
+        const saved = localStorage.getItem(SETTINGS_KEY);
+        if (saved) return { ...def, ...JSON.parse(saved) };
+      } catch(e) {}
+      return def;
+    }
+    
+    function saveSettings(sett) {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(sett));
+    }
+    
+    let currentSettings = loadSettings();
+    mapThemeSelect.value = currentSettings.mapTheme;
+    
+    function applyMapTheme(theme) {
+      if (currentTileLayer) map.removeLayer(currentTileLayer);
+      const themeConf = mapThemes[theme] || mapThemes.day;
+      currentTileLayer = L.tileLayer(themeConf.url, { attribution: themeConf.attribution });
+      currentTileLayer.addTo(map);
+    }
+    applyMapTheme(currentSettings.mapTheme);
+    
+    // ---------- ПОДІЇ ----------
+    addBtn.addEventListener('click', () => {
+      if (addMode) return;
+      addMode = true;
+      addBtn.style.display = 'none';
+      settingsSheet.style.display = 'none';
+      pickerBar.style.display = 'block';
+      descSheet.style.display = 'none';
+      selectedLatLng = null;
+    });
+    
+    settingsBtn.addEventListener('click', () => {
+      settingsSheet.style.display = 'block';
+      pickerBar.style.display = 'none';
+      descSheet.style.display = 'none';
+      if (addMode) closeCreateMode();
+    });
+    
+    pickerClose.addEventListener('click', closeCreateMode);
+    sheetClose.addEventListener('click', closeCreateMode);
+    settingsClose.addEventListener('click', () => { settingsSheet.style.display = 'none'; });
+    
+    saveSettingsBtn.addEventListener('click', () => {
+      currentSettings.mapTheme = mapThemeSelect.value;
+      saveSettings(currentSettings);
+      applyMapTheme(currentSettings.mapTheme);
+      settingsSheet.style.display = 'none';
+    });
+    
+    descInput.addEventListener('input', () => {
+      descCounter.textContent = `${descInput.value.length} / 100`;
+    });
+    
+    map.on('click', (e) => {
+      if (!addMode) return;
+      selectedLatLng = e.latlng;
+      if (tempMarker) map.removeLayer(tempMarker);
+      tempMarker = L.marker(selectedLatLng, { icon: getIcon(currentType, map.getZoom()) }).addTo(map);
+      updatePickerActive();
+      descSheet.style.display = 'block';
+    });
+    
+    saveBtn.addEventListener('click', () => {
+      if (!selectedLatLng) {
+        alert("Спочатку торкніться карти, щоб обрати місце");
+        return;
+      }
+      const descText = descInput.value.trim();
+      if (!descText) {
+        alert("Опис обов'язковий (до 100 символів)");
+        return;
+      }
+      if (descText.length > 100) {
+        alert("Опис не більше 100 символів");
+        return;
+      }
+      
+      data.push({
+        lat: selectedLatLng.lat,
+        lng: selectedLatLng.lng,
+        type: currentType,
+        desc: descText,
+        time: Date.now(),
+        comments: [],
+        likes: 0,
+        dislikes: 0
+      });
+      syncAndSave();
+      fullRefresh();
+      closeCreateMode();
+    });
+    
+    pickerItems.forEach(item => {
+      item.addEventListener('click', () => {
+        currentType = item.dataset.type;
+        updatePickerActive();
+        if (tempMarker && selectedLatLng) {
+          map.removeLayer(tempMarker);
+          tempMarker = L.marker(selectedLatLng, { icon: getIcon(currentType, map.getZoom()) }).addTo(map);
         }
       });
-
-      markers.push(marker);
     });
-  }
-
-  function updatePickerActive() {
-    pickerItems.forEach(x => x.classList.remove('active'));
-    document.querySelector(`.picker-item[data-type="${currentType}"]`)?.classList.add('active');
-    sheetIcon.src = `icons/${currentType}.png`;
-    sheetTitle.textContent = labelMap[currentType] || currentType;
-    if (temp && selected) {
-      temp.setIcon(getIcon(currentType, map.getZoom()));
-    }
-  }
-
-  function closeCreateMode() {
-    addMode = false;
-    pickerBar.style.display = 'none';
-    descSheet.style.display = 'none';
-    addBtn.style.display = 'block';
-    selected = null;
-    descInput.value = '';
-    descCounter.textContent = '0 / 100';
-    if (temp) {
-      map.removeLayer(temp);
-      temp = null;
-    }
-  }
-
-  window.closePopup = function() {
-    map.closePopup();
-  };
-
-  window.vote = function(index, type) {
-    if (type === 'like') {
-      data[index].likes = (data[index].likes || 0) + 1;
-    } else {
-      data[index].dislikes = (data[index].dislikes || 0) + 1;
-    }
-    save(data);
-    render();
-    markers[index].openPopup();
-  };
-
-  window.addComment = function(index) {
-    const input = document.getElementById(`commentInput_${index}`);
-    if (!input) return;
-
-    const text = input.value.trim();
-    if (!text) {
-      alert('Коментар обовʼязковий');
-      return;
-    }
-    if (text.length > 100) {
-      alert('Максимум 100 символів');
-      return;
-    }
-
-    if (!Array.isArray(data[index].comments)) {
-      data[index].comments = [];
-    }
-
-    data[index].comments.push({
-      text,
-      time: Date.now()
+    
+    map.on('zoomend', () => {
+      if (tempMarker && selectedLatLng) {
+        map.removeLayer(tempMarker);
+        tempMarker = L.marker(selectedLatLng, { icon: getIcon(currentType, map.getZoom()) }).addTo(map);
+      }
+      renderMap();
     });
-
-    save(data);
-    render();
-    markers[index].openPopup();
-  };
-
-  pickerItems.forEach(el => {
-    el.addEventListener('click', () => {
-      currentType = el.dataset.type;
-      updatePickerActive();
+    
+    // первинний рендер та авто-оновлення кожні 30 секунд
+    fullRefresh();
+    setInterval(() => {
+      fullRefresh();
+    }, 30000);
+    
+    // клік поза панелями (опціонально)
+    document.addEventListener('click', (e) => {
+      if (addMode && !pickerBar.contains(e.target) && e.target !== addBtn && !descSheet.contains(e.target) && !tempMarker?.getElement?.()?.contains?.(e.target)) {
+        // нічого не робимо, щоб випадково не закрити
+      }
     });
-  });
-
-  addBtn.addEventListener('click', () => {
-    addMode = true;
-    addBtn.style.display = 'none';
-    settingsSheet.style.display = 'none';
-    pickerBar.style.display = 'block';
-    descSheet.style.display = 'none';
-  });
-
-  settingsBtn.addEventListener('click', () => {
-    settingsSheet.style.display = 'block';
-    pickerBar.style.display = 'none';
-    descSheet.style.display = 'none';
-  });
-
-  pickerClose.addEventListener('click', closeCreateMode);
-  sheetClose.addEventListener('click', closeCreateMode);
-  settingsClose.addEventListener('click', () => {
-    settingsSheet.style.display = 'none';
-  });
-
-  saveSettingsBtn.addEventListener('click', () => {
-    settings.mapTheme = mapThemeSelect.value;
-    saveSettings(settings);
-    applyMapTheme(settings.mapTheme);
-    settingsSheet.style.display = 'none';
-  });
-
-  descInput.addEventListener('input', () => {
-    descCounter.textContent = `${descInput.value.length} / 100`;
-  });
-
-  map.on('click', e => {
-    if (!addMode) return;
-
-    selected = e.latlng;
-
-    if (temp) {
-      map.removeLayer(temp);
-    }
-
-    temp = L.marker(selected, {
-      icon: getIcon(currentType, map.getZoom())
-    }).addTo(map);
-
-    updatePickerActive();
-    descSheet.style.display = 'block';
-  });
-
-  saveBtn.addEventListener('click', () => {
-    const desc = descInput.value.trim();
-
-    if (!selected) {
-      alert('Ткни на карту');
-      return;
-    }
-
-    if (!desc) {
-      alert("Опис обов'язковий");
-      return;
-    }
-
-    if (desc.length > 100) {
-      alert('Максимум 100 символів');
-      return;
-    }
-
-    data.push({
-      lat: selected.lat,
-      lng: selected.lng,
-      type: currentType,
-      desc: desc,
-      time: Date.now(),
-      comments: [],
-      likes: 0,
-      dislikes: 0
-    });
-
-    save(data);
-    render();
-    closeCreateMode();
-  });
-
-  map.on('zoomend', render);
-
-  setInterval(() => {
-    render();
-  }, 60000);
-
-  updatePickerActive();
-  render();
+  })();
 </script>
 </body>
 </html>
