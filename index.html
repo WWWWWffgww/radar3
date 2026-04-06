@@ -314,6 +314,18 @@
       left: 20px;
     }
 
+    /* Стиль для вибору часу */
+    .time-select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      border: none;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
     .leaflet-popup-content-wrapper {
       border-radius: 26px;
       padding: 0;
@@ -594,6 +606,16 @@
   </div>
 
   <div class="settings-group">
+    <div class="settings-label">⏱️ Фільтр за часом</div>
+    <select id="timeFilterSelect" class="time-select">
+      <option value="2">Останні 2 години</option>
+      <option value="6">Останні 6 годин</option>
+      <option value="12">Останні 12 годин</option>
+      <option value="24">Всі (24 години)</option>
+    </select>
+  </div>
+
+  <div class="settings-group">
     <div class="settings-label">👁️ Фільтр типів міток</div>
     <div class="filter-group" id="filterGroup">
       <div class="filter-item" data-filter-type="safe">
@@ -660,6 +682,7 @@
   function loadSettings() {
     const defaultSettings = {
       mapTheme: 'night',
+      timeFilterHours: 24,
       filters: {
         safe: true,
         block: true,
@@ -671,7 +694,12 @@
       const saved = localStorage.getItem(SETTINGS_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        return { ...defaultSettings, ...parsed, filters: { ...defaultSettings.filters, ...(parsed.filters || {}) } };
+        return { 
+          ...defaultSettings, 
+          ...parsed, 
+          filters: { ...defaultSettings.filters, ...(parsed.filters || {}) },
+          timeFilterHours: parsed.timeFilterHours || 24
+        };
       }
     } catch(e) {}
     return defaultSettings;
@@ -712,6 +740,7 @@
   const settingsSheet = document.getElementById('settingsSheet');
   const settingsClose = document.getElementById('settingsClose');
   const mapThemeSelect = document.getElementById('mapThemeSelect');
+  const timeFilterSelect = document.getElementById('timeFilterSelect');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 
   let addMode = false;
@@ -721,6 +750,7 @@
   let data = load();
 
   mapThemeSelect.value = settings.mapTheme;
+  timeFilterSelect.value = settings.timeFilterHours;
 
   function updateFilterUI() {
     const filterIds = {
@@ -874,10 +904,16 @@
 
     data = load();
     const zoom = map.getZoom();
+    const now = Date.now();
+    const timeLimit = settings.timeFilterHours * 60 * 60 * 1000;
 
     data.forEach((p, i) => {
+      // Фільтр за типом
       if (!settings.filters[p.type]) return;
       
+      // Фільтр за часом
+      if (now - p.time > timeLimit) return;
+
       const marker = L.marker([p.lat, p.lng], {
         icon: getIcon(p.type, zoom)
       }).addTo(map);
@@ -1002,6 +1038,7 @@
 
   saveSettingsBtn.addEventListener('click', () => {
     settings.mapTheme = mapThemeSelect.value;
+    settings.timeFilterHours = parseInt(timeFilterSelect.value);
     saveSettings(settings);
     applyMapTheme(settings.mapTheme);
     render();
