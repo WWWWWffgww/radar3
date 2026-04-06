@@ -12,13 +12,13 @@
       padding: 0;
       height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      background: #000;
+      background: #f2f2f7;
     }
 
     #map {
       width: 100%;
       height: 100vh;
-      background: #111;
+      background: #e5e5ea;
     }
 
     .pin-img {
@@ -55,14 +55,29 @@
       height: 48px;
       border-radius: 50%;
       border: none;
-      background: rgba(28,28,30,0.6);
+      background: transparent;
       color: #fff;
       font-size: 22px;
       z-index: 1003;
       cursor: pointer;
+      box-shadow: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      isolation: isolate;
+    }
+
+    #settingsBtn::before {
+      content: "";
+      position: absolute;
+      width: 31px;   /* было визуально ~48, стало примерно на 35% меньше */
+      height: 31px;
+      border-radius: 50%;
+      background: rgba(28,28,30,0.6);
       box-shadow: 0 10px 24px rgba(0,0,0,0.22);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      z-index: -1;
     }
 
     #pickerBar {
@@ -602,6 +617,11 @@
         height: 44px;
       }
 
+      #settingsBtn::before {
+        width: 29px;
+        height: 29px;
+      }
+
       #pickerBar,
       #descSheet,
       #settingsSheet {
@@ -697,8 +717,8 @@
     <div class="settings-label">🌓 Тема карти</div>
     <div class="filter-item" id="themeToggleRow">
       <div class="filter-item-left">
-        <span id="themeIcon">🌙</span>
-        <span id="themeLabel">Нічна тема</span>
+        <span id="themeIcon">☀️</span>
+        <span id="themeLabel">Денна тема</span>
       </div>
       <div class="filter-toggle" id="themeToggle"></div>
     </div>
@@ -808,7 +828,7 @@
 
   function loadSettings() {
     const defaultSettings = {
-      mapTheme: 'night',
+      mapTheme: 'day',
       timeFilterMinutes: 1440,
       filters: {
         safe: true,
@@ -834,6 +854,7 @@
         return {
           ...defaultSettings,
           ...parsed,
+          mapTheme: parsed.mapTheme || 'day',
           timeFilterMinutes,
           filters: { ...defaultSettings.filters, ...(parsed.filters || {}) }
         };
@@ -1014,18 +1035,17 @@
     });
   }
 
-function getIcon(type, zoom) {
-  let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
+  function getIcon(type, zoom) {
+    let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
+    s = Math.round(s * 1.6);
 
-  s = Math.round(s * 1.6); // 🔥 увеличение на 20%
-
-  return L.divIcon({
-    className: '',
-    html: `<img src="icons/${type}.png" class="pin-img">`,
-    iconSize: [s, s],
-    iconAnchor: [s / 2, s / 2]
-  });
-}
+    return L.divIcon({
+      className: '',
+      html: `<img src="icons/${type}.png" class="pin-img">`,
+      iconSize: [s, s],
+      iconAnchor: [s / 2, s / 2]
+    });
+  }
 
   function formatDateTime(t) {
     return new Date(t).toLocaleString('uk-UA', {
@@ -1115,13 +1135,10 @@ function getIcon(type, zoom) {
     const counter = document.getElementById(`commentCounter_${index}`);
     if (!input || !counter) return;
 
-    const updateCounter = () => {
+    input.oninput = () => {
       counter.textContent = `${input.value.length} / 100`;
     };
-
-    input.removeEventListener('input', updateCounter);
-    input.addEventListener('input', updateCounter);
-    updateCounter();
+    counter.textContent = `${input.value.length} / 100`;
   }
 
   function reopenCurrentPopup() {
