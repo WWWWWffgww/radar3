@@ -284,6 +284,13 @@
       font-weight: 500;
     }
 
+    #themeIcon {
+  width: 32px;
+  text-align: center;
+  font-size: 22px;
+  line-height: 1;
+}
+
     .filter-toggle {
       width: 44px;
       height: 26px;
@@ -626,13 +633,16 @@
     <button id="settingsClose">×</button>
   </div>
 
-  <div class="settings-group">
-    <div class="settings-label">🌓 Тема карти</div>
-    <select id="mapThemeSelect" class="settings-select">
-      <option value="day">Денна</option>
-      <option value="night">Нічна (темна)</option>
-    </select>
+ <div class="settings-group">
+  <div class="settings-label">🌓 Тема карти</div>
+  <div class="filter-item" id="themeToggleRow">
+    <div class="filter-item-left">
+      <span id="themeIcon">🌙</span>
+      <span id="themeLabel">Нічна тема</span>
+    </div>
+    <div class="filter-toggle" id="themeToggle"></div>
   </div>
+</div>
 
   <div class="settings-group">
     <div class="settings-label">⏱️ Фільтр за часом (ползунок)</div>
@@ -770,7 +780,10 @@ night: {
 
   const settingsSheet = document.getElementById('settingsSheet');
   const settingsClose = document.getElementById('settingsClose');
-  const mapThemeSelect = document.getElementById('mapThemeSelect');
+  cconst themeToggle = document.getElementById('themeToggle');
+const themeToggleRow = document.getElementById('themeToggleRow');
+const themeLabel = document.getElementById('themeLabel');
+const themeIcon = document.getElementById('themeIcon');
   const timeSlider = document.getElementById('timeSlider');
   const timeValue = document.getElementById('timeValue');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
@@ -781,7 +794,7 @@ night: {
   let currentType = 'safe';
   let data = load();
 
-  mapThemeSelect.value = settings.mapTheme;
+ 
   
   // Встановлюємо значення ползунка
   timeSlider.value = settings.timeFilterHours;
@@ -1082,14 +1095,13 @@ night: {
     settingsSheet.style.display = 'none';
   });
 
-  saveSettingsBtn.addEventListener('click', () => {
-    settings.mapTheme = mapThemeSelect.value;
-    settings.timeFilterHours = parseFloat(timeSlider.value);
-    saveSettings(settings);
-    applyMapTheme(settings.mapTheme);
-    render();
-    settingsSheet.style.display = 'none';
-  });
+ saveSettingsBtn.addEventListener('click', () => {
+  settings.timeFilterHours = parseFloat(timeSlider.value);
+  saveSettings(settings);
+  applyMapTheme(settings.mapTheme);
+  render();
+  settingsSheet.style.display = 'none';
+});
 
   descInput.addEventListener('input', () => {
     descCounter.textContent = `${descInput.value.length} / 100`;
@@ -1154,11 +1166,37 @@ night: {
   setInterval(() => {
     render();
   }, 60000);
+function updateThemeUI() {
+  const isNight = settings.mapTheme === 'night';
 
-  updateFilterUI();
-  initFilterToggles();
-  updatePickerActive();
-  render();
+  if (isNight) {
+    themeToggle.classList.add('active');
+    themeLabel.textContent = 'Нічна тема';
+    themeIcon.textContent = '🌙';
+  } else {
+    themeToggle.classList.remove('active');
+    themeLabel.textContent = 'Денна тема';
+    themeIcon.textContent = '☀️';
+  }
+}
+updateFilterUI();
+updateThemeUI();
+initFilterToggles();
+initThemeToggle();
+updatePickerActive();
+render();
+  function initThemeToggle() {
+  themeToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
+    updateThemeUI();
+  });
+
+  themeToggleRow.addEventListener('click', () => {
+    settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
+    updateThemeUI();
+  });
+}
 </script>
 </body>
 </html>
