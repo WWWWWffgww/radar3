@@ -53,8 +53,6 @@
       position: absolute;
       bottom: -8px;
       right: 20px;
-      width: 0;
-      height: 0;
       border-left: 8px solid transparent;
       border-right: 8px solid transparent;
       border-top: 8px solid white;
@@ -65,12 +63,28 @@
       width: 100%;
       margin-top: 10px;
       padding: 10px;
-      font-size: 14px;
     }
 
-    #status {
-      font-size: 14px;
-      margin-top: 8px;
+    .pin {
+      width: 100%;
+      height: 100%;
+      background: white;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+
+    .pin-img {
+      width: 70%;
+      height: 70%;
+      position: absolute;
+      top: 15%;
+      left: 15%;
+      border-radius: 50%;
+      transform: rotate(45deg);
+      object-fit: cover;
     }
   </style>
 </head>
@@ -82,7 +96,7 @@
 
 <div id="panel">
   <b>Нова точка</b>
-  <div id="status">Натисни +, потім ткни на карту</div>
+  <div id="status">Натисни + і вибери місце</div>
 
   <select id="typeSelect">
     <option value="block">Перекрито</option>
@@ -96,7 +110,7 @@
 
 <script>
   const STORAGE_KEY = 'radar_points';
-  const POINT_LIFETIME = 24 * 60 * 60 * 1000;
+  const POINT_LIFETIME = 86400000;
 
   const labels = {
     block: 'Перекрито',
@@ -106,154 +120,108 @@
   function getIcon(type, zoom) {
     let size;
 
-    if (zoom <= 10) size = 14;
-    else if (zoom <= 11) size = 18;
-    else if (zoom <= 12) size = 22;
-    else if (zoom <= 13) size = 28;
-    else if (zoom <= 14) size = 36;
-    else if (zoom <= 15) size = 44;
-    else size = 52;
+    if (zoom <= 10) size = 20;
+    else if (zoom <= 12) size = 26;
+    else if (zoom <= 14) size = 32;
+    else size = 40;
 
-    return L.icon({
-      iconUrl: `icons/${type}.png`,
+    return L.divIcon({
+      className: '',
+      html: `
+        <div class="pin">
+          <img src="icons/${type}.png" class="pin-img">
+        </div>
+      `,
       iconSize: [size, size],
-      iconAnchor: [size / 2, size / 2],
-      popupAnchor: [0, -size / 2]
+      iconAnchor: [size / 2, size]
     });
   }
 
   function loadPoints() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const points = raw ? JSON.parse(raw) : [];
-      const now = Date.now();
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (!data) return [];
 
-      const validPoints = points.filter(point => {
-        return point && point.time && (now - point.time) < POINT_LIFETIME;
-      });
-
-      if (validPoints.length !== points.length) {
-        savePoints(validPoints);
-      }
-
-      return validPoints;
-    } catch (e) {
-      return [];
-    }
+    const now = Date.now();
+    return JSON.parse(data).filter(p => now - p.time < POINT_LIFETIME);
   }
 
   function savePoints(points) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(points));
   }
 
-  const map = L.map('map').setView([50.4501, 30.5234], 13);
+  const map = L.map('map').setView([50.45, 30.52], 13);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
-
-  let addMode = false;
-  let selectedLatLng = null;
-  let tempMarker = null;
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
   let savedPoints = loadPoints();
-  let renderedMarkers = [];
+  let markers = [];
 
-  const addBtn = document.getElementById('addBtn');
-  const panel = document.getElementById('panel');
-  const statusText = document.getElementById('status');
-  const typeSelect = document.getElementById('typeSelect');
-  const saveBtn = document.getElementById('saveBtn');
-
-  function renderAllPoints() {
-    renderedMarkers.forEach(item => map.removeLayer(item.marker));
-    renderedMarkers = [];
+  function render() {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
 
     const zoom = map.getZoom();
-    const now = Date.now();
 
-    savedPoints = savedPoints.filter(point => (now - point.time) < POINT_LIFETIME);
-    savePoints(savedPoints);
+    savedPoints.forEach(p => {
+      const m = L.marker([p.lat, p.lng], {
+        icon: getIcon(p.type, zoom)
+      }).addTo(map).bindPopup(labels[p.type]);
 
-    savedPoints.forEach(point => {
-      const marker = L.marker([point.lat, point.lng], {
-        icon: getIcon(point.type, zoom)
-      })
-        .addTo(map)
-        .bindPopup(`<b>${labels[point.type] || point.type}</b>`);
-
-      renderedMarkers.push({
-        marker: marker,
-        type: point.type
-      });
+      markers.push(m);
     });
   }
 
-  renderAllPoints();
+  render();
 
-  addBtn.onclick = () => {
+  map.on('zoomend', render);
+
+  let addMode = false;
+  let temp = null;
+  let selected = null;
+
+  document.getElementById('addBtn').onclick = () => {
     addMode = true;
     panel.style.display = 'block';
-    statusText.textContent = 'Тепер ткни на карту';
   };
 
   map.on('click', e => {
     if (!addMode) return;
 
-    selectedLatLng = e.latlng;
+    selected = e.latlng;
 
-    if (tempMarker) {
-      map.removeLayer(tempMarker);
-    }
+    if (temp) map.removeLayer(temp);
 
-    tempMarker = L.marker(selectedLatLng, {
+    temp = L.marker(selected, {
       icon: getIcon(typeSelect.value, map.getZoom())
     }).addTo(map);
-
-    statusText.textContent = 'Точка вибрана';
   });
 
-  typeSelect.addEventListener('change', () => {
-    if (tempMarker && selectedLatLng) {
-      tempMarker.setIcon(getIcon(typeSelect.value, map.getZoom()));
+  typeSelect.onchange = () => {
+    if (temp && selected) {
+      temp.setIcon(getIcon(typeSelect.value, map.getZoom()));
     }
-  });
-
-  saveBtn.onclick = () => {
-    if (!selectedLatLng) {
-      alert('Спочатку ткни на карту');
-      return;
-    }
-
-    const point = {
-      lat: selectedLatLng.lat,
-      lng: selectedLatLng.lng,
-      type: typeSelect.value,
-      time: Date.now()
-    };
-
-    savedPoints.push(point);
-    savePoints(savedPoints);
-    renderAllPoints();
-
-    if (tempMarker) {
-      map.removeLayer(tempMarker);
-      tempMarker = null;
-    }
-
-    selectedLatLng = null;
-    addMode = false;
-    panel.style.display = 'none';
-    statusText.textContent = 'Натисни +, потім ткни на карту';
   };
 
-  map.on('zoomend', () => {
-    renderAllPoints();
+  saveBtn.onclick = () => {
+    if (!selected) return alert('Ткни на карту');
 
-    if (tempMarker && selectedLatLng) {
-      tempMarker.setIcon(getIcon(typeSelect.value, map.getZoom()));
-    }
-  });
+    savedPoints.push({
+      lat: selected.lat,
+      lng: selected.lng,
+      type: typeSelect.value,
+      time: Date.now()
+    });
+
+    savePoints(savedPoints);
+    render();
+
+    if (temp) map.removeLayer(temp);
+
+    temp = null;
+    selected = null;
+    addMode = false;
+    panel.style.display = 'none';
+  };
 </script>
 
 </body>
