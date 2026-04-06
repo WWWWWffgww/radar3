@@ -83,26 +83,55 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+  const STORAGE_KEY = 'radar_points';
+  const POINT_LIFETIME = 24 * 60 * 60 * 1000; // 24 часа
+
   const labels = {
     block: 'Перекрито',
     danger: 'Безпорядки'
   };
 
   function getIcon(type, zoom) {
-    let size = 50;
+    let size;
 
-    if (zoom <= 11) size = 24;
-    else if (zoom <= 12) size = 30;
-    else if (zoom <= 13) size = 36;
-    else if (zoom <= 14) size = 42;
-    else size = 50;
+    if (zoom <= 10) size = 14;
+    else if (zoom <= 11) size = 18;
+    else if (zoom <= 12) size = 22;
+    else if (zoom <= 13) size = 28;
+    else if (zoom <= 14) size = 36;
+    else if (zoom <= 15) size = 44;
+    else size = 52;
 
     return L.icon({
       iconUrl: `icons/${type}.png`,
       iconSize: [size, size],
-      iconAnchor: [size / 2, size],
-      popupAnchor: [0, -size + 5]
+      iconAnchor: [size / 2, size / 2],
+      popupAnchor: [0, -size / 2]
     });
+  }
+
+  function loadPoints() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const points = raw ? JSON.parse(raw) : [];
+      const now = Date.now();
+
+      const validPoints = points.filter(point => {
+        return point && point.time && (now - point.time) < POINT_LIFETIME;
+      });
+
+      if (validPoints.length !== points.length) {
+        savePoints(validPoints);
+      }
+
+      return validPoints;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function savePoints(points) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(points));
   }
 
   const map = L.map('map').setView([50.4501, 30.5234], 13);
@@ -114,13 +143,41 @@
   let addMode = false;
   let selectedLatLng = null;
   let tempMarker = null;
-  let savedMarkers = [];
+
+  let savedPoints = loadPoints();
+  let renderedMarkers = [];
 
   const addBtn = document.getElementById('addBtn');
   const panel = document.getElementById('panel');
   const statusText = document.getElementById('status');
   const typeSelect = document.getElementById('typeSelect');
   const saveBtn = document.getElementById('saveBtn');
+
+  function renderAllPoints() {
+    renderedMarkers.forEach(item => map.removeLayer(item.marker));
+    renderedMarkers = [];
+
+    const zoom = map.getZoom();
+    const now = Date.now();
+
+    savedPoints = savedPoints.filter(point => (now - point.time) < POINT_LIFETIME);
+    savePoints(savedPoints);
+
+    savedPoints.forEach(point => {
+      const marker = L.marker([point.lat, point.lng], {
+        icon: getIcon(point.type, zoom)
+      })
+        .addTo(map)
+        .bindPopup(`<b>${labels[point.type] || point.type}</b>`);
+
+      renderedMarkers.push({
+        marker: marker,
+        type: point.type
+      });
+    });
+  }
+
+  renderAllPoints();
 
   addBtn.onclick = () => {
     addMode = true;
@@ -133,43 +190,56 @@
 
     selectedLatLng = e.latlng;
 
-    if (tempMarker) map.removeLayer(tempMarker);
+    if (tempMarker) {
+      map.removeLayer(tempMarker);
+    }
 
     tempMarker = L.marker(selectedLatLng, {
       icon: getIcon(typeSelect.value, map.getZoom())
     }).addTo(map);
+
+    statusText.textContent = 'Точка вибрана';
+  });
+
+  typeSelect.addEventListener('change', () => {
+    if (tempMarker && selectedLatLng) {
+      tempMarker.setIcon(getIcon(typeSelect.value, map.getZoom()));
+    }
   });
 
   saveBtn.onclick = () => {
-    if (!selectedLatLng) return alert('Спочатку ткни на карту');
+    if (!selectedLatLng) {
+      alert('Спочатку ткни на карту');
+      return;
+    }
 
-    const type = typeSelect.value;
+    const point = {
+      lat: selectedLatLng.lat,
+      lng: selectedLatLng.lng,
+      type: typeSelect.value,
+      time: Date.now()
+    };
 
-    const marker = L.marker(selectedLatLng, {
-      icon: getIcon(type, map.getZoom())
-    })
-      .addTo(map)
-      .bindPopup(`<b>${labels[type]}</b>`);
+    savedPoints.push(point);
+    savePoints(savedPoints);
+    renderAllPoints();
 
-    savedMarkers.push({ marker, type });
-
-    if (tempMarker) map.removeLayer(tempMarker);
+    if (tempMarker) {
+      map.removeLayer(tempMarker);
+      tempMarker = null;
+    }
 
     selectedLatLng = null;
-    tempMarker = null;
     addMode = false;
     panel.style.display = 'none';
+    statusText.textContent = 'Натисни +, потім ткни на карту';
   };
 
   map.on('zoomend', () => {
-    const zoom = map.getZoom();
+    renderAllPoints();
 
-    savedMarkers.forEach(item => {
-      item.marker.setIcon(getIcon(item.type, zoom));
-    });
-
-    if (tempMarker) {
-      tempMarker.setIcon(getIcon(typeSelect.value, zoom));
+    if (tempMarker && selectedLatLng) {
+      tempMarker.setIcon(getIcon(typeSelect.value, map.getZoom()));
     }
   });
 </script>
