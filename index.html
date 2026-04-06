@@ -207,8 +207,7 @@
       font-weight: 700;
     }
 
-    #descInput,
-    .settings-select {
+    #descInput {
       width: 100%;
       box-sizing: border-box;
       border: none;
@@ -219,9 +218,6 @@
       font-size: 16px;
       font-family: inherit;
       outline: none;
-    }
-
-    #descInput {
       resize: none;
       min-height: 96px;
     }
@@ -738,8 +734,33 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  const STORAGE_KEY = 'radar_points';
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    onSnapshot,
+    doc,
+    updateDoc,
+    query,
+    orderBy
+  } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAX_n3xk2Jy-WqEw887Vo2k9wiw4K5tPk8",
+    authDomain: "qwertyuio-a06d6.firebaseapp.com",
+    projectId: "qwertyuio-a06d6",
+    storageBucket: "qwertyuio-a06d6.firebasestorage.app",
+    messagingSenderId: "614323966066",
+    appId: "1:614323966066:web:4bd788db83dd759940b2eb",
+    measurementId: "G-P1FWYRC2PL"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
   const SETTINGS_KEY = 'radar_settings';
   const LIFE = 24 * 60 * 60 * 1000;
 
@@ -847,7 +868,8 @@
   let selected = null;
   let temp = null;
   let currentType = 'safe';
-  let data = load();
+  let data = [];
+  let markers = [];
 
   function clampMinutes(value) {
     const num = Number(value) || 15;
@@ -859,18 +881,11 @@
 
   function formatMinutesText(totalMinutes) {
     totalMinutes = clampMinutes(totalMinutes);
-
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
 
-    if (hours === 0) {
-      return `${minutes} хв`;
-    }
-
-    if (minutes === 0) {
-      return `${hours} год`;
-    }
-
+    if (hours === 0) return `${minutes} хв`;
+    if (minutes === 0) return `${hours} год`;
     return `${hours} год ${minutes} хв`;
   }
 
@@ -879,8 +894,7 @@
   }
 
   timeSlider.addEventListener('input', (e) => {
-    const val = parseInt(e.target.value, 10);
-    updateTimeDisplay(val);
+    updateTimeDisplay(parseInt(e.target.value, 10));
   });
 
   function updateFilterUI() {
@@ -893,12 +907,12 @@
 
     for (const [type, id] of Object.entries(filterIds)) {
       const toggle = document.getElementById(id);
-      if (toggle) {
-        if (settings.filters[type]) {
-          toggle.classList.add('active');
-        } else {
-          toggle.classList.remove('active');
-        }
+      if (!toggle) continue;
+
+      if (settings.filters[type]) {
+        toggle.classList.add('active');
+      } else {
+        toggle.classList.remove('active');
       }
     }
   }
@@ -982,19 +996,6 @@
     });
   }
 
-  function load() {
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const filtered = raw.filter(p => Date.now() - p.time < LIFE);
-    if (filtered.length !== raw.length) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    }
-    return filtered;
-  }
-
-  function save(arr) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-  }
-
   function escapeHtml(text) {
     return String(text || '')
       .replace(/&/g, '&amp;')
@@ -1034,7 +1035,7 @@
             </div>
           </div>
 
-          <button class="popup-close" onclick="closePopup()">×</button>
+          <button class="popup-close" onclick="window.closePopup()">×</button>
         </div>
 
         <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
@@ -1046,24 +1047,21 @@
         </div>
 
         <div class="reaction-row">
-          <button class="reaction-btn like" onclick="vote(${index}, 'like')">👍 ${point.likes || 0}</button>
-          <button class="reaction-btn dislike" onclick="vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
+          <button class="reaction-btn like" onclick="window.vote(${index}, 'like')">👍 ${point.likes || 0}</button>
+          <button class="reaction-btn dislike" onclick="window.vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
         </div>
 
         <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
         <div class="popup-counter" id="commentCounter_${index}">0 / 100</div>
-        <button class="popup-btn" onclick="addComment(${index})">Додати коментар</button>
+        <button class="popup-btn" onclick="window.addComment(${index})">Додати коментар</button>
       </div>
     `;
   }
-
-  let markers = [];
 
   function render() {
     markers.forEach(m => map.removeLayer(m));
     markers = [];
 
-    data = load();
     const zoom = map.getZoom();
     const now = Date.now();
     const timeLimit = clampMinutes(settings.timeFilterMinutes) * 60 * 1000;
@@ -1170,7 +1168,6 @@
     addMode = false;
     pickerBar.style.display = 'none';
     descSheet.style.display = 'none';
-    addBtn.style.display = 'block';
     selected = null;
     descInput.value = '';
     descCounter.textContent = '0 / 100';
@@ -1184,51 +1181,41 @@
     map.closePopup();
   };
 
-  window.vote = function(index, type) {
-    data = load();
-    if (!data[index]) return;
+  window.vote = async function(index, type) {
+    const item = data[index];
+    if (!item?.id) return;
+
+    const ref = doc(db, "points", item.id);
 
     if (type === 'like') {
-      data[index].likes = (data[index].likes || 0) + 1;
+      await updateDoc(ref, {
+        likes: (item.likes || 0) + 1
+      });
     } else {
-      data[index].dislikes = (data[index].dislikes || 0) + 1;
+      await updateDoc(ref, {
+        dislikes: (item.dislikes || 0) + 1
+      });
     }
-
-    save(data);
-    render();
-    if (markers[index]) markers[index].openPopup();
   };
 
-  window.addComment = function(index) {
+  window.addComment = async function(index) {
     const input = document.getElementById(`commentInput_${index}`);
     if (!input) return;
 
     const text = input.value.trim();
-    if (!text) {
-      alert('Коментар обовʼязковий');
-      return;
-    }
+    if (!text) return alert('Коментар обовʼязковий');
+    if (text.length > 100) return alert('Максимум 100 символів');
 
-    if (text.length > 100) {
-      alert('Максимум 100 символів');
-      return;
-    }
+    const item = data[index];
+    if (!item?.id) return;
 
-    data = load();
-    if (!data[index]) return;
+    const ref = doc(db, "points", item.id);
+    const newComments = [
+      ...(item.comments || []),
+      { text, time: Date.now() }
+    ];
 
-    if (!Array.isArray(data[index].comments)) {
-      data[index].comments = [];
-    }
-
-    data[index].comments.push({
-      text,
-      time: Date.now()
-    });
-
-    save(data);
-    render();
-    if (markers[index]) markers[index].openPopup();
+    await updateDoc(ref, { comments: newComments });
   };
 
   pickerItems.forEach(el => {
@@ -1288,38 +1275,24 @@
     showDescSheet();
   });
 
-  saveBtn.addEventListener('click', () => {
+  saveBtn.addEventListener('click', async () => {
     const desc = descInput.value.trim();
 
-    if (!selected) {
-      alert('Ткни на карту');
-      return;
-    }
+    if (!selected) return alert('Ткни на карту');
+    if (!desc) return alert("Опис обов'язковий");
+    if (desc.length > 100) return alert('Максимум 100 символів');
 
-    if (!desc) {
-      alert("Опис обов'язковий");
-      return;
-    }
-
-    if (desc.length > 100) {
-      alert('Максимум 100 символів');
-      return;
-    }
-
-    data = load();
-    data.push({
+    await addDoc(collection(db, "points"), {
       lat: selected.lat,
       lng: selected.lng,
       type: currentType,
-      desc: desc,
+      desc,
       time: Date.now(),
       comments: [],
       likes: 0,
       dislikes: 0
     });
 
-    save(data);
-    render();
     closeCreateMode();
   });
 
@@ -1333,9 +1306,20 @@
     if (settingsSheet.style.display === 'block') showSettingsSheet();
   });
 
-  setInterval(() => {
+  const pointsQuery = query(collection(db, "points"), orderBy("time", "desc"));
+
+  onSnapshot(pointsQuery, (snapshot) => {
+    data = [];
+    snapshot.forEach((itemDoc) => {
+      const point = { id: itemDoc.id, ...itemDoc.data() };
+
+      if (Date.now() - point.time < LIFE) {
+        data.push(point);
+      }
+    });
+
     render();
-  }, 60000);
+  });
 
   updateFilterUI();
   updateThemeUI();
@@ -1344,5 +1328,6 @@
   updatePickerActive();
   render();
 </script>
+
 </body>
 </html>
