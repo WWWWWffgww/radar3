@@ -36,13 +36,15 @@
       height: 58px;
       border-radius: 50%;
       border: none;
-      background: #1c1c1e;
+      background: rgba(28,28,30,0.6);
       color: #fff;
       font-size: 34px;
       line-height: 1;
       z-index: 1000;
       cursor: pointer;
       box-shadow: 0 12px 28px rgba(0,0,0,0.24);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     #settingsBtn {
@@ -53,12 +55,14 @@
       height: 48px;
       border-radius: 50%;
       border: none;
-      background: rgba(28,28,30,0.92);
+      background: rgba(28,28,30,0.6);
       color: #fff;
       font-size: 22px;
       z-index: 1003;
       cursor: pointer;
       box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     #pickerBar {
@@ -451,15 +455,25 @@
       margin-bottom: 4px;
     }
 
+    .popup-time-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 3px;
+    }
+
     .popup-time {
       font-size: 13px;
       color: rgba(255,255,255,0.74);
-      margin-bottom: 3px;
+      white-space: nowrap;
     }
 
     .popup-life {
       font-size: 13px;
       color: #8be28b;
+      white-space: nowrap;
+      font-weight: 700;
     }
 
     .popup-close {
@@ -548,6 +562,12 @@
     .reaction-btn.dislike {
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .reaction-btn.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
     }
 
     .popup-input {
@@ -763,6 +783,7 @@
 
   const SETTINGS_KEY = 'radar_settings';
   const LIFE = 24 * 60 * 60 * 1000;
+  const VOTES_KEY = 'radar_votes';
 
   const labelMap = {
     safe: 'Безпечно',
@@ -826,6 +847,29 @@
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   }
 
+  function loadVotes() {
+    try {
+      return JSON.parse(localStorage.getItem(VOTES_KEY) || '{}');
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveVotes(votes) {
+    localStorage.setItem(VOTES_KEY, JSON.stringify(votes));
+  }
+
+  function hasVoted(pointId) {
+    const votes = loadVotes();
+    return !!votes[pointId];
+  }
+
+  function setVoted(pointId, type) {
+    const votes = loadVotes();
+    votes[pointId] = type;
+    saveVotes(votes);
+  }
+
   let settings = loadSettings();
 
   function applyMapTheme(theme) {
@@ -870,6 +914,7 @@
   let currentType = 'safe';
   let data = [];
   let markers = [];
+  let currentOpenPointId = null;
 
   function clampMinutes(value) {
     const num = Number(value) || 15;
@@ -1023,6 +1068,8 @@
       </div>
     `).join('');
 
+    const voted = hasVoted(point.id);
+
     return `
       <div class="radar-popup">
         <div class="popup-head">
@@ -1030,8 +1077,10 @@
             <img src="icons/${point.type}.png" class="popup-icon">
             <div class="popup-meta">
               <div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div>
-              <div class="popup-time">${formatDateTime(point.time)}</div>
-              <div class="popup-life">${timeLeftText(point.time)}</div>
+              <div class="popup-time-row">
+                <div class="popup-time">${formatDateTime(point.time)}</div>
+                <div class="popup-life">${timeLeftText(point.time)}</div>
+              </div>
             </div>
           </div>
 
@@ -1047,8 +1096,8 @@
         </div>
 
         <div class="reaction-row">
-          <button class="reaction-btn like" onclick="window.vote(${index}, 'like')">👍 ${point.likes || 0}</button>
-          <button class="reaction-btn dislike" onclick="window.vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
+          <button class="reaction-btn like ${voted ? 'disabled' : ''}" onclick="window.vote(${index}, 'like')">👍 ${point.likes || 0}</button>
+          <button class="reaction-btn dislike ${voted ? 'disabled' : ''}" onclick="window.vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
         </div>
 
         <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
@@ -1058,8 +1107,32 @@
     `;
   }
 
+  function attachPopupInputCounter(index) {
+    const input = document.getElementById(`commentInput_${index}`);
+    const counter = document.getElementById(`commentCounter_${index}`);
+    if (!input || !counter) return;
+
+    const updateCounter = () => {
+      counter.textContent = `${input.value.length} / 100`;
+    };
+
+    input.removeEventListener('input', updateCounter);
+    input.addEventListener('input', updateCounter);
+    updateCounter();
+  }
+
+  function reopenCurrentPopup() {
+    if (!currentOpenPointId) return;
+    const markerObj = markers.find(m => m.pointId === currentOpenPointId);
+    if (markerObj?.marker) {
+      markerObj.marker.openPopup();
+    }
+  }
+
   function render() {
-    markers.forEach(m => map.removeLayer(m));
+    const previouslyOpenPointId = currentOpenPointId;
+
+    markers.forEach(m => map.removeLayer(m.marker));
     markers = [];
 
     const zoom = map.getZoom();
@@ -1077,19 +1150,27 @@
       marker.bindPopup(popupHtml(p, i));
 
       marker.on('popupopen', () => {
+        currentOpenPointId = p.id;
         setTimeout(() => {
-          const input = document.getElementById(`commentInput_${i}`);
-          const counter = document.getElementById(`commentCounter_${i}`);
-          if (input && counter) {
-            input.addEventListener('input', () => {
-              counter.textContent = `${input.value.length} / 100`;
-            });
-          }
+          attachPopupInputCounter(i);
         }, 10);
       });
 
-      markers.push(marker);
+      marker.on('popupclose', () => {
+        if (currentOpenPointId === p.id) {
+          currentOpenPointId = null;
+        }
+      });
+
+      markers.push({ marker, pointId: p.id });
     });
+
+    if (previouslyOpenPointId) {
+      currentOpenPointId = previouslyOpenPointId;
+      setTimeout(() => {
+        reopenCurrentPopup();
+      }, 20);
+    }
   }
 
   function updatePickerActive() {
@@ -1184,6 +1265,7 @@
   window.vote = async function(index, type) {
     const item = data[index];
     if (!item?.id) return;
+    if (hasVoted(item.id)) return;
 
     const ref = doc(db, "points", item.id);
 
@@ -1196,6 +1278,9 @@
         dislikes: (item.dislikes || 0) + 1
       });
     }
+
+    setVoted(item.id, type);
+    currentOpenPointId = item.id;
   };
 
   window.addComment = async function(index) {
@@ -1215,6 +1300,7 @@
       { text, time: Date.now() }
     ];
 
+    currentOpenPointId = item.id;
     await updateDoc(ref, { comments: newComments });
   };
 
