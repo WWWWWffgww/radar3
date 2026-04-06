@@ -45,23 +45,6 @@
       box-shadow: 0 12px 28px rgba(0,0,0,0.24);
     }
 
-    #themeToggleBtn {
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(28,28,30,0.92);
-      color: #fff;
-      font-size: 24px;
-      z-index: 1003;
-      cursor: pointer;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
-      backdrop-filter: blur(8px);
-    }
-
     #settingsBtn {
       position: fixed;
       top: 16px;
@@ -164,9 +147,7 @@
       position: fixed;
       right: 16px;
       bottom: 84px;
-      width: 340px;
-      max-height: 80vh;
-      overflow-y: auto;
+      width: 320px;
       z-index: 1002;
       display: none;
       background: rgba(28,28,30,0.96);
@@ -268,7 +249,7 @@
       font-weight: 600;
     }
 
-    /* Фільтр типу */
+    /* Стилі для фільтрів */
     .filter-group {
       display: flex;
       flex-direction: column;
@@ -333,7 +314,7 @@
       left: 20px;
     }
 
-    /* Ползунок часу */
+    /* Стиль для ползунка часу */
     .time-slider-container {
       background: rgba(255,255,255,0.08);
       border-radius: 16px;
@@ -356,6 +337,7 @@
       background: #0a84ff;
       border-radius: 50%;
       cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
     .time-slider-value {
@@ -373,90 +355,13 @@
       font-weight: 600;
     }
 
-    /* Райони */
-    .districts-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-top: 8px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .district-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 12px;
-      cursor: pointer;
-    }
-
-    .district-item input {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: #0a84ff;
-    }
-
-    .district-item label {
-      font-size: 13px;
-      cursor: pointer;
-      flex: 1;
-    }
-
-    /* Перемикач мови */
-    .lang-buttons {
-      display: flex;
-      gap: 12px;
-    }
-
-    .lang-btn {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .lang-btn.active {
-      background: #0a84ff;
-    }
-
-    /* Автотема */
-    .auto-theme-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .time-range {
-      display: flex;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .time-range input {
-      flex: 1;
-      background: rgba(255,255,255,0.12);
-      border: none;
-      border-radius: 12px;
-      padding: 8px;
-      color: #fff;
-    }
-
     .leaflet-popup-content-wrapper {
       border-radius: 26px;
       padding: 0;
       box-shadow: 0 22px 50px rgba(0,0,0,0.22);
       background: rgba(28,28,30,0.96);
       backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
       color: #fff;
     }
 
@@ -531,17 +436,18 @@
       background: rgba(255,255,255,0.14);
       color: #fff;
       font-size: 24px;
+      line-height: 1;
       cursor: pointer;
+      flex: 0 0 auto;
     }
 
     .popup-desc {
       font-size: 17px;
       line-height: 1.4;
-      background: rgba(255,255,255,0.07);
-      padding: 12px;
-      border-radius: 20px;
-      margin-bottom: 14px;
+      color: #fff;
       white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 14px;
     }
 
     .popup-comments-title {
@@ -569,6 +475,7 @@
       line-height: 1.35;
       color: #fff;
       white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .comment-time {
@@ -595,10 +502,18 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      font-family: inherit;
+      font-weight: 600;
     }
 
     .reaction-btn.like {
       background: rgba(10,132,255,0.14);
+      border: 1px solid rgba(10,132,255,0.22);
+    }
+
+    .reaction-btn.dislike {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
     }
 
     .popup-input {
@@ -611,18 +526,50 @@
       padding: 14px 15px;
       font-size: 16px;
       outline: none;
+      font-family: inherit;
+    }
+
+    .popup-input::placeholder {
+      color: rgba(255,255,255,0.5);
     }
 
     @media (max-width: 600px) {
-      #addBtn { right: 14px; bottom: 8px; width: 56px; height: 56px; }
-      #themeToggleBtn, #settingsBtn { width: 44px; height: 44px; font-size: 20px; }
-      #pickerBar, #descSheet, #settingsSheet {
-        left: 50%; right: auto; transform: translateX(-50%);
-        width: calc(100vw - 16px); bottom: 8px;
+      #addBtn {
+        right: 14px;
+        bottom: 8px;
+        width: 56px;
+        height: 56px;
       }
-      .picker-item img { width: 42px; height: 42px; }
-      .leaflet-popup-content { width: 320px !important; }
-      .districts-grid { grid-template-columns: 1fr; max-height: 150px; }
+
+      #settingsBtn {
+        top: 12px;
+        right: 12px;
+        width: 44px;
+        height: 44px;
+      }
+
+      #pickerBar,
+      #descSheet,
+      #settingsSheet {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: calc(100vw - 16px);
+        bottom: 8px;
+      }
+
+      .picker-item img {
+        width: 42px;
+        height: 42px;
+      }
+
+      .picker-item span {
+        font-size: 11px;
+      }
+
+      .leaflet-popup-content {
+        width: 320px !important;
+      }
     }
   </style>
 </head>
@@ -630,27 +577,31 @@
 
 <div id="map"></div>
 
-<button id="themeToggleBtn">🌙</button>
 <button id="settingsBtn">⚙️</button>
 <button id="addBtn">+</button>
 
 <div id="pickerBar">
   <div id="pickerTop">
-    <div id="pickerHint" data-i18n="pickerHint">Обери тип і ткни на карту</div>
+    <div id="pickerHint">Обери тип і ткни на карту</div>
     <button id="pickerClose">×</button>
   </div>
+
   <div class="picker-grid">
     <div class="picker-item active" data-type="safe">
-      <img src="icons/safe.png" alt="Safe"><span>Safe</span>
+      <img src="icons/safe.png" alt="Safe">
+      <span>Safe</span>
     </div>
     <div class="picker-item" data-type="block">
-      <img src="icons/block.png" alt="Block"><span>Block</span>
+      <img src="icons/block.png" alt="Block">
+      <span>Block</span>
     </div>
     <div class="picker-item" data-type="danger2">
-      <img src="icons/danger2.png" alt="Danger"><span>Danger</span>
+      <img src="icons/danger2.png" alt="Danger">
+      <span>Danger</span>
     </div>
     <div class="picker-item" data-type="trash">
-      <img src="icons/trash.png" alt="Trash"><span>Trash</span>
+      <img src="icons/trash.png" alt="Trash">
+      <span>Trash</span>
     </div>
   </div>
 </div>
@@ -659,33 +610,32 @@
   <div id="sheetHead">
     <div id="sheetLeft">
       <img id="sheetIcon" src="icons/safe.png" alt="">
-      <div id="sheetTitle" data-i18n="safe">Безпечно</div>
+      <div id="sheetTitle">Безпечно</div>
     </div>
     <button id="sheetClose">×</button>
   </div>
+
   <textarea id="descInput" maxlength="100" placeholder="Опис..."></textarea>
   <div id="descCounter">0 / 100</div>
-  <button id="saveBtn" data-i18n="save">Зберегти</button>
+  <button id="saveBtn">Зберегти</button>
 </div>
 
 <div id="settingsSheet">
   <div id="settingsHead">
-    <div id="settingsTitle" data-i18n="settings">⚙️ Налаштування</div>
+    <div id="settingsTitle">⚙️ Налаштування</div>
     <button id="settingsClose">×</button>
   </div>
 
-  <!-- Мова -->
   <div class="settings-group">
-    <div class="settings-label" data-i18n="language">🌐 Мова</div>
-    <div class="lang-buttons">
-      <button class="lang-btn" data-lang="uk">🇺🇀 Українська</button>
-      <button class="lang-btn" data-lang="ru">🇷🇺 Русский</button>
-    </div>
+    <div class="settings-label">🌓 Тема карти</div>
+    <select id="mapThemeSelect" class="settings-select">
+      <option value="day">Денна</option>
+      <option value="night">Нічна (темна)</option>
+    </select>
   </div>
 
-  <!-- Фільтр за часом (ползунок) -->
   <div class="settings-group">
-    <div class="settings-label" data-i18n="timeFilter">⏱️ Фільтр за часом</div>
+    <div class="settings-label">⏱️ Фільтр за часом (ползунок)</div>
     <div class="time-slider-container">
       <input type="range" id="timeSlider" class="time-slider" min="0.5" max="24" step="0.5" value="24">
       <div class="time-slider-value">
@@ -696,114 +646,120 @@
     </div>
   </div>
 
-  <!-- Фільтр типів -->
   <div class="settings-group">
-    <div class="settings-label" data-i18n="typeFilter">👁️ Фільтр типів міток</div>
+    <div class="settings-label">👁️ Фільтр типів міток</div>
     <div class="filter-group" id="filterGroup">
       <div class="filter-item" data-filter-type="safe">
-        <div class="filter-item-left"><img src="icons/safe.png"><span>Safe (Безпечно)</span></div>
+        <div class="filter-item-left">
+          <img src="icons/safe.png" alt="">
+          <span>Safe (Безпечно)</span>
+        </div>
         <div class="filter-toggle" id="filterSafe"></div>
       </div>
       <div class="filter-item" data-filter-type="block">
-        <div class="filter-item-left"><img src="icons/block.png"><span>Block (Перекрито)</span></div>
+        <div class="filter-item-left">
+          <img src="icons/block.png" alt="">
+          <span>Block (Перекрито)</span>
+        </div>
         <div class="filter-toggle" id="filterBlock"></div>
       </div>
       <div class="filter-item" data-filter-type="danger2">
-        <div class="filter-item-left"><img src="icons/danger2.png"><span>Danger (Небезпека)</span></div>
+        <div class="filter-item-left">
+          <img src="icons/danger2.png" alt="">
+          <span>Danger (Небезпека)</span>
+        </div>
         <div class="filter-toggle" id="filterDanger2"></div>
       </div>
       <div class="filter-item" data-filter-type="trash">
-        <div class="filter-item-left"><img src="icons/trash.png"><span>Trash (Сміття)</span></div>
+        <div class="filter-item-left">
+          <img src="icons/trash.png" alt="">
+          <span>Trash (Сміття)</span>
+        </div>
         <div class="filter-toggle" id="filterTrash"></div>
       </div>
     </div>
   </div>
 
-  <!-- Фільтр по районах -->
-  <div class="settings-group">
-    <div class="settings-label" data-i18n="districtFilter">📍 Фільтр по районах</div>
-    <div class="districts-grid" id="districtsGrid"></div>
-  </div>
-
-  <!-- Автоматична тема -->
-  <div class="settings-group">
-    <div class="auto-theme-row">
-      <div class="settings-label" data-i18n="autoTheme">🌙 Автоматична тема</div>
-      <div class="filter-toggle" id="autoThemeToggle"></div>
-    </div>
-    <div class="time-range" id="timeRangeContainer" style="display: none;">
-      <input type="time" id="nightStart" value="20:00">
-      <span>→</span>
-      <input type="time" id="nightEnd" value="06:00">
-    </div>
-  </div>
-
-  <!-- Сповіщення -->
-  <div class="settings-group">
-    <div class="auto-theme-row">
-      <div class="settings-label" data-i18n="notifications">🔔 Сповіщення про нові мітки</div>
-      <div class="filter-toggle" id="notifToggle"></div>
-    </div>
-  </div>
-
-  <button id="saveSettingsBtn" data-i18n="save">Зберегти</button>
+  <button id="saveSettingsBtn">Зберегти</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  // ==================== КОНСТАНТИ ====================
   const STORAGE_KEY = 'radar_points';
   const SETTINGS_KEY = 'radar_settings';
   const LIFE = 24 * 60 * 60 * 1000;
 
-  const labelMap = { safe: 'Безпечно', block: 'Перекрито', danger2: 'Небезпека', trash: 'Сміття' };
-  const labelMapRu = { safe: 'Безопасно', block: 'Перекрыто', danger2: 'Опасность', trash: 'Мусор' };
-
-  const districts = [
-    'Вигурівщина-Троєщина', 'Деснянський', 'Лісовий масив', 'Русанівка',
-    'Дарниця', 'Позняки', 'Харківський', 'Осокорки',
-    'Печерськ', 'Липки', 'Шевченківський', 'Поділ',
-    'Оболонь', 'Мінський', 'Виноградар', 'Святошин',
-    'Борщагівка', 'Солом\'янка', 'Голосієво', 'Теремки'
-  ];
-
-  const translations = {
-    uk: {
-      pickerHint: 'Обери тип і ткни на карту', settings: '⚙️ Налаштування', language: '🌐 Мова',
-      timeFilter: '⏱️ Фільтр за часом', typeFilter: '👁️ Фільтр типів міток', districtFilter: '📍 Фільтр по районах',
-      autoTheme: '🌙 Автоматична тема', notifications: '🔔 Сповіщення про нові мітки', save: 'Зберегти',
-      safe: 'Безпечно', block: 'Перекрито', danger2: 'Небезпека', trash: 'Сміття'
-    },
-    ru: {
-      pickerHint: 'Выбери тип и коснись карты', settings: '⚙️ Настройки', language: '🌐 Язык',
-      timeFilter: '⏱️ Фильтр по времени', typeFilter: '👁️ Фильтр типов меток', districtFilter: '📍 Фильтр по районам',
-      autoTheme: '🌙 Автоматическая тема', notifications: '🔔 Уведомления о новых метках', save: 'Сохранить',
-      safe: 'Безопасно', block: 'Перекрыто', danger2: 'Опасность', trash: 'Мусор'
-    }
+  const labelMap = {
+    safe: 'Безпечно',
+    block: 'Перекрито',
+    danger2: 'Небезпека',
+    trash: 'Сміття'
   };
 
   const mapThemes = {
-    day: { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '&copy; OpenStreetMap' },
-    night: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', attribution: '&copy; CARTO' }
+    day: {
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; OpenStreetMap contributors'
+    },
+    night: {
+      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }
   };
 
-  // ==================== ЗМІННІ ====================
   const map = L.map('map').setView([50.45, 30.52], 13);
   let currentTileLayer = null;
-  let settings = loadSettings();
-  let data = load();
-  let markers = [];
-  let addMode = false, selected = null, temp = null, currentType = 'safe';
-  let lastPointCount = 0;
-  let notifPermission = false;
 
-  // DOM елементи
+  function loadSettings() {
+    const defaultSettings = {
+      mapTheme: 'night',
+      timeFilterHours: 24,
+      filters: {
+        safe: true,
+        block: true,
+        danger2: true,
+        trash: true
+      }
+    };
+    try {
+      const saved = localStorage.getItem(SETTINGS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return { 
+          ...defaultSettings, 
+          ...parsed, 
+          filters: { ...defaultSettings.filters, ...(parsed.filters || {}) },
+          timeFilterHours: parsed.timeFilterHours || 24
+        };
+      }
+    } catch(e) {}
+    return defaultSettings;
+  }
+
+  function saveSettings(settings) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  }
+
+  let settings = loadSettings();
+
+  function applyMapTheme(theme) {
+    if (currentTileLayer) {
+      map.removeLayer(currentTileLayer);
+    }
+    currentTileLayer = L.tileLayer(mapThemes[theme].url, {
+      attribution: mapThemes[theme].attribution
+    }).addTo(map);
+  }
+
+  applyMapTheme(settings.mapTheme);
+
   const addBtn = document.getElementById('addBtn');
-  const settingsBtn = document document.getElementById('settingsBtn');
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const settingsBtn = document.getElementById('settingsBtn');
+
   const pickerBar = document.getElementById('pickerBar');
   const pickerClose = document.getElementById('pickerClose');
   const pickerItems = document.querySelectorAll('.picker-item');
+
   const descSheet = document.getElementById('descSheet');
   const sheetClose = document.getElementById('sheetClose');
   const sheetIcon = document.getElementById('sheetIcon');
@@ -811,180 +767,229 @@
   const descInput = document.getElementById('descInput');
   const descCounter = document.getElementById('descCounter');
   const saveBtn = document.getElementById('saveBtn');
+
   const settingsSheet = document.getElementById('settingsSheet');
   const settingsClose = document.getElementById('settingsClose');
+  const mapThemeSelect = document.getElementById('mapThemeSelect');
   const timeSlider = document.getElementById('timeSlider');
   const timeValue = document.getElementById('timeValue');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-  const autoThemeToggle = document.getElementById('autoThemeToggle');
-  const nightStart = document.getElementById('nightStart');
-  const nightEnd = document.getElementById('nightEnd');
-  const notifToggle = document.getElementById('notifToggle');
 
-  // ==================== ФУНКЦІЇ ====================
-  function loadSettings() {
-    const defaultSettings = {
-      mapTheme: 'night', timeFilterHours: 24, lang: 'uk',
-      autoTheme: true, nightStart: '20:00', nightEnd: '06:00',
-      notifications: true, lastNotifCount: 0,
-      filters: { safe: true, block: true, danger2: true, trash: true },
-      districts: districts.reduce((acc, d) => ({ ...acc, [d]: true }), {})
-    };
-    try {
-      const saved = localStorage.getItem(SETTINGS_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return { ...defaultSettings, ...parsed, filters: { ...defaultSettings.filters, ...(parsed.filters || {}) } };
-      }
-    } catch(e) {}
-    return defaultSettings;
-  }
+  let addMode = false;
+  let selected = null;
+  let temp = null;
+  let currentType = 'safe';
+  let data = load();
 
-  function saveSettings(sett) {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(sett));
-  }
-
-  function applyMapTheme(theme) {
-    if (currentTileLayer) map.removeLayer(currentTileLayer);
-    currentTileLayer = L.tileLayer(mapThemes[theme].url, { attribution: mapThemes[theme].attribution }).addTo(map);
-    themeToggleBtn.textContent = theme === 'night' ? '🌙' : '☀️';
-  }
-
-  function checkAutoTheme() {
-    if (!settings.autoTheme) return;
-    const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    let isNight = false;
-    if (settings.nightStart < settings.nightEnd) {
-      isNight = currentTime >= settings.nightStart && currentTime < settings.nightEnd;
-    } else {
-      isNight = currentTime >= settings.nightStart || currentTime < settings.nightEnd;
-    }
-    const desiredTheme = isNight ? 'night' : 'day';
-    if (settings.mapTheme !== desiredTheme) {
-      settings.mapTheme = desiredTheme;
-      applyMapTheme(settings.mapTheme);
-    }
-  }
-
-  function updateUIByLang() {
-    const t = translations[settings.lang];
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.dataset.i18n;
-      if (t[key]) el.textContent = t[key];
-    });
-    sheetTitle.textContent = (settings.lang === 'uk' ? labelMap : labelMapRu)[currentType] || currentType;
-    document.querySelector('#pickerHint').textContent = t.pickerHint;
-    document.querySelector('#settingsTitle').innerHTML = t.settings;
-  }
+  mapThemeSelect.value = settings.mapTheme;
+  
+  // Встановлюємо значення ползунка
+  timeSlider.value = settings.timeFilterHours;
+  updateTimeDisplay(settings.timeFilterHours);
 
   function updateTimeDisplay(hours) {
-    if (hours < 1) timeValue.textContent = `${Math.round(hours * 60)} хв`;
-    else timeValue.textContent = `${hours} год`;
+    if (hours < 1) {
+      const minutes = Math.round(hours * 60);
+      timeValue.textContent = `${minutes} хв`;
+    } else {
+      timeValue.textContent = `${hours} год`;
+    }
   }
+
+  timeSlider.addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value);
+    updateTimeDisplay(val);
+  });
 
   function updateFilterUI() {
-    const ids = { safe:'filterSafe', block:'filterBlock', danger2:'filterDanger2', trash:'filterTrash' };
-    Object.entries(ids).forEach(([type, id]) => {
+    const filterIds = {
+      safe: 'filterSafe',
+      block: 'filterBlock',
+      danger2: 'filterDanger2',
+      trash: 'filterTrash'
+    };
+    for (const [type, id] of Object.entries(filterIds)) {
       const toggle = document.getElementById(id);
-      if (toggle) settings.filters[type] ? toggle.classList.add('active') : toggle.classList.remove('active');
-    });
-    autoThemeToggle.classList.toggle('active', settings.autoTheme);
-    notifToggle.classList.toggle('active', settings.notifications);
-    document.getElementById('timeRangeContainer').style.display = settings.autoTheme ? 'flex' : 'none';
+      if (toggle) {
+        if (settings.filters[type]) {
+          toggle.classList.add('active');
+        } else {
+          toggle.classList.remove('active');
+        }
+      }
+    }
   }
 
-  function renderDistricts() {
-    const container = document.getElementById('districtsGrid');
-    container.innerHTML = districts.map(d => `
-      <div class="district-item" data-district="${d}">
-        <input type="checkbox" id="dist_${d.replace(/\s/g, '_')}" ${settings.districts[d] ? 'checked' : ''}>
-        <label for="dist_${d.replace(/\s/g, '_')}">${d}</label>
-      </div>
-    `).join('');
-    container.querySelectorAll('.district-item input').forEach(ch => {
-      ch.addEventListener('change', (e) => {
-        const district = ch.closest('.district-item').dataset.district;
-        settings.districts[district] = ch.checked;
-        render();
+  function initFilterToggles() {
+    const filterItems = document.querySelectorAll('.filter-item');
+    filterItems.forEach(item => {
+      const type = item.dataset.filterType;
+      const toggle = item.querySelector('.filter-toggle');
+      if (toggle) {
+        toggle.addEventListener('click', (e) => {
+          e.stopPropagation();
+          settings.filters[type] = !settings.filters[type];
+          updateFilterUI();
+          render();
+        });
+      }
+      item.addEventListener('click', (e) => {
+        if (e.target !== toggle) {
+          settings.filters[type] = !settings.filters[type];
+          updateFilterUI();
+          render();
+        }
       });
     });
   }
 
-  function isPointInSelectedDistricts(lat, lng) {
-    if (Object.values(settings.districts).every(v => v === false)) return true;
-    // Спрощена перевірка - за координатами районів Києва
-    const kyivBounds = {
-      'Вигурівщина-Троєщина': [[50.52, 30.58], [50.48, 30.62]],
-      'Лісовий масив': [[50.48, 30.62], [50.45, 30.65]],
-      'Русанівка': [[50.44, 30.60], [50.42, 30.62]],
-      'Дарниця': [[50.43, 30.62], [50.40, 30.65]],
-      'Печерськ': [[50.44, 30.54], [50.42, 30.56]],
-      'Оболонь': [[50.52, 30.50], [50.48, 30.53]],
-      'Поділ': [[50.47, 30.52], [50.46, 30.54]],
-      'Святошин': [[50.46, 30.38], [50.43, 30.42]],
-      'Голосієво': [[50.40, 30.52], [50.38, 30.55]]
-    };
-    for (const [district, bounds] of Object.entries(settings.districts)) {
-      if (settings.districts[district] && kyivBounds[district]) {
-        const [[minLat, minLng], [maxLat, maxLng]] = kyivBounds[district];
-        if (lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng) return true;
-      }
-    }
-    return Object.values(settings.districts).every(v => v === false);
-  }
-
   function getIcon(type, zoom) {
     let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
-    return L.divIcon({ className: '', html: `<img src="icons/${type}.png" class="pin-img">`, iconSize: [s, s], iconAnchor: [s/2, s/2] });
+    return L.divIcon({
+      className: '',
+      html: `<img src="icons/${type}.png" class="pin-img">`,
+      iconSize: [s, s],
+      iconAnchor: [s / 2, s / 2]
+    });
   }
 
-  function formatDateTime(t) { return new Date(t).toLocaleString('uk-UA', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }); }
-  function formatTime(t) { return new Date(t).toLocaleTimeString('uk-UA', { hour:'2-digit', minute:'2-digit' }); }
-  function escapeHtml(t) { return String(t||'').replace(/[&<>]/g, function(m) { return m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'; }); }
-  function timeLeftText(t) { const left = t + LIFE - Date.now(); if(left<=0)return 'Закінчилась'; const h=Math.floor(left/3600000), m=Math.floor((left%3600000)/60000); return `ще ${h}:${String(m).padStart(2,'0')} год`; }
+  function formatDateTime(t) {
+    return new Date(t).toLocaleString('uk-UA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function formatTime(t) {
+    return new Date(t).toLocaleTimeString('uk-UA', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
 
   function load() {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     const filtered = raw.filter(p => Date.now() - p.time < LIFE);
-    if(filtered.length !== raw.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    if (filtered.length !== raw.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    }
     return filtered;
   }
-  function save(arr) { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
 
-  function checkNewPoints() {
-    if (!settings.notifications || !notifPermission) return;
-    const currentCount = data.length;
-    if (currentCount > lastPointCount && lastPointCount !== 0) {
-      new Notification('🔔 Нова мітка на карті!', { body: `Додано ${currentCount - lastPointCount} нових міток`, icon: 'icons/safe.png' });
-    }
-    lastPointCount = currentCount;
+  function save(arr) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
   }
 
-  function popupHtml(point, idx) {
-    const label = (settings.lang === 'uk' ? labelMap : labelMapRu)[point.type] || point.type;
-    const commentsHtml = (point.comments || []).map(c => `<div class="comment-item"><div class="comment-text">${escapeHtml(c.text)}</div><div class="comment-time">${formatTime(c.time)}</div></div>`).join('');
-    return `<div class="radar-popup"><div class="popup-head"><div class="popup-head-left"><img src="icons/${point.type}.png" class="popup-icon"><div class="popup-meta"><div class="popup-title">${escapeHtml(label)}</div><div class="popup-time">${formatDateTime(point.time)}</div><div class="popup-life">${timeLeftText(point.time)}</div></div></div><button class="popup-close" onclick="window.closePopup()">×</button></div><div class="popup-desc">${escapeHtml(point.desc||'')}</div><div class="popup-comments-title">💬 Коментарі</div><div class="popup-comments">${commentsHtml||'<div class="comment-item">Немає коментарів</div>'}</div><div class="reaction-row"><button class="reaction-btn like" onclick="window.vote(${idx},'like')">👍 ${point.likes||0}</button><button class="reaction-btn dislike" onclick="window.vote(${idx},'dislike')">👎 ${point.dislikes||0}</button></div><input id="commentInput_${idx}" class="popup-input" maxlength="100" placeholder="Написати коментар..."><div class="popup-counter" id="commentCounter_${idx}">0/100</div><button class="popup-btn" onclick="window.addComment(${idx})">Додати</button></div>`;
+  function escapeHtml(text) {
+    return String(text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
+
+  function timeLeftText(createdAt) {
+    const end = createdAt + LIFE;
+    const left = end - Date.now();
+    if (left <= 0) return 'Закінчилась';
+
+    const hours = Math.floor(left / (1000 * 60 * 60));
+    const minutes = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
+    return `ще ${hours}:${String(minutes).padStart(2, '0')} год`;
+  }
+
+  function popupHtml(point, index) {
+    const commentsHtml = (point.comments || []).map(c => `
+      <div class="comment-item">
+        <div class="comment-text">${escapeHtml(c.text)}</div>
+        <div class="comment-time">${formatTime(c.time)}</div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="radar-popup">
+        <div class="popup-head">
+          <div class="popup-head-left">
+            <img src="icons/${point.type}.png" class="popup-icon">
+            <div class="popup-meta">
+              <div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div>
+              <div class="popup-time">${formatDateTime(point.time)}</div>
+              <div class="popup-life">${timeLeftText(point.time)}</div>
+            </div>
+          </div>
+
+          <button class="popup-close" onclick="closePopup()">×</button>
+        </div>
+
+        <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
+
+        <div class="popup-comments-title">Коментарі</div>
+
+        <div class="popup-comments">
+          ${commentsHtml || '<div class="comment-item"><div class="comment-text">Немає коментарів</div></div>'}
+        </div>
+
+        <div class="reaction-row">
+          <button class="reaction-btn like" onclick="vote(${index}, 'like')">👍 ${point.likes || 0}</button>
+          <button class="reaction-btn dislike" onclick="vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
+        </div>
+
+        <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
+        <div class="popup-counter" id="commentCounter_${index}">0 / 100</div>
+        <button class="popup-btn" onclick="addComment(${index})">Додати коментар</button>
+      </div>
+    `;
+  }
+
+  let markers = [];
 
   function render() {
     markers.forEach(m => map.removeLayer(m));
     markers = [];
+
     data = load();
-    const zoom = map.getZoom(), now = Date.now(), timeLimit = settings.timeFilterHours * 3600000;
+    const zoom = map.getZoom();
+    const now = Date.now();
+    const timeLimit = settings.timeFilterHours * 60 * 60 * 1000;
+
     data.forEach((p, i) => {
       if (!settings.filters[p.type]) return;
       if (now - p.time > timeLimit) return;
-      if (!isPointInSelectedDistricts(p.lat, p.lng)) return;
-      const marker = L.marker([p.lat, p.lng], { icon: getIcon(p.type, zoom) }).addTo(map);
+
+      const marker = L.marker([p.lat, p.lng], {
+        icon: getIcon(p.type, zoom)
+      }).addTo(map);
+
       marker.bindPopup(popupHtml(p, i));
-      marker.on('popupopen', () => setTimeout(() => {
-        const inp = document.getElementById(`commentInput_${i}`);
-        if(inp) inp.addEventListener('input', () => document.getElementById(`commentCounter_${i}`).textContent = `${inp.value.length}/100`);
-      }, 10));
+
+      marker.on('popupopen', () => {
+        setTimeout(() => {
+          const input = document.getElementById(`commentInput_${i}`);
+          const counter = document.getElementById(`commentCounter_${i}`);
+          if (input && counter) {
+            input.addEventListener('input', () => {
+              counter.textContent = `${input.value.length} / 100`;
+            });
+          }
+        }, 10);
+      });
+
       markers.push(marker);
     });
-    checkNewPoints();
+  }
+
+  function updatePickerActive() {
+    pickerItems.forEach(x => x.classList.remove('active'));
+    document.querySelector(`.picker-item[data-type="${currentType}"]`)?.classList.add('active');
+    sheetIcon.src = `icons/${currentType}.png`;
+    sheetTitle.textContent = labelMap[currentType] || currentType;
+    if (temp && selected) {
+      temp.setIcon(getIcon(currentType, map.getZoom()));
+    }
   }
 
   function closeCreateMode() {
@@ -995,107 +1000,164 @@
     selected = null;
     descInput.value = '';
     descCounter.textContent = '0 / 100';
-    if(temp) { map.removeLayer(temp); temp = null; }
-  }
-
-  window.closePopup = () => map.closePopup();
-  window.vote = (idx, type) => {
-    data = load();
-    if(!data[idx]) return;
-    type==='like' ? data[idx].likes=(data[idx].likes||0)+1 : data[idx].dislikes=(data[idx].dislikes||0)+1;
-    save(data); render();
-    if(markers[idx]) markers[idx].openPopup();
-  };
-  window.addComment = (idx) => {
-    const inp = document.getElementById(`commentInput_${idx}`);
-    if(!inp) return;
-    const text = inp.value.trim();
-    if(!text) return alert('Коментар обов\'язковий');
-    if(text.length>100) return alert('Максимум 100 символів');
-    data = load();
-    if(!data[idx]) return;
-    if(!data[idx].comments) data[idx].comments = [];
-    data[idx].comments.push({ text, time: Date.now() });
-    save(data); render();
-    if(markers[idx]) markers[idx].openPopup();
-  };
-
-  // ==================== ІНІЦІАЛІЗАЦІЯ ====================
-  async function initNotifications() {
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      notifPermission = permission === 'granted';
+    if (temp) {
+      map.removeLayer(temp);
+      temp = null;
     }
   }
 
-  applyMapTheme(settings.mapTheme);
-  timeSlider.value = settings.timeFilterHours;
-  updateTimeDisplay(settings.timeFilterHours);
-  nightStart.value = settings.nightStart;
-  nightEnd.value = settings.nightEnd;
-
-  updateFilterUI();
-  renderDistricts();
-  updateUIByLang();
-
-  // Події
-  themeToggleBtn.onclick = () => {
-    settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
-    applyMapTheme(settings.mapTheme);
-    render();
+  window.closePopup = function() {
+    map.closePopup();
   };
-  timeSlider.addEventListener('input', (e) => updateTimeDisplay(parseFloat(e.target.value)));
-  autoThemeToggle.onclick = () => { settings.autoTheme = !settings.autoTheme; updateFilterUI(); checkAutoTheme(); };
-  notifToggle.onclick = async () => { settings.notifications = !settings.notifications; updateFilterUI(); if(settings.notifications && !notifPermission) await initNotifications(); };
-  saveSettingsBtn.onclick = () => {
-    settings.timeFilterHours = parseFloat(timeSlider.value);
-    settings.nightStart = nightStart.value;
-    settings.nightEnd = nightEnd.value;
-    saveSettings(settings);
-    if(settings.autoTheme) checkAutoTheme();
-    render();
-    settingsSheet.style.display = 'none';
-  };
-  pickerItems.forEach(el => el.addEventListener('click', () => { currentType = el.dataset.type; updatePickerActive(); }));
-  addBtn.onclick = () => { addMode=true; addBtn.style.display='none'; settingsSheet.style.display='none'; pickerBar.style.display='block'; descSheet.style.display='none'; };
-  settingsBtn.onclick = () => { settingsSheet.style.display='block'; pickerBar.style.display='none'; descSheet.style.display='none'; };
-  pickerClose.onclick = sheetClose.onclick = closeCreateMode;
-  settingsClose.onclick = () => settingsSheet.style.display='none';
-  descInput.oninput = () => descCounter.textContent = `${descInput.value.length}/100`;
-  map.on('click', e => { if(!addMode) return; selected=e.latlng; if(temp) map.removeLayer(temp); temp=L.marker(selected,{icon:getIcon(currentType,map.getZoom())}).addTo(map); updatePickerActive(); descSheet.style.display='block'; });
-  saveBtn.onclick = () => {
-    const desc = descInput.value.trim();
-    if(!selected) return alert('Ткни на карту');
-    if(!desc) return alert("Опис обов'язковий");
-    if(desc.length>100) return alert('Максимум 100 символів');
+
+  window.vote = function(index, type) {
     data = load();
-    data.push({ lat:selected.lat, lng:selected.lng, type:currentType, desc, time:Date.now(), comments:[], likes:0, dislikes:0 });
-    save(data); render(); closeCreateMode();
+    if (!data[index]) return;
+    
+    if (type === 'like') {
+      data[index].likes = (data[index].likes || 0) + 1;
+    } else {
+      data[index].dislikes = (data[index].dislikes || 0) + 1;
+    }
+    save(data);
+    render();
+    if (markers[index]) markers[index].openPopup();
   };
-  map.on('zoomend', () => render());
-  setInterval(() => { render(); checkAutoTheme(); }, 30000);
-  initNotifications();
 
-  function updatePickerActive() {
-    pickerItems.forEach(x => x.classList.remove('active'));
-    document.querySelector(`.picker-item[data-type="${currentType}"]`)?.classList.add('active');
-    sheetIcon.src = `icons/${currentType}.png`;
-    sheetTitle.textContent = (settings.lang === 'uk' ? labelMap : labelMapRu)[currentType] || currentType;
-    if(temp && selected) temp.setIcon(getIcon(currentType, map.getZoom()));
-  }
+  window.addComment = function(index) {
+    const input = document.getElementById(`commentInput_${index}`);
+    if (!input) return;
 
-  // Мова
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.onclick = () => {
-      settings.lang = btn.dataset.lang;
-      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      updateUIByLang();
-      render();
-    };
-    if(btn.dataset.lang === settings.lang) btn.classList.add('active');
+    const text = input.value.trim();
+    if (!text) {
+      alert('Коментар обовʼязковий');
+      return;
+    }
+    if (text.length > 100) {
+      alert('Максимум 100 символів');
+      return;
+    }
+
+    data = load();
+    if (!data[index]) return;
+
+    if (!Array.isArray(data[index].comments)) {
+      data[index].comments = [];
+    }
+
+    data[index].comments.push({
+      text,
+      time: Date.now()
+    });
+
+    save(data);
+    render();
+    if (markers[index]) markers[index].openPopup();
+  };
+
+  pickerItems.forEach(el => {
+    el.addEventListener('click', () => {
+      currentType = el.dataset.type;
+      updatePickerActive();
+    });
   });
 
+  addBtn.addEventListener('click', () => {
+    addMode = true;
+    addBtn.style.display = 'none';
+    settingsSheet.style.display = 'none';
+    pickerBar.style.display = 'block';
+    descSheet.style.display = 'none';
+  });
+
+  settingsBtn.addEventListener('click', () => {
+    settingsSheet.style.display = 'block';
+    pickerBar.style.display = 'none';
+    descSheet.style.display = 'none';
+  });
+
+  pickerClose.addEventListener('click', closeCreateMode);
+  sheetClose.addEventListener('click', closeCreateMode);
+  settingsClose.addEventListener('click', () => {
+    settingsSheet.style.display = 'none';
+  });
+
+  saveSettingsBtn.addEventListener('click', () => {
+    settings.mapTheme = mapThemeSelect.value;
+    settings.timeFilterHours = parseFloat(timeSlider.value);
+    saveSettings(settings);
+    applyMapTheme(settings.mapTheme);
+    render();
+    settingsSheet.style.display = 'none';
+  });
+
+  descInput.addEventListener('input', () => {
+    descCounter.textContent = `${descInput.value.length} / 100`;
+  });
+
+  map.on('click', e => {
+    if (!addMode) return;
+
+    selected = e.latlng;
+
+    if (temp) {
+      map.removeLayer(temp);
+    }
+
+    temp = L.marker(selected, {
+      icon: getIcon(currentType, map.getZoom())
+    }).addTo(map);
+
+    updatePickerActive();
+    descSheet.style.display = 'block';
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const desc = descInput.value.trim();
+
+    if (!selected) {
+      alert('Ткни на карту');
+      return;
+    }
+
+    if (!desc) {
+      alert("Опис обов'язковий");
+      return;
+    }
+
+    if (desc.length > 100) {
+      alert('Максимум 100 символів');
+      return;
+    }
+
+    data = load();
+    data.push({
+      lat: selected.lat,
+      lng: selected.lng,
+      type: currentType,
+      desc: desc,
+      time: Date.now(),
+      comments: [],
+      likes: 0,
+      dislikes: 0
+    });
+
+    save(data);
+    render();
+    closeCreateMode();
+  });
+
+  map.on('zoomend', () => {
+    render();
+  });
+
+  setInterval(() => {
+    render();
+  }, 60000);
+
+  updateFilterUI();
+  initFilterToggles();
+  updatePickerActive();
   render();
 </script>
 </body>
