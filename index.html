@@ -73,11 +73,8 @@
   <div id="status">Натисни +, потім ткни на карту</div>
 
   <select id="typeSelect">
-    <option value="Світло">Світло</option>
-    <option value="Вода">Вода</option>
-    <option value="Аварія">Аварія</option>
-    <option value="Дорога">Дорога</option>
-    <option value="Зв'язок">Зв'язок</option>
+    <option value="block">Перекрито</option>
+    <option value="danger">Безпорядки</option>
   </select>
 
   <button id="saveBtn">Зберегти точку</button>
@@ -85,6 +82,26 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  const icons = {
+    block: L.icon({
+      iconUrl: 'icons/block.png',
+      iconSize: [50, 50],
+      iconAnchor: [25, 50],
+      popupAnchor: [0, -45]
+    }),
+    danger: L.icon({
+      iconUrl: 'icons/danger.png',
+      iconSize: [50, 50],
+      iconAnchor: [25, 50],
+      popupAnchor: [0, -45]
+    })
+  };
+
+  const labels = {
+    block: 'Перекрито',
+    danger: 'Безпорядки'
+  };
+
   const map = L.map('map').setView([50.4501, 30.5234], 13);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -116,7 +133,12 @@
       map.removeLayer(tempMarker);
     }
 
-    tempMarker = L.marker(selectedLatLng).addTo(map);
+    const type = typeSelect.value;
+
+    tempMarker = L.marker(selectedLatLng, {
+      icon: icons[type]
+    }).addTo(map);
+
     statusText.textContent = `Точка вибрана: ${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
   });
 
@@ -128,9 +150,11 @@
 
     const type = typeSelect.value;
 
-    L.marker(selectedLatLng)
+    L.marker(selectedLatLng, {
+      icon: icons[type]
+    })
       .addTo(map)
-      .bindPopup(`<b>${type}</b>`);
+      .bindPopup(`<b>${labels[type]}</b>`);
 
     if (tempMarker) {
       map.removeLayer(tempMarker);
