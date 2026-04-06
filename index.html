@@ -26,6 +26,8 @@
       height: 100%;
       object-fit: contain;
       display: block;
+      pointer-events: none;
+      user-select: none;
     }
 
     #addBtn {
@@ -751,7 +753,7 @@
     </div>
 
     <div class="picker-item" data-type="question">
-      <img src="icons/????.png" alt="Питання">
+      <img src="icons/question.png" alt="Питання">
       <span>Питання</span>
     </div>
 
@@ -842,7 +844,7 @@
 
       <div class="filter-item" data-filter-type="question">
         <div class="filter-item-left">
-          <img src="icons/????.png" alt="">
+          <img src="icons/question.png" alt="">
           <span>Питання</span>
         </div>
         <div class="filter-toggle" id="filterQuestion"></div>
@@ -926,6 +928,12 @@
   const map = L.map('map').setView([50.45, 30.52], 13);
   let currentTileLayer = null;
 
+  function getIconPath(type) {
+    if (type === 'question') return 'icons/question.png';
+    if (type === 'poop') return 'icons/kaka.png';
+    return `icons/${type}.png`;
+  }
+
   function loadSettings() {
     const defaultSettings = {
       mapTheme: 'day',
@@ -961,7 +969,7 @@
           filters: { ...defaultSettings.filters, ...(parsed.filters || {}) }
         };
       }
-    } catch(e) {}
+    } catch (e) {}
 
     return defaultSettings;
   }
@@ -1047,9 +1055,6 @@
     return Math.min(1440, Math.max(15, num));
   }
 
-  timeSlider.value = clampMinutes(settings.timeFilterMinutes);
-  updateTimeDisplay(clampMinutes(settings.timeFilterMinutes));
-
   function formatMinutesText(totalMinutes) {
     totalMinutes = clampMinutes(totalMinutes);
     const hours = Math.floor(totalMinutes / 60);
@@ -1063,6 +1068,9 @@
   function updateTimeDisplay(minutes) {
     timeValue.textContent = formatMinutesText(minutes);
   }
+
+  timeSlider.value = clampMinutes(settings.timeFilterMinutes);
+  updateTimeDisplay(clampMinutes(settings.timeFilterMinutes));
 
   timeSlider.addEventListener('input', (e) => {
     updateTimeDisplay(parseInt(e.target.value, 10));
@@ -1148,16 +1156,11 @@
 
     return L.divIcon({
       className: '',
-      html: `<img src="icons/${type === 'question' ? 'question' : type === 'poop' ? 'kaka' : type}.png" class="pin-img">`,
+      html: `<img src="${getIconPath(type)}" class="pin-img">`,
       iconSize: [s, s],
-      iconAnchor: [s / 2, s]
+      iconAnchor: [s / 2, s],
+      popupAnchor: [0, -s + 10]
     });
-  }
-
-  function getIconPath(type) {
-    if (type === 'question') return 'icons/question.png';
-    if (type === 'poop') return 'icons/kaka.png';
-    return `icons/${type}.png`;
   }
 
   function formatDateTime(t) {
@@ -1311,6 +1314,7 @@
     document.querySelector(`.picker-item[data-type="${currentType}"]`)?.classList.add('active');
     sheetIcon.src = getIconPath(currentType);
     sheetTitle.textContent = labelMap[currentType] || currentType;
+
     if (temp && selected) {
       temp.setIcon(getIcon(currentType, map.getZoom()));
     }
@@ -1392,6 +1396,7 @@
     selected = null;
     descInput.value = '';
     descCounter.textContent = '0 / 100';
+
     if (temp) {
       map.removeLayer(temp);
       temp = null;
@@ -1463,6 +1468,7 @@
 
   pickerClose.addEventListener('click', closeCreateMode);
   sheetClose.addEventListener('click', closeCreateMode);
+
   settingsClose.addEventListener('click', () => {
     settingsSheet.style.display = 'none';
   });
@@ -1541,6 +1547,7 @@
 
   onSnapshot(pointsQuery, (snapshot) => {
     data = [];
+
     snapshot.forEach((itemDoc) => {
       const point = { id: itemDoc.id, ...itemDoc.data() };
 
