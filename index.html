@@ -8,180 +8,74 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-    }
-
-    #map {
-      width: 100%;
-      height: 100vh;
-    }
+    html, body {margin:0;padding:0;height:100%;font-family:Arial}
+    #map {width:100%;height:100vh}
 
     #addBtn {
-      position: absolute;
-      right: 20px;
-      bottom: 20px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      border: none;
-      background: black;
-      color: white;
-      font-size: 30px;
-      cursor: pointer;
-      z-index: 1000;
+      position:absolute;right:20px;bottom:20px;
+      width:56px;height:56px;border-radius:50%;
+      border:none;background:black;color:white;font-size:30px;
+      z-index:1000;cursor:pointer;
     }
 
     #panel {
-      position: absolute;
-      right: 20px;
-      bottom: 90px;
-      z-index: 1000;
-      background: white;
-      padding: 12px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      display: none;
-      width: 280px;
-    }
-
-    #panel::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      right: 20px;
-      border-left: 8px solid transparent;
-      border-right: 8px solid transparent;
-      border-top: 8px solid white;
-    }
-
-    #status {
-      margin-top: 8px;
-      font-size: 14px;
-    }
-
-    #saveBtn {
-      width: 100%;
-      margin-top: 12px;
-      padding: 10px;
-      border: none;
-      border-radius: 10px;
-      background: black;
-      color: white;
-      cursor: pointer;
-    }
-
-    #descInput {
-      width: 100%;
-      margin-top: 12px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      box-sizing: border-box;
-      resize: vertical;
-      min-height: 70px;
-      font-size: 14px;
+      position:absolute;right:20px;bottom:90px;
+      background:white;padding:12px;border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.2);
+      display:none;width:280px;z-index:1000;
     }
 
     .icon-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 12px;
+      display:grid;grid-template-columns:repeat(3,1fr);
+      gap:10px;margin-top:10px;
     }
 
     .icon-option {
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 6px;
-      cursor: pointer;
-      background: #f7f7f7;
-      text-align: center;
+      border:2px solid transparent;
+      border-radius:10px;padding:5px;
+      text-align:center;cursor:pointer;
     }
 
-    .icon-option.active {
-      border-color: #1e90ff;
-      background: #eef6ff;
+    .icon-option.active {border-color:#1e90ff;}
+
+    .icon-option img {width:50px;height:50px;object-fit:contain}
+
+    textarea {
+      width:100%;margin-top:10px;padding:8px;
+      border-radius:8px;border:1px solid #ccc;
     }
 
-    .icon-option img {
-      width: 54px;
-      height: 54px;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto 4px;
-    }
+    button {margin-top:10px;width:100%;padding:10px}
 
-    .icon-option span {
-      font-size: 12px;
-    }
+    .pin-img {width:100%;height:100%;object-fit:contain}
 
-    .pin {
-      width: 100%;
-      height: 100%;
-    }
-
-    .pin-img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-
-    .popup-title {
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .popup-date {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 6px;
-    }
-
-    .popup-desc {
-      font-size: 14px;
-      line-height: 1.35;
-      white-space: pre-wrap;
-    }
+    .comment {margin-top:6px;font-size:13px}
+    .time {font-size:11px;color:#777}
   </style>
 </head>
 <body>
 
 <div id="map"></div>
-
 <button id="addBtn">+</button>
 
 <div id="panel">
   <b>Нова точка</b>
-  <div id="status">Обери тип, додай опис і ткни на карту</div>
 
   <div class="icon-grid">
     <div class="icon-option active" data-type="safe">
       <img src="icons/safe.png">
-      <span>Безпечно</span>
     </div>
 
     <div class="icon-option" data-type="block">
       <img src="icons/block.png">
-      <span>Перекрито</span>
     </div>
 
     <div class="icon-option" data-type="danger2">
       <img src="icons/danger2.png">
-      <span>Небезпека</span>
-    </div>
-
-    <div class="icon-option" data-type="police">
-      <img src="icons/police.png">
-      <span>Патруль</span>
     </div>
   </div>
 
-  <textarea id="descInput" placeholder="Опис точки..."></textarea>
+  <textarea id="descInput" maxlength="100" placeholder="Опис (обов'язково, до 100 символів)"></textarea>
 
   <button id="saveBtn">Зберегти</button>
 </div>
@@ -189,173 +83,115 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-  const STORAGE_KEY = 'radar_points';
-  const POINT_LIFETIME = 86400000;
+const STORAGE_KEY='radar_points';
+const LIFE=86400000;
 
-  const labels = {
-    safe: 'Безпечно',
-    block: 'Перекрито',
-    danger: 'Небезпека',
-    police: 'Патруль'
-  };
+let currentType='safe';
 
-  let currentType = 'safe';
+function icon(type,z){
+  let s=z<12?22:z<14?28:34;
+  return L.divIcon({
+    html:`<img src="icons/${type}.png" class="pin-img">`,
+    iconSize:[s,s],
+    iconAnchor:[s/2,s/2]
+  });
+}
 
-  function getIcon(type, zoom) {
-    let size;
+function fmt(t){
+  return new Date(t).toLocaleString('uk-UA');
+}
 
-    if (zoom <= 10) size = 18;
-    else if (zoom <= 12) size = 24;
-    else if (zoom <= 14) size = 30;
-    else size = 36;
+function load(){
+  let d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+  return d.filter(p=>Date.now()-p.time<LIFE);
+}
 
-    return L.divIcon({
-      className: '',
-      html: `
-        <div class="pin">
-          <img src="icons/${type}.png" class="pin-img">
-        </div>
-      `,
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size / 2]
-    });
-  }
+function save(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}
 
-  function formatDateTime(timestamp) {
-    const d = new Date(timestamp);
-    return d.toLocaleString('uk-UA', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
+const map=L.map('map').setView([50.45,30.52],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-  function escapeHtml(text) {
-    return String(text || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
+let data=load(),markers=[];
 
-  function makePopup(point) {
-    const title = labels[point.type] || point.type;
-    const dateText = formatDateTime(point.time);
-    const desc = point.desc && point.desc.trim()
-      ? `<div class="popup-desc">${escapeHtml(point.desc)}</div>`
-      : `<div class="popup-desc">Без опису</div>`;
+function render(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  let z=map.getZoom();
 
-    return `
-      <div class="popup-title">${title}</div>
-      <div class="popup-date">${dateText}</div>
-      ${desc}
+  data=load();
+
+  data.forEach((p,i)=>{
+    let m=L.marker([p.lat,p.lng],{icon:icon(p.type,z)}).addTo(map);
+
+    let html=`
+      <b>${fmt(p.time)}</b><br>
+      ${p.desc}
+      <hr>
+      <div id="c${i}">
+        ${p.comments.map(c=>`<div class="comment">${c.text}<div class="time">${fmt(c.time)}</div></div>`).join('')}
+      </div>
+      <input id="in${i}" placeholder="Коментар">
+      <button onclick="addComment(${i})">OK</button>
     `;
-  }
 
-  function loadPoints() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return [];
+    m.bindPopup(html);
+    markers.push(m);
+  });
+}
 
-    const now = Date.now();
-    return JSON.parse(data).filter(p => now - p.time < POINT_LIFETIME);
-  }
+window.addComment=function(i){
+  let val=document.getElementById('in'+i).value.trim();
+  if(!val)return;
 
-  function savePoints(points) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(points));
-  }
-
-  const map = L.map('map').setView([50.45, 30.52], 13);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
-
-  let savedPoints = loadPoints();
-  let markers = [];
-
-  function render() {
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
-
-    savedPoints = loadPoints();
-    const zoom = map.getZoom();
-
-    savedPoints.forEach(p => {
-      const m = L.marker([p.lat, p.lng], {
-        icon: getIcon(p.type, zoom)
-      }).addTo(map).bindPopup(makePopup(p));
-
-      markers.push(m);
-    });
-  }
-
+  data[i].comments.push({text:val,time:Date.now()});
+  save(data);
   render();
-  map.on('zoomend', render);
+}
 
-  let addMode = false;
-  let temp = null;
-  let selected = null;
+render();
+map.on('zoomend',render);
 
-  const panel = document.getElementById('panel');
-  const saveBtn = document.getElementById('saveBtn');
-  const options = document.querySelectorAll('.icon-option');
-  const descInput = document.getElementById('descInput');
-  const addBtn = document.getElementById('addBtn');
+let add=false,temp=null,sel=null;
 
-  options.forEach(opt => {
-    opt.onclick = () => {
-      options.forEach(o => o.classList.remove('active'));
-      opt.classList.add('active');
-      currentType = opt.dataset.type;
+document.querySelectorAll('.icon-option').forEach(el=>{
+  el.onclick=()=>{
+    document.querySelectorAll('.icon-option').forEach(e=>e.classList.remove('active'));
+    el.classList.add('active');
+    currentType=el.dataset.type;
+  }
+});
 
-      if (temp && selected) {
-        temp.setIcon(getIcon(currentType, map.getZoom()));
-      }
-    };
+addBtn.onclick=()=>{add=true;panel.style.display='block'}
+
+map.on('click',e=>{
+  if(!add)return;
+  sel=e.latlng;
+  if(temp)map.removeLayer(temp);
+  temp=L.marker(sel,{icon:icon(currentType,map.getZoom())}).addTo(map);
+});
+
+saveBtn.onclick=()=>{
+  let d=descInput.value.trim();
+  if(!d)return alert('Опис обовʼязковий');
+  if(d.length>100)return alert('Макс 100 символів');
+
+  data.push({
+    lat:sel.lat,
+    lng:sel.lng,
+    type:currentType,
+    desc:d,
+    time:Date.now(),
+    comments:[]
   });
 
-  addBtn.onclick = () => {
-    addMode = true;
-    panel.style.display = 'block';
-  };
+  save(data);
+  render();
 
-  map.on('click', e => {
-    if (!addMode) return;
-
-    selected = e.latlng;
-
-    if (temp) map.removeLayer(temp);
-
-    temp = L.marker(selected, {
-      icon: getIcon(currentType, map.getZoom())
-    }).addTo(map);
-  });
-
-  saveBtn.onclick = () => {
-    if (!selected) return alert('Ткни на карту');
-
-    savedPoints.push({
-      lat: selected.lat,
-      lng: selected.lng,
-      type: currentType,
-      desc: descInput.value.trim(),
-      time: Date.now()
-    });
-
-    savePoints(savedPoints);
-    render();
-
-    if (temp) map.removeLayer(temp);
-
-    temp = null;
-    selected = null;
-    addMode = false;
-    panel.style.display = 'none';
-    descInput.value = '';
-  };
+  descInput.value='';
+  panel.style.display='none';
+  add=false;
+  if(temp)map.removeLayer(temp);
+};
 </script>
 
 </body>
