@@ -1187,13 +1187,13 @@
   let userLocationMarker = null;
   let userLocationCircle = null;
 
-  let markerLayer = L.layerGroup().addTo(map);
-  let circleLayer = L.layerGroup().addTo(map);
-
   let renderQueued = false;
   let mergeScanTimer = null;
   let mapReady = false;
   let suspendRenderWhileTyping = false;
+  let suppressPopupRestoreUntil = 0;
+
+  const markerRegistry = new Map();
 
   function getIconPath(type) {
     if (type === 'question') return 'icons/question.png';
@@ -1625,6 +1625,40 @@
     return suspendRenderWhileTyping || isTypingInEditableField();
   }
 
+  function shouldRestorePopupNow() {
+    return !shouldSkipRenderNow() && Date.now() > suppressPopupRestoreUntil;
+  }
+
+  function getVisiblePoints() {
+    const now = Date.now();
+    const timeLimit = clampMinutes(settings.timeFilterMinutes) * 60 * 1000;
+
+    return data.filter((p) => {
+      if (!settings.filters[p.type]) return false;
+      if (now - p.time > timeLimit) return false;
+      return true;
+    });
+  }
+
+  function getPointVisualHash(point) {
+    return JSON.stringify({
+      lat: point.lat,
+      lng: point.lng,
+      type: point.type,
+      desc: point.desc || '',
+      time: point.time,
+      comments: point.comments || [],
+      likes: point.likes || 0,
+      dislikes: point.dislikes || 0,
+      merged: !!point.merged,
+      mergedKind: point.mergedKind || null,
+      mergedCount: point.mergedCount || 1,
+      mergedRadius: point.mergedRadius || GROUP_CIRCLE_RADIUS,
+      mergedDescriptions: point.mergedDescriptions || [],
+      mergedSourceIds: point.mergedSourceIds || []
+    });
+  }
+
   function attachPopupInputCounter(index) {
     const input = document.getElementById(`commentInput_${index}`);
     const counter = document.getElementById(`commentCounter_${index}`);
@@ -1652,17 +1686,7 @@
     counter.textContent = `${input.value.length} / 100`;
   }
 
-  function reopenCurrentPopup() {
-    if (!currentOpenPointId) return;
-
-    markerLayer.eachLayer(layer => {
-      if (layer.pointId === currentOpenPointId) {
-        layer.openPopup();
-      }
-    });
-  }
-
-  function addGroupCircle(point) {
+  function buildCircle(point) {
     if (!point.merged || (point.mergedCount || 0) < MERGE_MIN_COUNT) return null;
 
     return L.circle([point.lat, point.lng], {
@@ -1676,6 +1700,103 @@
     });
   }
 
+  function bindMarkerPopup(marker, point, index) {
+    marker.bindPopup(popupHtml(point, index), {
+      autoPan: false,
+      keepInView: false,
+      closeButton: false,
+      offset: [0, -4],
+      className: 'radar-popup-wrap'
+    });
+
+    marker.off('popupopen');
+    marker.off('popupclose');
+
+    marker.on('popupopen', () => {
+      currentOpenPointId = point.id;
+      setTimeout(() => attachPopupInputCounter(index), 20);
+    });
+
+    marker.on('popupclose', () => {
+      if (currentOpenPointId === point.id) currentOpenPointId = null;
+    });
+  }
+
+  function updateExistingMarker(entry, point, index, zoom) {
+    const newHash = getPointVisualHash(point);
+    const newIconSizeKey = `${point.type}_${zoom}`;
+
+    if (entry.iconKey !== newIconSizeKey) {
+      entry.marker.setIcon(getIcon(point.type, zoom));
+      entry.iconKey = newIconSizeKey;
+    }
+
+    const needMove = entry.lat !== point.lat || entry.lng !== point.lng;
+    if (needMove) {
+      entry.marker.setLatLng([point.lat, point.lng]);
+      entry.lat = point.lat;
+      entry.lng = point.lng;
+    }
+
+    const needCircle = !!point.merged && (point.mergedCount || 0) >= MERGE_MIN_COUNT;
+
+    if (needCircle && !entry.circle) {
+      entry.circle = buildCircle(point);
+      if (entry.circle) entry.circle.addTo(map);
+    } else if (!needCircle && entry.circle) {
+      map.removeLayer(entry.circle);
+      entry.circle = null;
+    } else if (needCircle && entry.circle) {
+      entry.circle.setLatLng([point.lat, point.lng]);
+      entry.circle.setRadius(point.mergedRadius || GROUP_CIRCLE_RADIUS);
+      entry.circle.setStyle({
+        fillColor: point.mergedKind === 'safe' ? '#18c964' : '#ff3b30'
+      });
+    }
+
+    const popupIsOpen = entry.marker.isPopupOpen();
+
+    if (entry.hash !== newHash) {
+      const popup = entry.marker.getPopup();
+      const html = popupHtml(point, index);
+
+      if (popup) {
+        popup.setContent(html);
+      } else {
+        bindMarkerPopup(entry.marker, point, index);
+      }
+
+      entry.hash = newHash;
+    } else {
+      const popup = entry.marker.getPopup();
+      if (popup && popup.getContent() !== popupHtml(point, index)) {
+        popup.setContent(popupHtml(point, index));
+      }
+    }
+
+    if (popupIsOpen && point.id === currentOpenPointId && !shouldSkipRenderNow()) {
+      setTimeout(() => attachPopupInputCounter(index), 20);
+    }
+  }
+
+  function removeMarkerEntry(id) {
+    const entry = markerRegistry.get(id);
+    if (!entry) return;
+
+    if (entry.marker) {
+      map.removeLayer(entry.marker);
+    }
+    if (entry.circle) {
+      map.removeLayer(entry.circle);
+    }
+
+    markerRegistry.delete(id);
+
+    if (currentOpenPointId === id) {
+      currentOpenPointId = null;
+    }
+  }
+
   function queueRender(force = false) {
     if (!force && shouldSkipRenderNow()) return;
     if (renderQueued) return;
@@ -1685,64 +1806,67 @@
     requestAnimationFrame(() => {
       renderQueued = false;
       if (!force && shouldSkipRenderNow()) return;
-      render();
+      render(force);
     });
   }
 
-  function render() {
+  function render(force = false) {
     if (!mapReady) return;
-    if (shouldSkipRenderNow()) return;
-
-    const previouslyOpenPointId = currentOpenPointId;
-
-    markerLayer.clearLayers();
-    circleLayer.clearLayers();
+    if (!force && shouldSkipRenderNow()) return;
 
     const zoom = map.getZoom();
-    const now = Date.now();
-    const timeLimit = clampMinutes(settings.timeFilterMinutes) * 60 * 1000;
+    const visiblePoints = getVisiblePoints();
+    const visibleIds = new Set(visiblePoints.map(p => p.id));
 
-    data.forEach((p, i) => {
-      if (!settings.filters[p.type]) return;
-      if (now - p.time > timeLimit) return;
+    for (const [id] of markerRegistry) {
+      if (!visibleIds.has(id)) {
+        removeMarkerEntry(id);
+      }
+    }
 
-      const circle = addGroupCircle(p);
-      if (circle) circleLayer.addLayer(circle);
+    visiblePoints.forEach((point, index) => {
+      const existing = markerRegistry.get(point.id);
 
-      const marker = L.marker([p.lat, p.lng], {
-        icon: getIcon(p.type, zoom),
-        keyboard: false
-      });
+      if (!existing) {
+        const marker = L.marker([point.lat, point.lng], {
+          icon: getIcon(point.type, zoom),
+          keyboard: false
+        }).addTo(map);
 
-      marker.pointId = p.id;
+        marker.pointId = point.id;
+        bindMarkerPopup(marker, point, index);
 
-      marker.bindPopup(popupHtml(p, i), {
-        autoPan: false,
-        keepInView: false,
-        closeButton: false,
-        offset: [0, -4],
-        className: 'radar-popup-wrap'
-      });
+        let circle = null;
+        if (point.merged && (point.mergedCount || 0) >= MERGE_MIN_COUNT) {
+          circle = buildCircle(point);
+          if (circle) circle.addTo(map);
+        }
 
-      marker.on('popupopen', () => {
-        currentOpenPointId = p.id;
-        setTimeout(() => attachPopupInputCounter(i), 20);
-      });
-
-      marker.on('popupclose', () => {
-        if (currentOpenPointId === p.id) currentOpenPointId = null;
-      });
-
-      markerLayer.addLayer(marker);
+        markerRegistry.set(point.id, {
+          marker,
+          circle,
+          hash: getPointVisualHash(point),
+          lat: point.lat,
+          lng: point.lng,
+          iconKey: `${point.type}_${zoom}`
+        });
+      } else {
+        updateExistingMarker(existing, point, index, zoom);
+      }
     });
 
-    if (previouslyOpenPointId && !shouldSkipRenderNow()) {
-      currentOpenPointId = previouslyOpenPointId;
-      setTimeout(() => {
-        if (!shouldSkipRenderNow()) {
-          reopenCurrentPopup();
-        }
-      }, 20);
+    if (currentOpenPointId && shouldRestorePopupNow()) {
+      const entry = markerRegistry.get(currentOpenPointId);
+      if (entry && !entry.marker.isPopupOpen()) {
+        setTimeout(() => {
+          if (shouldRestorePopupNow()) {
+            const reopen = markerRegistry.get(currentOpenPointId);
+            if (reopen && !reopen.marker.isPopupOpen()) {
+              reopen.marker.openPopup();
+            }
+          }
+        }, 20);
+      }
     }
   }
 
@@ -2015,6 +2139,8 @@
     if (!item?.id) return;
     if (hasVoted(item.id)) return;
 
+    suppressPopupRestoreUntil = Date.now() + 1200;
+
     const ref = doc(db, "points", item.id);
 
     if (type === 'like') {
@@ -2024,7 +2150,10 @@
     }
 
     setVoted(item.id, type);
-    currentOpenPointId = item.id;
+
+    setTimeout(() => {
+      queueRender(true);
+    }, 80);
   };
 
   window.addComment = async function(index) {
@@ -2039,6 +2168,7 @@
     if (!item?.id) return;
 
     suspendRenderWhileTyping = true;
+    suppressPopupRestoreUntil = Date.now() + 1800;
 
     const ref = doc(db, "points", item.id);
     const newComments = [
@@ -2046,15 +2176,14 @@
       { text, time: Date.now() }
     ];
 
-    currentOpenPointId = item.id;
     await updateDoc(ref, { comments: newComments });
 
     input.blur();
 
     setTimeout(() => {
       suspendRenderWhileTyping = false;
-      safeInvalidateMap(true);
-    }, 150);
+      queueRender(true);
+    }, 180);
   };
 
   function safeInvalidateMap(force = false) {
@@ -2174,6 +2303,10 @@
     if (!desc) return alert("Опис обов’язковий");
     if (desc.length > 100) return alert('Максимум 100 символів');
 
+    suppressPopupRestoreUntil = Date.now() + 1800;
+    currentOpenPointId = null;
+    map.closePopup();
+
     const addedRef = await addDoc(collection(db, "points"), {
       lat: selected.lat,
       lng: selected.lng,
@@ -2199,11 +2332,14 @@
 
     closeCreateMode();
     showSuccessModal();
-    safeInvalidateMap();
+
+    setTimeout(() => {
+      queueRender(true);
+    }, 80);
   });
 
   map.on('zoomend', () => {
-    queueRender();
+    queueRender(true);
   });
 
   window.addEventListener('resize', () => {
@@ -2270,13 +2406,13 @@
   map.whenReady(() => {
     mapReady = true;
     flyToCity(settings.selectedCity || defaultCityKey, false);
-    safeInvalidateMap();
-    queueRender();
+    safeInvalidateMap(true);
+    queueRender(true);
   });
 
   initTelegramMiniAppFixes();
-  setTimeout(() => safeInvalidateMap(), 200);
-  setTimeout(() => safeInvalidateMap(), 800);
+  setTimeout(() => safeInvalidateMap(true), 200);
+  setTimeout(() => safeInvalidateMap(true), 800);
 </script>
 
 </body>
