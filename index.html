@@ -1193,6 +1193,7 @@
   let renderQueued = false;
   let mergeScanTimer = null;
   let mapReady = false;
+  let suspendRenderWhileTyping = false;
 
   function getIconPath(type) {
     if (type === 'question') return 'icons/question.png';
@@ -1612,6 +1613,18 @@
     `;
   }
 
+  function isTypingInEditableField() {
+    const el = document.activeElement;
+    if (!el) return false;
+
+    const tag = (el.tagName || '').toLowerCase();
+    return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
+  }
+
+  function shouldSkipRenderNow() {
+    return suspendRenderWhileTyping || isTypingInEditableField();
+  }
+
   function attachPopupInputCounter(index) {
     const input = document.getElementById(`commentInput_${index}`);
     const counter = document.getElementById(`commentCounter_${index}`);
@@ -1620,6 +1633,22 @@
     input.oninput = () => {
       counter.textContent = `${input.value.length} / 100`;
     };
+
+    input.onfocus = () => {
+      suspendRenderWhileTyping = true;
+    };
+
+    input.onblur = () => {
+      setTimeout(() => {
+        suspendRenderWhileTyping = false;
+        safeInvalidateMap(true);
+      }, 180);
+    };
+
+    input.addEventListener('touchstart', () => {
+      suspendRenderWhileTyping = true;
+    }, { passive: true });
+
     counter.textContent = `${input.value.length} / 100`;
   }
 
@@ -1647,18 +1676,22 @@
     });
   }
 
-  function queueRender() {
+  function queueRender(force = false) {
+    if (!force && shouldSkipRenderNow()) return;
     if (renderQueued) return;
+
     renderQueued = true;
 
     requestAnimationFrame(() => {
       renderQueued = false;
+      if (!force && shouldSkipRenderNow()) return;
       render();
     });
   }
 
   function render() {
     if (!mapReady) return;
+    if (shouldSkipRenderNow()) return;
 
     const previouslyOpenPointId = currentOpenPointId;
 
@@ -1703,9 +1736,13 @@
       markerLayer.addLayer(marker);
     });
 
-    if (previouslyOpenPointId) {
+    if (previouslyOpenPointId && !shouldSkipRenderNow()) {
       currentOpenPointId = previouslyOpenPointId;
-      setTimeout(() => reopenCurrentPopup(), 20);
+      setTimeout(() => {
+        if (!shouldSkipRenderNow()) {
+          reopenCurrentPopup();
+        }
+      }, 20);
     }
   }
 
@@ -2001,6 +2038,8 @@
     const item = data[index];
     if (!item?.id) return;
 
+    suspendRenderWhileTyping = true;
+
     const ref = doc(db, "points", item.id);
     const newComments = [
       ...(item.comments || []),
@@ -2009,12 +2048,22 @@
 
     currentOpenPointId = item.id;
     await updateDoc(ref, { comments: newComments });
+
+    input.blur();
+
+    setTimeout(() => {
+      suspendRenderWhileTyping = false;
+      safeInvalidateMap(true);
+    }, 150);
   };
 
-  function safeInvalidateMap() {
+  function safeInvalidateMap(force = false) {
+    if (!force && shouldSkipRenderNow()) return;
+
     setTimeout(() => {
+      if (!force && shouldSkipRenderNow()) return;
       map.invalidateSize(false);
-      queueRender();
+      queueRender(force);
     }, 50);
   }
 
@@ -2153,21 +2202,28 @@
     safeInvalidateMap();
   });
 
-  map.on('zoomend', queueRender);
-  map.on('moveend', () => {});
+  map.on('zoomend', () => {
+    queueRender();
+  });
 
   window.addEventListener('resize', () => {
+    if (shouldSkipRenderNow()) return;
+
     if (document.getElementById('pickerBar').style.display === 'block') showPickerBar();
     if (document.getElementById('descSheet').style.display === 'block') showDescSheet();
     if (document.getElementById('settingsSheet').style.display !== 'none') updateSettingsSheetLayout();
+
     safeInvalidateMap();
   });
 
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
+      if (shouldSkipRenderNow()) return;
+
       if (document.getElementById('settingsSheet').style.display !== 'none') {
         updateSettingsSheetLayout();
       }
+
       safeInvalidateMap();
     }, 250);
   });
@@ -2197,7 +2253,6 @@
     try {
       tg.ready();
       tg.expand();
-      tg.enableClosingConfirmation?.();
 
       setTimeout(() => safeInvalidateMap(), 50);
       setTimeout(() => safeInvalidateMap(), 250);
