@@ -10,17 +10,22 @@
     :root {
       --fab-bottom: calc(12px + env(safe-area-inset-bottom));
       --fab-gap: 7px;
+
       --geo-size: 38px;
       --settings-size: 38px;
       --add-size: 41px;
+
       --geo-radius: 12px;
       --settings-radius: 12px;
       --add-radius: 50%;
+
       --sheet-side: 10px;
       --sheet-top: max(56px, calc(env(safe-area-inset-top) + 8px));
       --sheet-bottom: calc(58px + env(safe-area-inset-bottom));
+
       --sheet-radius: 22px;
       --sheet-padding: 12px;
+
       --title-size: 16px;
       --label-size: 12px;
       --item-text-size: 14px;
@@ -74,7 +79,9 @@
       transform: translateY(8px);
     }
 
-    #geoBtn, #settingsBtn, #addBtn {
+    #geoBtn,
+    #settingsBtn,
+    #addBtn {
       border: none;
       cursor: pointer;
       display: flex;
@@ -132,8 +139,27 @@
       color: #fff;
     }
 
-    #pickerBar, #descSheet {
+    #pickerBar {
       position: fixed;
+      right: 10px;
+      bottom: calc(60px + env(safe-area-inset-bottom));
+      width: 300px;
+      z-index: 1001;
+      display: none;
+      background: rgba(28,28,30,0.96);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 20px;
+      padding: 10px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    #descSheet {
+      position: fixed;
+      right: 10px;
+      bottom: calc(60px + env(safe-area-inset-bottom));
+      width: 300px;
       z-index: 1002;
       display: none;
       background: rgba(28,28,30,0.96);
@@ -144,26 +170,6 @@
       box-shadow: 0 18px 40px rgba(0,0,0,0.22);
       border: 1px solid rgba(255,255,255,0.08);
       color: #fff;
-    }
-
-    #pickerBar {
-      width: 300px;
-    }
-
-    #descSheet {
-      width: 320px;
-    }
-
-    @media (max-width: 600px) {
-      #pickerBar, #descSheet {
-        left: 50% !important;
-        top: 50% !important;
-        right: auto !important;
-        bottom: auto !important;
-        transform: translate(-50%, -50%) !important;
-        width: calc(100vw - 24px) !important;
-        max-width: 340px;
-      }
     }
 
     #settingsSheet {
@@ -184,16 +190,6 @@
       border: 1px solid rgba(255,255,255,0.08);
       color: #fff;
       overflow: hidden;
-    }
-
-    @media (min-width: 601px) {
-      #settingsSheet {
-        left: auto;
-        right: 10px;
-        width: 320px;
-        top: 68px;
-        bottom: calc(60px + env(safe-area-inset-bottom));
-      }
     }
 
     #settingsBody {
@@ -229,7 +225,9 @@
       font-size: 12px;
     }
 
-    #pickerClose, #sheetClose, #settingsClose {
+    #pickerClose,
+    #sheetClose,
+    #settingsClose {
       border: none;
       background: rgba(255,255,255,0.12);
       color: #fff;
@@ -276,7 +274,8 @@
       font-size: 11px;
     }
 
-    #sheetHead, #settingsHead {
+    #sheetHead,
+    #settingsHead {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -299,12 +298,19 @@
       flex: 0 0 auto;
     }
 
-    #sheetTitle, #settingsTitle {
+    #sheetTitle,
+    #settingsTitle {
       font-size: var(--title-size);
       font-weight: 700;
     }
 
-    #descInput, #citySelect, .popup-input, button, input, textarea, select {
+    #descInput,
+    #citySelect,
+    .popup-input,
+    button,
+    input,
+    textarea,
+    select {
       font-size: 16px;
     }
 
@@ -325,7 +331,8 @@
       color: rgba(255,255,255,0.5);
     }
 
-    #descCounter, .popup-counter {
+    #descCounter,
+    .popup-counter {
       text-align: right;
       font-size: 12px;
       color: rgba(255,255,255,0.55);
@@ -333,7 +340,9 @@
       margin-bottom: 10px;
     }
 
-    #saveBtn, #saveSettingsBtn, .popup-btn {
+    #saveBtn,
+    #saveSettingsBtn,
+    .popup-btn {
       width: 100%;
       border: none;
       border-radius: 16px;
@@ -526,55 +535,197 @@
       font-size: 14px;
     }
 
-    /* CUSTOM POPUP - CENTERED ON ALL DEVICES */
-    .custom-popup-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 2000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      padding: 20px;
-    }
-
-    .custom-popup {
-      width: min(380px, calc(100vw - 40px));
-      max-height: 80vh;
-      overflow-y: auto;
-      background: rgba(28,28,30,0.98);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-radius: 28px;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.1);
+    .leaflet-popup-content-wrapper {
+      border-radius: 24px;
+      padding: 0;
+      box-shadow: 0 22px 50px rgba(0,0,0,0.22);
+      background: rgba(28,28,30,0.96);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
       color: #fff;
-      animation: popupFadeIn 0.2s ease;
     }
 
-    @keyframes popupFadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
+    .leaflet-popup-content {
+      margin: 0 !important;
+      width: min(340px, calc(100vw - 24px)) !important;
+      max-width: calc(100vw - 24px) !important;
     }
 
-    .custom-popup .radar-popup {
-      padding: 20px;
+    .leaflet-popup-tip,
+    .leaflet-popup-close-button {
+      display: none;
     }
 
-    .custom-popup .popup-close {
-      position: absolute;
-      top: 12px;
-      right: 12px;
+    .radar-popup {
+      padding: 14px;
+      color: #fff;
     }
 
-    .custom-popup .popup-head {
-      position: relative;
-      padding-right: 40px;
+    .popup-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .popup-head-left {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .popup-icon {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .popup-meta {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .popup-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .popup-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: #fff;
+      margin-bottom: 0;
+    }
+
+    .popup-life {
+      font-size: 11px;
+      color: #8be28b;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .popup-time {
+      font-size: 13px;
+      color: rgba(255,255,255,0.74);
+      white-space: nowrap;
+      margin-bottom: 3px;
+    }
+
+    .popup-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .popup-desc {
+      font-size: 15px;
+      line-height: 1.4;
+      color: #fff;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 12px;
+    }
+
+    .popup-comments-title {
+      font-size: 14px;
+      color: rgba(255,255,255,0.72);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .popup-comments {
+      max-height: 160px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+
+    .comment-item {
+      background: rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 11px 12px;
+      margin-bottom: 8px;
+    }
+
+    .comment-text {
+      font-size: 14px;
+      line-height: 1.35;
+      color: #fff;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .comment-time {
+      margin-top: 6px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.58);
+    }
+
+    .reaction-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    .reaction-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 5px 9px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.10);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .reaction-btn.like {
+      background: rgba(10,132,255,0.14);
+      border: 1px solid rgba(10,132,255,0.22);
+    }
+
+    .reaction-btn.dislike {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .reaction-btn.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .popup-input {
+      width: 100%;
+      border: none;
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border-radius: 14px;
+      padding: 13px 14px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .popup-input::placeholder {
+      color: rgba(255,255,255,0.5);
     }
 
     .success-modal-backdrop {
@@ -584,7 +735,11 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: max(16px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom)) 12px;
+      padding:
+        max(16px, env(safe-area-inset-top))
+        12px
+        max(16px, env(safe-area-inset-bottom))
+        12px;
       background: rgba(80, 80, 80, 0.22);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
@@ -632,9 +787,40 @@
       transform: scale(0.98);
     }
 
-    /* Leaflet popup полностью отключен */
-    .leaflet-popup {
-      display: none !important;
+    @media (max-width: 600px) {
+      .leaflet-popup-pane .leaflet-popup {
+        position: fixed !important;
+        left: 50% !important;
+        top: auto !important;
+        bottom: 20px !important;
+        transform: translateX(-50%) !important;
+        margin: 0 !important;
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+        z-index: 1200 !important;
+      }
+
+      .leaflet-popup-content-wrapper {
+        width: 100% !important;
+        border-radius: 24px !important;
+      }
+
+      .leaflet-popup-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 65vh !important;
+        overflow-y: auto !important;
+      }
+    }
+
+    @media (min-width: 601px) {
+      #settingsSheet {
+        left: auto;
+        right: 10px;
+        width: 320px;
+        top: 68px;
+        bottom: calc(60px + env(safe-area-inset-bottom));
+      }
     }
 
     @media (max-height: 760px) {
@@ -649,14 +835,43 @@
         --item-text-size: 13px;
         --save-size: 14px;
       }
-      .filter-item-left img { width: 24px; height: 24px; }
-      .filter-toggle { width: 38px; height: 22px; }
-      .filter-toggle::after { width: 18px; height: 18px; }
-      .filter-toggle.active::after { left: 18px; }
-      #themeIcon { font-size: 18px; width: 24px; }
-      .time-slider-container { padding: 8px; }
-      .time-slider-value { font-size: 11px; }
-      .time-value { font-size: 11px; padding: 4px 8px; }
+
+      .filter-item-left img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .filter-toggle {
+        width: 38px;
+        height: 22px;
+      }
+
+      .filter-toggle::after {
+        width: 18px;
+        height: 18px;
+      }
+
+      .filter-toggle.active::after {
+        left: 18px;
+      }
+
+      #themeIcon {
+        font-size: 18px;
+        width: 24px;
+      }
+
+      .time-slider-container {
+        padding: 8px;
+      }
+
+      .time-slider-value {
+        font-size: 11px;
+      }
+
+      .time-value {
+        font-size: 11px;
+        padding: 4px 8px;
+      }
     }
   </style>
 </head>
@@ -670,6 +885,7 @@
       <path d="M11 2h2v2.06A8.002 8.002 0 0 1 19.94 11H22v2h-2.06A8.002 8.002 0 0 1 13 19.94V22h-2v-2.06A8.002 8.002 0 0 1 4.06 13H2v-2h2.06A8.002 8.002 0 0 1 11 4.06V2zm1 4a6 6 0 1 0 0 12a6 6 0 0 0 0-12zm0 3.2a2.8 2.8 0 1 1 0 5.6a2.8 2.8 0 0 1 0-5.6z"/>
     </svg>
   </button>
+
   <button id="settingsBtn" aria-label="Налаштування" title="Налаштування">⚙️</button>
   <button id="addBtn" aria-label="Додати мітку" title="Додати мітку">+</button>
 </div>
@@ -679,6 +895,7 @@
     <div id="pickerHint">Обери тип і ткни на карту</div>
     <button id="pickerClose">×</button>
   </div>
+
   <div class="picker-grid">
     <div class="picker-item active" data-type="safe"><img src="icons/safe.png" alt="Безпечно"><span>Безпечно</span></div>
     <div class="picker-item" data-type="block"><img src="icons/block.png" alt="Блокпост"><span>Блокпост</span></div>
@@ -697,6 +914,7 @@
     </div>
     <button id="sheetClose">×</button>
   </div>
+
   <textarea id="descInput" maxlength="100" placeholder="Опис..."></textarea>
   <div id="descCounter">0 / 100</div>
   <button id="saveBtn">Зберегти</button>
@@ -707,11 +925,13 @@
     <div id="settingsTitle">⚙️ Налаштування</div>
     <button id="settingsClose">×</button>
   </div>
+
   <div id="settingsBody">
     <div class="settings-group">
       <div class="settings-label">🏙️ Місто</div>
       <div class="city-select-wrap"><select id="citySelect"></select></div>
     </div>
+
     <div class="settings-group">
       <div class="settings-label">🌓 Тема карти</div>
       <div class="filter-item" id="themeToggleRow">
@@ -719,6 +939,7 @@
         <div class="filter-toggle" id="themeToggle"></div>
       </div>
     </div>
+
     <div class="settings-group">
       <div class="settings-label">⏱️ Фільтр за часом</div>
       <div class="time-slider-container">
@@ -726,6 +947,7 @@
         <div class="time-slider-value"><span>🕒 15 хв</span><span class="time-value" id="timeValue">24 год</span><span>📅 24 год</span></div>
       </div>
     </div>
+
     <div class="settings-group">
       <div class="settings-label">👁️ Фільтр типів міток</div>
       <div class="filter-group" id="filterGroup">
@@ -738,6 +960,7 @@
       </div>
     </div>
   </div>
+
   <button id="saveSettingsBtn">Зберегти</button>
 </div>
 
@@ -746,11 +969,6 @@
     <div class="success-modal-text">Мітку успішно додано.<br>Вона з’явиться на мапі протягом 5 хвилин</div>
     <button id="successModalClose" class="success-modal-btn">Закрити</button>
   </div>
-</div>
-
-<!-- Custom Popup Container -->
-<div id="customPopupContainer" class="custom-popup-container">
-  <div id="customPopup" class="custom-popup"></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -785,12 +1003,11 @@
   const LIFE = 24 * 60 * 60 * 1000;
   const VOTES_KEY = 'radar_votes';
   const TILE_CACHE_NAME = 'radar-tile-cache-v5';
+
   const GROUP_RADIUS_METERS = 165;
-  
-  // Пороги для кіл
-  const SAFE_MIN_COUNT = 3;      // зелений - 3+ безпечних
-  const QUESTION_MIN_COUNT = 4;  // жовтий - 4+ питань
-  const DANGER_MIN_COUNT = 3;    // червоний - 3+ небезпечних
+  const SAFE_MIN_COUNT = 3;
+  const QUESTION_MIN_COUNT = 4;
+  const DANGER_MIN_COUNT = 3;
 
   const labelMap = {
     safe: 'Безпечно',
@@ -834,7 +1051,6 @@
   const defaultCityKey = 'kyiv';
   const defaultCity = cityMap[defaultCityKey];
 
-  // Cached Tile Layer
   const CachedTileLayer = L.TileLayer.extend({
     createTile(coords, done) {
       const tile = document.createElement('img');
@@ -892,15 +1108,17 @@
 
   let currentTileLayer = null;
   let settings = loadSettings();
+
   let addMode = false;
   let selected = null;
   let temp = null;
   let currentType = 'safe';
   let data = [];
+
   let currentOpenPointId = null;
-  let currentOpenPointIndex = null;
   let userLocationMarker = null;
   let userLocationCircle = null;
+
   let renderQueued = false;
   let mapReady = false;
   let suspendRenderWhileTyping = false;
@@ -1031,7 +1249,7 @@
               <div class="popup-time">${formatDateTime(point.time)}</div>
             </div>
           </div>
-          <button class="popup-close" onclick="window.closeCustomPopup()">×</button>
+          <button class="popup-close" onclick="window.closePopup()">×</button>
         </div>
         <div class="popup-comments-title">Опис</div>
         <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
@@ -1047,32 +1265,6 @@
       </div>
     `;
   }
-
-  function showCustomPopup(point, index) {
-    const container = document.getElementById('customPopupContainer');
-    const popupDiv = document.getElementById('customPopup');
-    popupDiv.innerHTML = popupHtml(point, index);
-    container.style.display = 'flex';
-    currentOpenPointId = point.id;
-    currentOpenPointIndex = index;
-    
-    setTimeout(() => {
-      const input = document.getElementById(`commentInput_${index}`);
-      const counter = document.getElementById(`commentCounter_${index}`);
-      if (input && counter) {
-        input.oninput = () => { counter.textContent = `${input.value.length} / 100`; };
-        input.onfocus = () => { suspendRenderWhileTyping = true; };
-        input.onblur = () => { setTimeout(() => { suspendRenderWhileTyping = false; }, 150); };
-        counter.textContent = `${input.value.length} / 100`;
-      }
-    }, 20);
-  }
-
-  window.closeCustomPopup = function() {
-    document.getElementById('customPopupContainer').style.display = 'none';
-    currentOpenPointId = null;
-    currentOpenPointIndex = null;
-  };
 
   function isTypingInEditableField() {
     const el = document.activeElement;
@@ -1093,56 +1285,44 @@
     return JSON.stringify({ lat: point.lat, lng: point.lng, type: point.type, desc: point.desc || '', time: point.time, comments: point.comments || [], likes: point.likes || 0, dislikes: point.dislikes || 0 });
   }
 
-  // Функція для групування міток за типами з різними кольорами
   function buildColoredGroupCircles(points) {
-    const groups = {
-      safe: [],      // зелені
-      question: [],  // жовті
-      danger: []     // червоні
-    };
-    
-    const visited = new Map(); // store group id and type
-    
+    const groups = { safe: [], question: [], danger: [] };
+    const visited = new Map();
+
     for (let i = 0; i < points.length; i++) {
       if (visited.has(points[i].id)) continue;
-      
-      // Визначаємо тип групи на основі першої мітки
-      const firstType = points[i].type;
+
       let groupType = null;
-      if (firstType === 'safe') groupType = 'safe';
-      else if (firstType === 'question') groupType = 'question';
-      else groupType = 'danger'; // block, danger2, trash, poop
-      
+      if (points[i].type === 'safe') groupType = 'safe';
+      else if (points[i].type === 'question') groupType = 'question';
+      else groupType = 'danger';
+
       const queue = [points[i]];
       const component = [];
       visited.set(points[i].id, groupType);
-      
+
       while (queue.length) {
         const current = queue.shift();
         component.push(current);
-        
+
         for (let j = 0; j < points.length; j++) {
           const candidate = points[j];
           if (visited.has(candidate.id)) continue;
-          
-          // Перевіряємо відстань
+
+          let candType = null;
+          if (candidate.type === 'safe') candType = 'safe';
+          else if (candidate.type === 'question') candType = 'question';
+          else candType = 'danger';
+
+          if (candType !== groupType) continue;
+
           if (distanceMeters(current.lat, current.lng, candidate.lat, candidate.lng) <= GROUP_RADIUS_METERS) {
-            // Визначаємо тип кандидата
-            let candType = null;
-            if (candidate.type === 'safe') candType = 'safe';
-            else if (candidate.type === 'question') candType = 'question';
-            else candType = 'danger';
-            
-            // Якщо типи різні - не об'єднуємо в одну групу
-            if (candType === groupType) {
-              visited.set(candidate.id, groupType);
-              queue.push(candidate);
-            }
+            visited.set(candidate.id, groupType);
+            queue.push(candidate);
           }
         }
       }
-      
-      // Перевіряємо пороги для кожного типу
+
       if (groupType === 'safe' && component.length >= SAFE_MIN_COUNT) {
         const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
         const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
@@ -1157,8 +1337,26 @@
         groups.danger.push({ lat: avgLat, lng: avgLng, count: component.length, color: '#ff3b30' });
       }
     }
-    
     return groups;
+  }
+
+  function attachPopupInputCounter(index) {
+    const input = document.getElementById(`commentInput_${index}`);
+    const counter = document.getElementById(`commentCounter_${index}`);
+    if (!input || !counter) return;
+    input.oninput = () => { counter.textContent = `${input.value.length} / 100`; };
+    input.onfocus = () => { suspendRenderWhileTyping = true; };
+    input.onblur = () => { setTimeout(() => { suspendRenderWhileTyping = false; }, 150); };
+    input.addEventListener('touchstart', () => { suspendRenderWhileTyping = true; }, { passive: true });
+    counter.textContent = `${input.value.length} / 100`;
+  }
+
+  function bindMarkerPopup(marker, point, index) {
+    marker.bindPopup(popupHtml(point, index), { autoPan: false, keepInView: false, closeButton: false, offset: [0, -4], className: 'radar-popup-wrap' });
+    marker.off('popupopen');
+    marker.off('popupclose');
+    marker.on('popupopen', () => { currentOpenPointId = point.id; setTimeout(() => attachPopupInputCounter(index), 20); });
+    marker.on('popupclose', () => { if (currentOpenPointId === point.id) currentOpenPointId = null; });
   }
 
   function updateExistingMarker(entry, point, index, zoom) {
@@ -1166,9 +1364,12 @@
     const newIconKey = `${point.type}_${zoom}`;
     if (entry.iconKey !== newIconKey) { entry.marker.setIcon(getIcon(point.type, zoom)); entry.iconKey = newIconKey; }
     if (entry.lat !== point.lat || entry.lng !== point.lng) { entry.marker.setLatLng([point.lat, point.lng]); entry.lat = point.lat; entry.lng = point.lng; }
-    if (entry.hash !== newHash) { entry.hash = newHash; }
-    entry.marker.pointData = point;
-    entry.marker.pointIndex = index;
+    if (entry.hash !== newHash) {
+      const popup = entry.marker.getPopup();
+      if (popup) popup.setContent(popupHtml(point, index));
+      else bindMarkerPopup(entry.marker, point, index);
+      entry.hash = newHash;
+    }
   }
 
   function removeMarkerEntry(id) {
@@ -1190,68 +1391,33 @@
     const zoom = map.getZoom();
     const visiblePoints = getVisiblePoints();
     const visibleIds = new Set(visiblePoints.map(p => p.id));
-    
+
     for (const [id] of markerRegistry) if (!visibleIds.has(id)) removeMarkerEntry(id);
-    
+
     visiblePoints.forEach((point, index) => {
       const existing = markerRegistry.get(point.id);
       if (!existing) {
         const marker = L.marker([point.lat, point.lng], { icon: getIcon(point.type, zoom), keyboard: false }).addTo(map);
         marker.pointId = point.id;
-        marker.pointData = point;
-        marker.pointIndex = index;
-        marker.on('click', (e) => {
-          e.originalEvent.stopPropagation();
-          showCustomPopup(point, index);
-        });
+        bindMarkerPopup(marker, point, index);
         markerRegistry.set(point.id, { marker, hash: getPointVisualHash(point), lat: point.lat, lng: point.lng, iconKey: `${point.type}_${zoom}` });
       } else {
         updateExistingMarker(existing, point, index, zoom);
       }
     });
-    
-    // Малюємо різнокольорові круги
+
     groupCircleLayer.clearLayers();
     const coloredGroups = buildColoredGroupCircles(visiblePoints);
-    
-    // Зелені круги (Безпечно)
-    coloredGroups.safe.forEach(g => {
-      L.circle([g.lat, g.lng], {
-        radius: GROUP_RADIUS_METERS,
-        color: g.color,
-        weight: 2.5,
-        opacity: 0.9,
-        fillColor: g.color,
-        fillOpacity: 0.2,
-        interactive: false
-      }).addTo(groupCircleLayer);
-    });
-    
-    // Жовті круги (Питання)
-    coloredGroups.question.forEach(g => {
-      L.circle([g.lat, g.lng], {
-        radius: GROUP_RADIUS_METERS,
-        color: g.color,
-        weight: 2.5,
-        opacity: 0.9,
-        fillColor: g.color,
-        fillOpacity: 0.2,
-        interactive: false
-      }).addTo(groupCircleLayer);
-    });
-    
-    // Червоні круги (Небезпечні)
-    coloredGroups.danger.forEach(g => {
-      L.circle([g.lat, g.lng], {
-        radius: GROUP_RADIUS_METERS,
-        color: g.color,
-        weight: 2.5,
-        opacity: 0.9,
-        fillColor: g.color,
-        fillOpacity: 0.2,
-        interactive: false
-      }).addTo(groupCircleLayer);
-    });
+    coloredGroups.safe.forEach(g => { L.circle([g.lat, g.lng], { radius: GROUP_RADIUS_METERS, color: g.color, weight: 2.5, opacity: 0.9, fillColor: g.color, fillOpacity: 0.2, interactive: false }).addTo(groupCircleLayer); });
+    coloredGroups.question.forEach(g => { L.circle([g.lat, g.lng], { radius: GROUP_RADIUS_METERS, color: g.color, weight: 2.5, opacity: 0.9, fillColor: g.color, fillOpacity: 0.2, interactive: false }).addTo(groupCircleLayer); });
+    coloredGroups.danger.forEach(g => { L.circle([g.lat, g.lng], { radius: GROUP_RADIUS_METERS, color: g.color, weight: 2.5, opacity: 0.9, fillColor: g.color, fillOpacity: 0.2, interactive: false }).addTo(groupCircleLayer); });
+
+    if (currentOpenPointId && Date.now() > suppressPopupRestoreUntil) {
+      const entry = markerRegistry.get(currentOpenPointId);
+      if (entry && !entry.marker.isPopupOpen()) {
+        setTimeout(() => { const reopen = markerRegistry.get(currentOpenPointId); if (reopen && !reopen.marker.isPopupOpen() && Date.now() > suppressPopupRestoreUntil) reopen.marker.openPopup(); }, 20);
+      }
+    }
   }
 
   function updatePickerActive() {
@@ -1262,31 +1428,32 @@
     if (temp && selected) temp.setIcon(getIcon(currentType, map.getZoom()));
   }
 
-  function centerElementOnScreen(element) {
-    element.style.display = 'block';
-    setTimeout(() => {
-      const rect = element.getBoundingClientRect();
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const centerY = window.innerHeight / 2;
-      const elementCenter = rect.top + rect.height / 2;
-      const offset = elementCenter - centerY;
-      if (Math.abs(offset) > 50) {
-        window.scrollBy({ top: offset, behavior: 'smooth' });
-      }
-    }, 10);
+  function positionSheetNearButton(sheet, button) {
+    const isMobile = window.innerWidth <= 600;
+    if (sheet.id === 'settingsSheet') { sheet.style.display = 'flex'; updateSettingsSheetLayout(); return; }
+    sheet.style.display = 'block';
+    if (isMobile) {
+      sheet.style.left = '8px';
+      sheet.style.right = '8px';
+      sheet.style.width = 'auto';
+      sheet.style.top = 'auto';
+      sheet.style.bottom = `calc(56px + env(safe-area-inset-bottom))`;
+      return;
+    }
+    const gap = 10;
+    const btnRect = button.getBoundingClientRect();
+    const sheetRect = sheet.getBoundingClientRect();
+    let left = btnRect.right - sheetRect.width;
+    left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
+    const top = btnRect.top - sheetRect.height - gap;
+    sheet.style.left = `${left}px`;
+    sheet.style.top = `${Math.max(8, top)}px`;
+    sheet.style.right = 'auto';
+    sheet.style.bottom = 'auto';
   }
 
-  function showPickerBar() {
-    const pickerBar = document.getElementById('pickerBar');
-    pickerBar.style.display = 'block';
-    if (window.innerWidth <= 600) centerElementOnScreen(pickerBar);
-  }
-
-  function showDescSheet() {
-    const descSheet = document.getElementById('descSheet');
-    descSheet.style.display = 'block';
-    if (window.innerWidth <= 600) centerElementOnScreen(descSheet);
-  }
+  function showPickerBar() { const pickerBar = document.getElementById('pickerBar'); const addBtn = document.getElementById('addBtn'); pickerBar.style.display = 'block'; positionSheetNearButton(pickerBar, addBtn); }
+  function showDescSheet() { const descSheet = document.getElementById('descSheet'); const addBtn = document.getElementById('addBtn'); descSheet.style.display = 'block'; positionSheetNearButton(descSheet, addBtn); }
 
   function updateSettingsSheetLayout() {
     const sheet = document.getElementById('settingsSheet');
@@ -1312,13 +1479,7 @@
     }
   }
 
-  function showSettingsSheet() {
-    document.body.classList.add('settings-open');
-    document.getElementById('settingsSheet').style.display = 'flex';
-    document.getElementById('citySelect').value = settings.selectedCity || defaultCityKey;
-    updateSettingsSheetLayout();
-  }
-
+  function showSettingsSheet() { document.body.classList.add('settings-open'); document.getElementById('settingsSheet').style.display = 'flex'; document.getElementById('citySelect').value = settings.selectedCity || defaultCityKey; updateSettingsSheetLayout(); }
   function showSuccessModal() { document.getElementById('successModalBackdrop').style.display = 'flex'; }
   function hideSuccessModal() { document.getElementById('successModalBackdrop').style.display = 'none'; }
 
@@ -1381,6 +1542,7 @@
     }).catch(() => {});
   }
 
+  window.closePopup = function() { map.closePopup(); };
   window.vote = async function(index, type) {
     const item = data[index];
     if (!item?.id || hasVoted(item.id)) return;
@@ -1391,7 +1553,6 @@
     setVoted(item.id, type);
     setTimeout(() => queueRender(true), 60);
   };
-
   window.addComment = async function(index) {
     const input = document.getElementById(`commentInput_${index}`);
     if (!input) return;
@@ -1479,7 +1640,8 @@
     if (!desc) return alert("Опис обов’язковий");
     if (desc.length > 100) return alert('Максимум 100 символів');
     suppressPopupRestoreUntil = Date.now() + 1200;
-    window.closeCustomPopup();
+    currentOpenPointId = null;
+    map.closePopup();
     await addDoc(collection(db, "points"), { lat: selected.lat, lng: selected.lng, type: currentType, desc, time: Date.now(), comments: [], likes: 0, dislikes: 0 });
     closeCreateMode();
     showSuccessModal();
@@ -1487,8 +1649,8 @@
   });
 
   map.on('zoomend', () => queueRender(true));
-  window.addEventListener('resize', () => { if (!shouldSkipRenderNow()) { safeInvalidateMap(); updateSettingsSheetLayout(); } });
-  window.addEventListener('orientationchange', () => { setTimeout(() => { safeInvalidateMap(true); updateSettingsSheetLayout(); }, 250); });
+  window.addEventListener('resize', () => { if (!shouldSkipRenderNow()) { if (document.getElementById('pickerBar').style.display === 'block') showPickerBar(); if (document.getElementById('descSheet').style.display === 'block') showDescSheet(); if (document.getElementById('settingsSheet').style.display !== 'none') updateSettingsSheetLayout(); safeInvalidateMap(); } });
+  window.addEventListener('orientationchange', () => { setTimeout(() => { safeInvalidateMap(true); if (document.getElementById('settingsSheet').style.display !== 'none') updateSettingsSheetLayout(); }, 250); });
 
   const pointsQuery = query(collection(db, "points"), orderBy("time", "desc"));
   onSnapshot(pointsQuery, (snapshot) => {
