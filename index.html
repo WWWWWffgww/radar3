@@ -787,61 +787,42 @@
       transform: scale(0.98);
     }
 
-    /* ==== MOBILE POPUP AS BOTTOM SHEET ==== */
+    /* MOBILE POPUP AS BOTTOM SHEET - FIXED */
     @media (max-width: 600px) {
       .leaflet-popup-pane .leaflet-popup {
         position: fixed !important;
         left: 50% !important;
         top: auto !important;
-        bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+        bottom: 20px !important;
         transform: translateX(-50%) !important;
         margin: 0 !important;
-        width: calc(100vw - 16px) !important;
-        max-width: calc(100vw - 16px) !important;
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
         z-index: 1200 !important;
       }
 
       .leaflet-popup-content-wrapper {
         width: 100% !important;
-        border-radius: 22px !important;
+        border-radius: 24px !important;
       }
 
       .leaflet-popup-content {
         width: 100% !important;
         max-width: 100% !important;
-        max-height: 58vh !important;
+        max-height: 65vh !important;
         overflow-y: auto !important;
-      }
-
-      .success-modal-backdrop {
-        align-items: center;
-        justify-content: center;
-        padding:
-          max(12px, env(safe-area-inset-top))
-          10px
-          max(12px, env(safe-area-inset-bottom))
-          10px;
-      }
-
-      .success-modal {
-        width: calc(100vw - 20px);
-        max-width: calc(100vw - 20px);
-        border-radius: 20px;
-        padding: 14px;
-      }
-
-      .success-modal-text {
-        font-size: 14px;
-        margin-bottom: 12px;
-      }
-
-      .success-modal-btn {
-        font-size: 15px;
-        padding: 12px 14px;
       }
     }
 
+    /* Desktop popup - centered */
     @media (min-width: 601px) {
+      .leaflet-popup-pane .leaflet-popup {
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+      }
+
       #settingsSheet {
         left: auto;
         right: 10px;
@@ -1138,8 +1119,7 @@
   const VOTES_KEY = 'radar_votes';
   const TILE_CACHE_NAME = 'radar-tile-cache-v5';
 
-  /* ====== ВАЖНО ====== */
-  const GROUP_RADIUS_METERS = 160;   // можешь ставить 150-180
+  const GROUP_RADIUS_METERS = 165;   // 150-180m range
   const GROUP_MIN_COUNT = 3;
 
   const labelMap = {
@@ -1190,7 +1170,7 @@
   const defaultCityKey = 'kyiv';
   const defaultCity = cityMap[defaultCityKey];
 
-  /* ==== Cached Tile Layer ==== */
+  /* Cached Tile Layer */
   const CachedTileLayer = L.TileLayer.extend({
     createTile(coords, done) {
       const tile = document.createElement('img');
@@ -1510,21 +1490,28 @@
     });
   }
 
+  // Smaller icons by default, bigger when zoomed in
   function getIcon(type, zoom) {
-    let s;
-
-    if (zoom < 11) s = 20;
-    else if (zoom < 13) s = 24;
-    else if (zoom < 15) s = 28;
-    else if (zoom < 17) s = 31;
-    else s = 35;
+    let size;
+    
+    if (zoom < 12) {
+      size = 18;   // Very small on far zoom
+    } else if (zoom < 14) {
+      size = 22;   // Small
+    } else if (zoom < 16) {
+      size = 28;   // Medium
+    } else if (zoom < 18) {
+      size = 34;   // Larger
+    } else {
+      size = 40;   // Full size on max zoom
+    }
 
     return L.divIcon({
       className: '',
-      html: `<img src="${getIconPath(type)}" class="pin-img">`,
-      iconSize: [s, s],
-      iconAnchor: [s / 2, s],
-      popupAnchor: [0, -s + 10]
+      html: `<img src="${getIconPath(type)}" class="pin-img" style="width:100%;height:100%;">`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size - 4],
+      popupAnchor: [0, -(size - 12)]
     });
   }
 
@@ -1813,12 +1800,14 @@
     const visiblePoints = getVisiblePoints();
     const visibleIds = new Set(visiblePoints.map(p => p.id));
 
+    // Remove markers that are no longer visible
     for (const [id] of markerRegistry) {
       if (!visibleIds.has(id)) {
         removeMarkerEntry(id);
       }
     }
 
+    // Add or update markers
     visiblePoints.forEach((point, index) => {
       const existing = markerRegistry.get(point.id);
 
@@ -1843,17 +1832,18 @@
       }
     });
 
+    // Draw group circles WITHOUT removing markers
     groupCircleLayer.clearLayers();
     const groups = buildGroupCircles(visiblePoints);
 
     groups.forEach(g => {
       L.circle([g.lat, g.lng], {
         radius: GROUP_RADIUS_METERS,
-        color: '#ffd400',
-        weight: 2,
-        opacity: 1,
+        color: '#ff3b30',
+        weight: 2.5,
+        opacity: 0.9,
         fillColor: '#ff3b30',
-        fillOpacity: 0.24,
+        fillOpacity: 0.2,
         interactive: false
       }).addTo(groupCircleLayer);
     });
