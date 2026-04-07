@@ -483,6 +483,43 @@
       font-size: 12px;
     }
 
+    .city-select-wrap {
+      position: relative;
+    }
+
+    #citySelect {
+      width: 100%;
+      box-sizing: border-box;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+    }
+
+    #citySelect option {
+      color: #111;
+      background: #fff;
+    }
+
+    .city-select-wrap::after {
+      content: "▾";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.7);
+      pointer-events: none;
+      font-size: 14px;
+    }
+
     .leaflet-popup-content-wrapper {
       border-radius: 24px;
       padding: 0;
@@ -899,6 +936,13 @@
 
   <div id="settingsBody">
     <div class="settings-group">
+      <div class="settings-label">🏙️ Місто</div>
+      <div class="city-select-wrap">
+        <select id="citySelect"></select>
+      </div>
+    </div>
+
+    <div class="settings-group">
       <div class="settings-label">🌓 Тема карти</div>
       <div class="filter-item" id="themeToggleRow">
         <div class="filter-item-left">
@@ -1035,6 +1079,31 @@
     poop: 'Лайно'
   };
 
+  const cityMap = {
+    kyiv: { name: 'Київ', lat: 50.4501, lng: 30.5234, radiusKm: 16 },
+    vinnytsia: { name: 'Вінниця', lat: 49.2331, lng: 28.4682, radiusKm: 12 },
+    lutsk: { name: 'Луцьк', lat: 50.7472, lng: 25.3254, radiusKm: 11 },
+    dnipro: { name: 'Дніпро', lat: 48.4647, lng: 35.0462, radiusKm: 16 },
+    zhytomyr: { name: 'Житомир', lat: 50.2547, lng: 28.6587, radiusKm: 11 },
+    uzhhorod: { name: 'Ужгород', lat: 48.6208, lng: 22.2879, radiusKm: 10 },
+    zaporizhzhia: { name: 'Запоріжжя', lat: 47.8388, lng: 35.1396, radiusKm: 15 },
+    ivano_frankivsk: { name: 'Івано-Франківськ', lat: 48.9226, lng: 24.7111, radiusKm: 11 },
+    kropyvnytskyi: { name: 'Кропивницький', lat: 48.5079, lng: 32.2623, radiusKm: 11 },
+    lviv: { name: 'Львів', lat: 49.8397, lng: 24.0297, radiusKm: 14 },
+    mykolaiv: { name: 'Миколаїв', lat: 46.9750, lng: 31.9946, radiusKm: 13 },
+    odesa: { name: 'Одеса', lat: 46.4825, lng: 30.7233, radiusKm: 18 },
+    poltava: { name: 'Полтава', lat: 49.5883, lng: 34.5514, radiusKm: 12 },
+    rivne: { name: 'Рівне', lat: 50.6199, lng: 26.2516, radiusKm: 10 },
+    sumy: { name: 'Суми', lat: 50.9077, lng: 34.7981, radiusKm: 11 },
+    ternopil: { name: 'Тернопіль', lat: 49.5535, lng: 25.5948, radiusKm: 10 },
+    kharkiv: { name: 'Харків', lat: 49.9935, lng: 36.2304, radiusKm: 18 },
+    kherson: { name: 'Херсон', lat: 46.6354, lng: 32.6169, radiusKm: 12 },
+    khmelnytskyi: { name: 'Хмельницький', lat: 49.4229, lng: 26.9871, radiusKm: 11 },
+    cherkasy: { name: 'Черкаси', lat: 49.4444, lng: 32.0598, radiusKm: 11 },
+    chernivtsi: { name: 'Чернівці', lat: 48.2921, lng: 25.9358, radiusKm: 10 },
+    chernihiv: { name: 'Чернігів', lat: 51.4982, lng: 31.2893, radiusKm: 11 }
+  };
+
   const mapThemes = {
     day: {
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -1046,7 +1115,10 @@
     }
   };
 
-  const map = L.map('map').setView([50.45, 30.52], 13);
+  const defaultCityKey = 'kyiv';
+  const defaultCity = cityMap[defaultCityKey];
+
+  const map = L.map('map').setView([defaultCity.lat, defaultCity.lng], 12);
   let currentTileLayer = null;
 
   function getIconPath(type) {
@@ -1059,6 +1131,7 @@
     const defaultSettings = {
       mapTheme: 'day',
       timeFilterMinutes: 1440,
+      selectedCity: defaultCityKey,
       filters: {
         safe: true,
         block: true,
@@ -1082,11 +1155,14 @@
           timeFilterMinutes = Math.round(parsed.timeFilterHours * 60);
         }
 
+        const selectedCity = cityMap[parsed.selectedCity] ? parsed.selectedCity : defaultCityKey;
+
         return {
           ...defaultSettings,
           ...parsed,
           mapTheme: parsed.mapTheme || 'day',
           timeFilterMinutes,
+          selectedCity,
           filters: { ...defaultSettings.filters, ...(parsed.filters || {}) }
         };
       }
@@ -1133,6 +1209,27 @@
     }).addTo(map);
   }
 
+  function kmToBounds(lat, lng, radiusKm) {
+    const latDelta = radiusKm / 111;
+    const lngDelta = radiusKm / (111 * Math.cos(lat * Math.PI / 180));
+    return L.latLngBounds(
+      [lat - latDelta, lng - lngDelta],
+      [lat + latDelta, lng + lngDelta]
+    );
+  }
+
+  function flyToCity(cityKey, animate = true) {
+    const city = cityMap[cityKey] || defaultCity;
+    const bounds = kmToBounds(city.lat, city.lng, city.radiusKm || 12);
+
+    map.fitBounds(bounds, {
+      paddingTopLeft: [20, 20],
+      paddingBottomRight: [20, 20],
+      animate,
+      duration: animate ? 0.8 : 0
+    });
+  }
+
   applyMapTheme(settings.mapTheme);
 
   const addBtn = document.getElementById('addBtn');
@@ -1160,6 +1257,7 @@
   const themeIcon = document.getElementById('themeIcon');
   const timeSlider = document.getElementById('timeSlider');
   const timeValue = document.getElementById('timeValue');
+  const citySelect = document.getElementById('citySelect');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 
   const successModalBackdrop = document.getElementById('successModalBackdrop');
@@ -1175,6 +1273,15 @@
   let mergeInProgress = false;
   let userLocationMarker = null;
   let userLocationCircle = null;
+
+  function populateCitySelect() {
+    const entries = Object.entries(cityMap).sort((a, b) => a[1].name.localeCompare(b[1].name, 'uk'));
+    citySelect.innerHTML = entries
+      .map(([key, city]) => `<option value="${key}">${city.name}</option>`)
+      .join('');
+
+    citySelect.value = settings.selectedCity || defaultCityKey;
+  }
 
   function clampMinutes(value) {
     const num = Number(value) || 15;
@@ -1675,6 +1782,7 @@
 
   function showSettingsSheet() {
     settingsSheet.style.display = 'flex';
+    citySelect.value = settings.selectedCity || defaultCityKey;
     updateSettingsSheetLayout();
   }
 
@@ -1862,10 +1970,14 @@
 
   saveSettingsBtn.addEventListener('click', () => {
     settings.timeFilterMinutes = clampMinutes(parseInt(timeSlider.value, 10));
+    settings.selectedCity = cityMap[citySelect.value] ? citySelect.value : defaultCityKey;
+
     saveSettings(settings);
     applyMapTheme(settings.mapTheme);
     render();
     settingsSheet.style.display = 'none';
+
+    flyToCity(settings.selectedCity, true);
   });
 
   descInput.addEventListener('input', () => {
@@ -1970,12 +2082,14 @@
     render();
   });
 
+  populateCitySelect();
   updateFilterUI();
   updateThemeUI();
   initFilterToggles();
   initThemeToggle();
   updatePickerActive();
   render();
+  flyToCity(settings.selectedCity || defaultCityKey, false);
 </script>
 
 </body>
