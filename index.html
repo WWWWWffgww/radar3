@@ -7,17 +7,43 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
+    :root {
+      --fab-bottom: calc(12px + env(safe-area-inset-bottom));
+      --fab-gap: 7px;
+
+      --geo-size: 38px;
+      --settings-size: 38px;
+      --add-size: 41px;
+
+      --geo-radius: 12px;
+      --settings-radius: 12px;
+      --add-radius: 50%;
+
+      --sheet-side: 10px;
+      --sheet-top: max(56px, calc(env(safe-area-inset-top) + 8px));
+      --sheet-bottom: calc(58px + env(safe-area-inset-bottom));
+
+      --sheet-radius: 22px;
+      --sheet-padding: 12px;
+
+      --title-size: 16px;
+      --label-size: 12px;
+      --item-text-size: 14px;
+      --save-size: 15px;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
       background: #f2f2f7;
+      overflow: hidden;
     }
 
     #map {
       width: 100%;
-      height: 100vh;
+      height: 100dvh;
       background: #e5e5ea;
     }
 
@@ -32,11 +58,11 @@
 
     #fabBar {
       position: fixed;
-      right: 16px;
-      bottom: max(16px, env(safe-area-inset-bottom));
+      right: 10px;
+      bottom: var(--fab-bottom);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: var(--fab-gap);
       z-index: 1003;
     }
 
@@ -48,24 +74,44 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.22);
       -webkit-tap-highlight-color: transparent;
+      padding: 0;
     }
 
-    #geoBtn,
-    #settingsBtn {
-      width: 54px;
-      height: 54px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.82);
+    #geoBtn {
+      width: var(--geo-size);
+      height: var(--geo-size);
+      border-radius: var(--geo-radius);
+      background: rgba(255,255,255,0.85);
       color: #1c1c1e;
     }
 
+    #settingsBtn {
+      width: var(--settings-size);
+      height: var(--settings-size);
+      border-radius: var(--settings-radius);
+      background: rgba(255,255,255,0.85);
+      color: #1c1c1e;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    #addBtn {
+      width: var(--add-size);
+      height: var(--add-size);
+      border-radius: var(--add-radius);
+      background: rgba(28,28,30,0.80);
+      color: #fff;
+      font-size: 24px;
+      line-height: 1;
+    }
+
     #geoBtn svg {
-      width: 28px;
-      height: 28px;
+      width: 20px;
+      height: 20px;
       fill: currentColor;
       display: block;
     }
@@ -80,32 +126,17 @@
       color: #fff;
     }
 
-    #settingsBtn {
-      font-size: 22px;
-      line-height: 1;
-    }
-
-    #addBtn {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: rgba(28,28,30,0.78);
-      color: #fff;
-      font-size: 34px;
-      line-height: 1;
-    }
-
     #pickerBar {
       position: fixed;
-      right: 16px;
-      bottom: 86px;
-      width: 320px;
+      right: 10px;
+      bottom: calc(60px + env(safe-area-inset-bottom));
+      width: 300px;
       z-index: 1001;
       display: none;
       background: rgba(28,28,30,0.96);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      border-radius: 22px;
+      border-radius: 20px;
       padding: 10px;
       box-shadow: 0 18px 40px rgba(0,0,0,0.22);
       border: 1px solid rgba(255,255,255,0.08);
@@ -114,16 +145,16 @@
 
     #descSheet {
       position: fixed;
-      right: 16px;
-      bottom: 86px;
-      width: 320px;
+      right: 10px;
+      bottom: calc(60px + env(safe-area-inset-bottom));
+      width: 300px;
       z-index: 1002;
       display: none;
       background: rgba(28,28,30,0.96);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      border-radius: 24px;
-      padding: 14px;
+      border-radius: 22px;
+      padding: 12px;
       box-shadow: 0 18px 40px rgba(0,0,0,0.22);
       border: 1px solid rgba(255,255,255,0.08);
       color: #fff;
@@ -132,22 +163,41 @@
 
     #settingsSheet {
       position: fixed;
-      right: 16px;
-      bottom: 88px;
-      width: 320px;
-      max-height: calc(100vh - 120px);
-      overflow-y: auto;
+      left: var(--sheet-side);
+      right: var(--sheet-side);
+      top: var(--sheet-top);
+      bottom: var(--sheet-bottom);
       z-index: 1002;
       display: none;
+      flex-direction: column;
       background: rgba(28,28,30,0.96);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      border-radius: 24px;
-      padding: 14px;
+      border-radius: var(--sheet-radius);
+      padding: var(--sheet-padding);
       box-shadow: 0 18px 40px rgba(0,0,0,0.22);
       border: 1px solid rgba(255,255,255,0.08);
       color: #fff;
       box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    #settingsBody {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #settingsBody::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #settingsBody::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.14);
+      border-radius: 10px;
     }
 
     #pickerTop {
@@ -156,13 +206,13 @@
       align-items: center;
       margin-bottom: 10px;
       color: #fff;
-      font-size: 14px;
+      font-size: 13px;
       gap: 10px;
     }
 
     #pickerHint {
       color: rgba(255,255,255,0.65);
-      font-size: 13px;
+      font-size: 12px;
     }
 
     #pickerClose,
@@ -171,8 +221,8 @@
       border: none;
       background: rgba(255,255,255,0.12);
       color: #fff;
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       font-size: 20px;
       line-height: 1;
@@ -189,8 +239,8 @@
     .picker-item {
       background: rgba(255,255,255,0.08);
       border: 2px solid transparent;
-      border-radius: 16px;
-      padding: 8px 4px;
+      border-radius: 14px;
+      padding: 7px 4px;
       text-align: center;
       cursor: pointer;
       color: #fff;
@@ -202,8 +252,8 @@
     }
 
     .picker-item img {
-      width: 48px;
-      height: 48px;
+      width: 42px;
+      height: 42px;
       object-fit: contain;
       display: block;
       margin: 0 auto 4px;
@@ -211,7 +261,7 @@
 
     .picker-item span {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
     }
 
     #sheetHead,
@@ -220,7 +270,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
+      flex: 0 0 auto;
     }
 
     #sheetLeft {
@@ -231,15 +282,15 @@
     }
 
     #sheetIcon {
-      width: 46px;
-      height: 46px;
+      width: 40px;
+      height: 40px;
       object-fit: contain;
       flex: 0 0 auto;
     }
 
     #sheetTitle,
     #settingsTitle {
-      font-size: 18px;
+      font-size: var(--title-size);
       font-weight: 700;
     }
 
@@ -247,15 +298,15 @@
       width: 100%;
       box-sizing: border-box;
       border: none;
-      border-radius: 18px;
-      padding: 14px 15px;
+      border-radius: 16px;
+      padding: 12px 14px;
       background: rgba(255,255,255,0.12);
       color: #fff;
-      font-size: 16px;
+      font-size: 15px;
       font-family: inherit;
       outline: none;
       resize: none;
-      min-height: 96px;
+      min-height: 84px;
     }
 
     #descInput::placeholder {
@@ -276,32 +327,37 @@
     .popup-btn {
       width: 100%;
       border: none;
-      border-radius: 18px;
-      padding: 14px 16px;
+      border-radius: 16px;
+      padding: 13px 14px;
       background: linear-gradient(180deg, #1c8cff, #007aff);
       color: #fff;
-      font-size: 17px;
+      font-size: var(--save-size);
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
       box-shadow: 0 10px 22px rgba(10,132,255,0.28);
     }
 
+    #saveSettingsBtn {
+      flex: 0 0 auto;
+      margin-top: 10px;
+    }
+
     .settings-group {
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .settings-label {
-      font-size: 13px;
+      font-size: var(--label-size);
       color: rgba(255,255,255,0.66);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-weight: 600;
     }
 
     .filter-group {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       margin-top: 8px;
     }
 
@@ -309,45 +365,46 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 12px;
+      padding: 7px 10px;
       background: rgba(255,255,255,0.06);
-      border-radius: 14px;
+      border-radius: 12px;
       cursor: pointer;
     }
 
     .filter-item-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .filter-item-left img {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       object-fit: contain;
     }
 
     .filter-item-left span {
-      font-size: 15px;
+      font-size: var(--item-text-size);
       font-weight: 500;
     }
 
     #themeIcon {
-      width: 32px;
+      width: 28px;
       text-align: center;
-      font-size: 22px;
+      font-size: 20px;
       line-height: 1;
       display: inline-block;
     }
 
     .filter-toggle {
-      width: 44px;
-      height: 26px;
+      width: 40px;
+      height: 24px;
       background: rgba(255,255,255,0.2);
       border-radius: 30px;
       position: relative;
       transition: 0.2s;
       cursor: pointer;
+      flex: 0 0 auto;
     }
 
     .filter-toggle.active {
@@ -357,8 +414,8 @@
     .filter-toggle::after {
       content: '';
       position: absolute;
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       background: white;
       border-radius: 50%;
       top: 2px;
@@ -367,13 +424,13 @@
     }
 
     .filter-toggle.active::after {
-      left: 20px;
+      left: 18px;
     }
 
     .time-slider-container {
       background: rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 12px;
+      border-radius: 14px;
+      padding: 10px;
     }
 
     .time-slider {
@@ -389,8 +446,8 @@
     .time-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       background: #0a84ff;
       border-radius: 50%;
       cursor: pointer;
@@ -398,8 +455,8 @@
     }
 
     .time-slider::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       background: #0a84ff;
       border-radius: 50%;
       cursor: pointer;
@@ -411,22 +468,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 10px;
-      font-size: 13px;
+      margin-top: 8px;
+      font-size: 12px;
       color: rgba(255,255,255,0.7);
-      gap: 8px;
+      gap: 6px;
     }
 
     .time-value {
       background: rgba(10,132,255,0.3);
-      padding: 4px 12px;
+      padding: 4px 10px;
       border-radius: 20px;
       font-weight: 600;
       white-space: nowrap;
+      font-size: 12px;
     }
 
     .leaflet-popup-content-wrapper {
-      border-radius: 26px;
+      border-radius: 24px;
       padding: 0;
       box-shadow: 0 22px 50px rgba(0,0,0,0.22);
       background: rgba(28,28,30,0.96);
@@ -437,7 +495,7 @@
 
     .leaflet-popup-content {
       margin: 0 !important;
-      width: 360px !important;
+      width: min(340px, calc(100vw - 24px)) !important;
       max-width: calc(100vw - 24px) !important;
     }
 
@@ -447,7 +505,7 @@
     }
 
     .radar-popup {
-      padding: 16px;
+      padding: 14px;
       color: #fff;
     }
 
@@ -455,21 +513,21 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .popup-head-left {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       align-items: flex-start;
       min-width: 0;
       flex: 1;
     }
 
     .popup-icon {
-      width: 54px;
-      height: 54px;
+      width: 48px;
+      height: 48px;
       object-fit: contain;
       flex: 0 0 auto;
     }
@@ -482,19 +540,17 @@
     .popup-title-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex-wrap: nowrap;
-      white-space: nowrap;
+      gap: 8px;
+      flex-wrap: wrap;
       margin-bottom: 4px;
     }
 
     .popup-title {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 700;
       line-height: 1.15;
       color: #fff;
       margin-bottom: 0;
-      white-space: nowrap;
     }
 
     .popup-life {
@@ -512,25 +568,25 @@
     }
 
     .popup-close {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border: none;
       border-radius: 50%;
       background: rgba(255,255,255,0.14);
       color: #fff;
-      font-size: 24px;
+      font-size: 22px;
       line-height: 1;
       cursor: pointer;
       flex: 0 0 auto;
     }
 
     .popup-desc {
-      font-size: 17px;
+      font-size: 16px;
       line-height: 1.4;
       color: #fff;
       white-space: pre-wrap;
       word-break: break-word;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .popup-comments-title {
@@ -548,13 +604,13 @@
 
     .comment-item {
       background: rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 12px 13px;
+      border-radius: 14px;
+      padding: 11px 12px;
       margin-bottom: 8px;
     }
 
     .comment-text {
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.35;
       color: #fff;
       white-space: pre-wrap;
@@ -611,9 +667,9 @@
       border: none;
       background: rgba(255,255,255,0.14);
       color: #fff;
-      border-radius: 16px;
-      padding: 14px 15px;
-      font-size: 16px;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 15px;
       outline: none;
       font-family: inherit;
     }
@@ -636,9 +692,9 @@
     }
 
     .success-modal {
-      width: min(420px, calc(100vw - 32px));
-      border-radius: 28px;
-      padding: 20px;
+      width: min(380px, calc(100vw - 32px));
+      border-radius: 24px;
+      padding: 18px;
       box-sizing: border-box;
       background: rgba(72, 72, 74, 0.55);
       backdrop-filter: blur(28px);
@@ -649,21 +705,21 @@
     }
 
     .success-modal-text {
-      font-size: 17px;
+      font-size: 16px;
       line-height: 1.4;
       color: #fff;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       text-align: left;
     }
 
     .success-modal-btn {
       width: 100%;
       border: none;
-      border-radius: 18px;
-      padding: 14px 16px;
+      border-radius: 16px;
+      padding: 13px 14px;
       background: rgba(255,255,255,0.16);
       color: #fff;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
@@ -675,135 +731,94 @@
       transform: scale(0.98);
     }
 
-    @media (max-width: 600px) {
-      #fabBar {
-        right: 12px;
-        bottom: calc(12px + env(safe-area-inset-bottom));
-        gap: 8px;
-      }
-
-      #geoBtn,
-      #settingsBtn {
-        width: 50px;
-        height: 50px;
-        border-radius: 14px;
-      }
-
-      #geoBtn svg {
-        width: 25px;
-        height: 25px;
-      }
-
-      #settingsBtn {
-        font-size: 20px;
-      }
-
-      #addBtn {
-        width: 54px;
-        height: 54px;
-        font-size: 32px;
-      }
-
-      #pickerBar,
-      #descSheet,
+    @media (min-width: 601px) {
       #settingsSheet {
-        width: calc(100vw - 16px);
+        left: auto;
+        right: 10px;
+        width: 320px;
+        top: 68px;
+        bottom: calc(60px + env(safe-area-inset-bottom));
       }
+    }
 
-      #pickerBar,
-      #descSheet {
-        left: 8px;
-        right: 8px;
-        width: auto;
-        bottom: calc(74px + env(safe-area-inset-bottom));
-        top: auto;
-        transform: none;
-      }
-
-      #settingsSheet {
-        left: 8px;
-        right: 8px;
-        width: auto;
-        top: auto;
-        bottom: calc(86px + env(safe-area-inset-bottom) + 32px);
-        max-height: calc(100vh - 170px);
-        padding: 12px;
-        border-radius: 22px;
-      }
-
-      #settingsHead {
-        margin-bottom: 10px;
-      }
-
-      #settingsTitle {
-        font-size: 17px;
-      }
-
-      .settings-group {
-        margin-bottom: 12px;
-      }
-
-      .settings-label {
-        font-size: 12px;
-        margin-bottom: 6px;
-      }
-
-      .filter-group {
-        gap: 8px;
-      }
-
-      .filter-item {
-        padding: 7px 10px;
-        border-radius: 12px;
-      }
-
-      .filter-item-left {
-        gap: 10px;
+    @media (max-height: 760px) {
+      :root {
+        --sheet-side: 8px;
+        --sheet-top: max(50px, calc(env(safe-area-inset-top) + 6px));
+        --sheet-bottom: calc(56px + env(safe-area-inset-bottom));
+        --sheet-radius: 20px;
+        --sheet-padding: 10px;
+        --title-size: 15px;
+        --label-size: 11px;
+        --item-text-size: 13px;
+        --save-size: 14px;
       }
 
       .filter-item-left img {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
       }
 
-      .filter-item-left span {
-        font-size: 14px;
+      .filter-toggle {
+        width: 38px;
+        height: 22px;
+      }
+
+      .filter-toggle::after {
+        width: 18px;
+        height: 18px;
+      }
+
+      .filter-toggle.active::after {
+        left: 18px;
+      }
+
+      #themeIcon {
+        font-size: 18px;
+        width: 24px;
       }
 
       .time-slider-container {
-        padding: 10px;
-        border-radius: 14px;
+        padding: 8px;
       }
 
       .time-slider-value {
-        margin-top: 8px;
-        font-size: 12px;
-      }
-
-      .time-value {
-        padding: 4px 10px;
-        font-size: 12px;
-      }
-
-      #saveSettingsBtn {
-        padding: 13px 14px;
-        font-size: 16px;
-        border-radius: 16px;
-        position: sticky;
-        bottom: 0;
-      }
-
-      .picker-item img {
-        width: 42px;
-        height: 42px;
-      }
-
-      .picker-item span {
         font-size: 11px;
       }
 
-      .leaflet-popup-content {
-        width: 320px !important;
+      .time-value {
+        font-size: 11px;
+        padding: 4px 8px;
+      }
+    }
+
+    @media (max-height: 680px) {
+      :root {
+        --sheet-top: max(44px, calc(env(safe-area-inset-top) + 4px));
+        --sheet-bottom: calc(54px + env(safe-area-inset-bottom));
+        --sheet-padding: 9px;
+        --sheet-radius: 18px;
+        --title-size: 14px;
+        --label-size: 10px;
+        --item-text-size: 12px;
+        --save-size: 14px;
+      }
+
+      .filter-item {
+        padding: 6px 8px;
+      }
+
+      .filter-item-left img {
+        width: 22px;
+        height: 22px;
+      }
+
+      .time-slider-container {
+        padding: 7px;
+      }
+
+      .time-slider-value {
+        gap: 4px;
       }
     }
   </style>
@@ -882,78 +897,80 @@
     <button id="settingsClose">×</button>
   </div>
 
-  <div class="settings-group">
-    <div class="settings-label">🌓 Тема карти</div>
-    <div class="filter-item" id="themeToggleRow">
-      <div class="filter-item-left">
-        <span id="themeIcon">☀️</span>
-        <span id="themeLabel">Денна тема</span>
-      </div>
-      <div class="filter-toggle" id="themeToggle"></div>
-    </div>
-  </div>
-
-  <div class="settings-group">
-    <div class="settings-label">⏱️ Фільтр за часом</div>
-    <div class="time-slider-container">
-      <input type="range" id="timeSlider" class="time-slider" min="15" max="1440" step="15" value="1440">
-      <div class="time-slider-value">
-        <span>🕒 15 хв</span>
-        <span class="time-value" id="timeValue">24 год</span>
-        <span>📅 24 год</span>
+  <div id="settingsBody">
+    <div class="settings-group">
+      <div class="settings-label">🌓 Тема карти</div>
+      <div class="filter-item" id="themeToggleRow">
+        <div class="filter-item-left">
+          <span id="themeIcon">☀️</span>
+          <span id="themeLabel">Денна тема</span>
+        </div>
+        <div class="filter-toggle" id="themeToggle"></div>
       </div>
     </div>
-  </div>
 
-  <div class="settings-group">
-    <div class="settings-label">👁️ Фільтр типів міток</div>
-    <div class="filter-group" id="filterGroup">
-      <div class="filter-item" data-filter-type="safe">
-        <div class="filter-item-left">
-          <img src="icons/safe.png" alt="">
-          <span>Безпечно</span>
+    <div class="settings-group">
+      <div class="settings-label">⏱️ Фільтр за часом</div>
+      <div class="time-slider-container">
+        <input type="range" id="timeSlider" class="time-slider" min="15" max="1440" step="15" value="1440">
+        <div class="time-slider-value">
+          <span>🕒 15 хв</span>
+          <span class="time-value" id="timeValue">24 год</span>
+          <span>📅 24 год</span>
         </div>
-        <div class="filter-toggle" id="filterSafe"></div>
       </div>
+    </div>
 
-      <div class="filter-item" data-filter-type="block">
-        <div class="filter-item-left">
-          <img src="icons/block.png" alt="">
-          <span>Блокпост</span>
+    <div class="settings-group">
+      <div class="settings-label">👁️ Фільтр типів міток</div>
+      <div class="filter-group" id="filterGroup">
+        <div class="filter-item" data-filter-type="safe">
+          <div class="filter-item-left">
+            <img src="icons/safe.png" alt="">
+            <span>Безпечно</span>
+          </div>
+          <div class="filter-toggle" id="filterSafe"></div>
         </div>
-        <div class="filter-toggle" id="filterBlock"></div>
-      </div>
 
-      <div class="filter-item" data-filter-type="danger2">
-        <div class="filter-item-left">
-          <img src="icons/danger2.png" alt="">
-          <span>Злодій</span>
+        <div class="filter-item" data-filter-type="block">
+          <div class="filter-item-left">
+            <img src="icons/block.png" alt="">
+            <span>Блокпост</span>
+          </div>
+          <div class="filter-toggle" id="filterBlock"></div>
         </div>
-        <div class="filter-toggle" id="filterDanger2"></div>
-      </div>
 
-      <div class="filter-item" data-filter-type="trash">
-        <div class="filter-item-left">
-          <img src="icons/trash.png" alt="">
-          <span>Сміття</span>
+        <div class="filter-item" data-filter-type="danger2">
+          <div class="filter-item-left">
+            <img src="icons/danger2.png" alt="">
+            <span>Злодій</span>
+          </div>
+          <div class="filter-toggle" id="filterDanger2"></div>
         </div>
-        <div class="filter-toggle" id="filterTrash"></div>
-      </div>
 
-      <div class="filter-item" data-filter-type="question">
-        <div class="filter-item-left">
-          <img src="icons/question.png" alt="">
-          <span>Питання</span>
+        <div class="filter-item" data-filter-type="trash">
+          <div class="filter-item-left">
+            <img src="icons/trash.png" alt="">
+            <span>Сміття</span>
+          </div>
+          <div class="filter-toggle" id="filterTrash"></div>
         </div>
-        <div class="filter-toggle" id="filterQuestion"></div>
-      </div>
 
-      <div class="filter-item" data-filter-type="poop">
-        <div class="filter-item-left">
-          <img src="icons/kaka.png" alt="">
-          <span>Лайно</span>
+        <div class="filter-item" data-filter-type="question">
+          <div class="filter-item-left">
+            <img src="icons/question.png" alt="">
+            <span>Питання</span>
+          </div>
+          <div class="filter-toggle" id="filterQuestion"></div>
         </div>
-        <div class="filter-toggle" id="filterPoop"></div>
+
+        <div class="filter-item" data-filter-type="poop">
+          <div class="filter-item-left">
+            <img src="icons/kaka.png" alt="">
+            <span>Лайно</span>
+          </div>
+          <div class="filter-toggle" id="filterPoop"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1135,6 +1152,7 @@
   const saveBtn = document.getElementById('saveBtn');
 
   const settingsSheet = document.getElementById('settingsSheet');
+  const settingsBody = document.getElementById('settingsBody');
   const settingsClose = document.getElementById('settingsClose');
   const themeToggle = document.getElementById('themeToggle');
   const themeToggleRow = document.getElementById('themeToggleRow');
@@ -1433,8 +1451,6 @@
       ? `<div class="popup-time">${point.mergedKind === 'safe' ? '🟢 Безпечна зона' : '🔴 Небезпечна зона'}</div>`
       : '';
 
-    const descTitle = point.merged ? 'Опис' : 'Опис';
-
     return `
       <div class="radar-popup">
         <div class="popup-head">
@@ -1454,7 +1470,7 @@
           <button class="popup-close" onclick="window.closePopup()">×</button>
         </div>
 
-        <div class="popup-comments-title">${descTitle}</div>
+        <div class="popup-comments-title">Опис</div>
         ${buildDescriptionsHtml(point)}
 
         <div class="popup-comments-title">Коментарі</div>
@@ -1567,70 +1583,99 @@
     }
   }
 
-  function positionSheetNearButton(sheet, button, placement = 'top') {
+  function positionSheetNearButton(sheet, button) {
     const isMobile = window.innerWidth <= 600;
-    const gap = 10;
 
-    sheet.style.left = 'auto';
-    sheet.style.right = 'auto';
-    sheet.style.top = 'auto';
-    sheet.style.bottom = 'auto';
+    if (sheet === settingsSheet) {
+      sheet.style.display = 'flex';
+      updateSettingsSheetLayout();
+      return;
+    }
+
     sheet.style.display = 'block';
 
     if (isMobile) {
-      if (sheet === pickerBar || sheet === descSheet) {
-        sheet.style.left = '8px';
-        sheet.style.right = '8px';
-        sheet.style.width = 'auto';
-        sheet.style.bottom = `calc(74px + env(safe-area-inset-bottom))`;
-        sheet.style.top = 'auto';
-        return;
-      }
-
-      if (sheet === settingsSheet) {
-        sheet.style.left = '8px';
-        sheet.style.right = '8px';
-        sheet.style.width = 'auto';
-        sheet.style.top = 'auto';
-        sheet.style.bottom = `calc(86px + env(safe-area-inset-bottom) + 32px)`;
-        return;
-      }
+      sheet.style.left = '8px';
+      sheet.style.right = '8px';
+      sheet.style.width = 'auto';
+      sheet.style.top = 'auto';
+      sheet.style.bottom = `calc(56px + env(safe-area-inset-bottom))`;
+      return;
     }
 
+    const gap = 10;
     const btnRect = button.getBoundingClientRect();
     const sheetRect = sheet.getBoundingClientRect();
 
     let left = btnRect.right - sheetRect.width;
     left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
 
-    if (placement === 'top') {
-      const top = btnRect.top - sheetRect.height - gap;
-      sheet.style.left = `${left}px`;
-      sheet.style.top = `${Math.max(8, top)}px`;
-    } else if (placement === 'bottom-right') {
-      const top = btnRect.bottom + gap;
-      sheet.style.left = `${left}px`;
-      sheet.style.top = `${Math.max(8, top)}px`;
-    } else if (placement === 'above-fab') {
-      const top = btnRect.top - sheetRect.height - gap;
-      sheet.style.left = `${left}px`;
-      sheet.style.top = `${Math.max(8, top)}px`;
-    }
+    const top = btnRect.top - sheetRect.height - gap;
+    sheet.style.left = `${left}px`;
+    sheet.style.top = `${Math.max(8, top)}px`;
+    sheet.style.right = 'auto';
+    sheet.style.bottom = 'auto';
   }
 
   function showPickerBar() {
     pickerBar.style.display = 'block';
-    positionSheetNearButton(pickerBar, addBtn, 'top');
+    positionSheetNearButton(pickerBar, addBtn);
   }
 
   function showDescSheet() {
     descSheet.style.display = 'block';
-    positionSheetNearButton(descSheet, addBtn, 'top');
+    positionSheetNearButton(descSheet, addBtn);
+  }
+
+  function updateSettingsSheetLayout() {
+    if (settingsSheet.style.display === 'none') return;
+
+    const vh = window.innerHeight;
+    const isDesktop = window.innerWidth > 600;
+
+    if (isDesktop) {
+      settingsSheet.style.top = '68px';
+      settingsSheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
+      settingsSheet.style.left = 'auto';
+      settingsSheet.style.right = '10px';
+      settingsSheet.style.width = '320px';
+    } else {
+      let topGap = 56;
+      let bottomGap = 58;
+      let sideGap = 10;
+
+      if (vh <= 760) {
+        topGap = 50;
+        bottomGap = 56;
+        sideGap = 8;
+      }
+
+      if (vh <= 680) {
+        topGap = 44;
+        bottomGap = 54;
+        sideGap = 8;
+      }
+
+      settingsSheet.style.left = `${sideGap}px`;
+      settingsSheet.style.right = `${sideGap}px`;
+      settingsSheet.style.top = `${topGap}px`;
+      settingsSheet.style.bottom = `${bottomGap}px`;
+      settingsSheet.style.width = 'auto';
+    }
+
+    const head = document.getElementById('settingsHead');
+    const save = document.getElementById('saveSettingsBtn');
+    if (!head || !save || !settingsBody) return;
+
+    const totalHeight = settingsSheet.clientHeight;
+    const reserved = head.offsetHeight + save.offsetHeight + 20;
+    const bodyHeight = Math.max(100, totalHeight - reserved);
+    settingsBody.style.maxHeight = `${bodyHeight}px`;
   }
 
   function showSettingsSheet() {
-    settingsSheet.style.display = 'block';
-    positionSheetNearButton(settingsSheet, settingsBtn, 'above-fab');
+    settingsSheet.style.display = 'flex';
+    updateSettingsSheetLayout();
   }
 
   function showSuccessModal() {
@@ -1654,16 +1699,16 @@
       className: '',
       html: `
         <div style="
-          width: 18px;
-          height: 18px;
+          width: 16px;
+          height: 16px;
           border-radius: 50%;
           background: #0a84ff;
           border: 3px solid #ffffff;
-          box-shadow: 0 0 0 6px rgba(10,132,255,0.22);
+          box-shadow: 0 0 0 5px rgba(10,132,255,0.22);
         "></div>
       `,
-      iconSize: [18, 18],
-      iconAnchor: [9, 9]
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
     });
 
     userLocationMarker = L.marker([lat, lng], {
@@ -1882,7 +1927,17 @@
   window.addEventListener('resize', () => {
     if (pickerBar.style.display === 'block') showPickerBar();
     if (descSheet.style.display === 'block') showDescSheet();
-    if (settingsSheet.style.display === 'block') showSettingsSheet();
+    if (settingsSheet.style.display !== 'none') {
+      updateSettingsSheetLayout();
+    }
+  });
+
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      if (settingsSheet.style.display !== 'none') {
+        updateSettingsSheetLayout();
+      }
+    }, 250);
   });
 
   const pointsQuery = query(collection(db, "points"), orderBy("time", "desc"));
