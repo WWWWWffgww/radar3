@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>RADAR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
@@ -39,6 +39,12 @@
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
       background: #f2f2f7;
       overflow: hidden;
+      touch-action: manipulation;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     #map {
@@ -147,7 +153,6 @@
       padding: 10px;
       box-shadow: 0 18px 40px rgba(0,0,0,0.22);
       border: 1px solid rgba(255,255,255,0.08);
-      box-sizing: border-box;
     }
 
     #descSheet {
@@ -165,7 +170,6 @@
       box-shadow: 0 18px 40px rgba(0,0,0,0.22);
       border: 1px solid rgba(255,255,255,0.08);
       color: #fff;
-      box-sizing: border-box;
     }
 
     #settingsSheet {
@@ -185,7 +189,6 @@
       box-shadow: 0 18px 40px rgba(0,0,0,0.22);
       border: 1px solid rgba(255,255,255,0.08);
       color: #fff;
-      box-sizing: border-box;
       overflow: hidden;
     }
 
@@ -301,15 +304,23 @@
       font-weight: 700;
     }
 
+    #descInput,
+    #citySelect,
+    .popup-input,
+    button,
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
+
     #descInput {
       width: 100%;
-      box-sizing: border-box;
       border: none;
       border-radius: 16px;
       padding: 12px 14px;
       background: rgba(255,255,255,0.12);
       color: #fff;
-      font-size: 15px;
       font-family: inherit;
       outline: none;
       resize: none;
@@ -338,7 +349,6 @@
       padding: 13px 14px;
       background: linear-gradient(180deg, #1c8cff, #007aff);
       color: #fff;
-      font-size: var(--save-size);
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
@@ -496,13 +506,11 @@
 
     #citySelect {
       width: 100%;
-      box-sizing: border-box;
       border: none;
       border-radius: 14px;
       padding: 12px 14px;
       background: rgba(255,255,255,0.08);
       color: #fff;
-      font-size: 14px;
       font-family: inherit;
       outline: none;
       appearance: none;
@@ -678,7 +686,6 @@
       border: none;
       border-radius: 10px;
       padding: 5px 9px;
-      font-size: 12px;
       cursor: pointer;
       background: rgba(255,255,255,0.10);
       color: #fff;
@@ -687,6 +694,7 @@
       gap: 4px;
       font-family: inherit;
       font-weight: 600;
+      font-size: 13px;
     }
 
     .reaction-btn.like {
@@ -707,13 +715,11 @@
 
     .popup-input {
       width: 100%;
-      box-sizing: border-box;
       border: none;
       background: rgba(255,255,255,0.14);
       color: #fff;
       border-radius: 14px;
       padding: 13px 14px;
-      font-size: 15px;
       outline: none;
       font-family: inherit;
     }
@@ -737,7 +743,6 @@
       background: rgba(80, 80, 80, 0.22);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      box-sizing: border-box;
     }
 
     .success-modal {
@@ -747,7 +752,6 @@
       overflow-y: auto;
       border-radius: 22px;
       padding: 16px;
-      box-sizing: border-box;
       background: rgba(72, 72, 74, 0.72);
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
@@ -772,7 +776,6 @@
       padding: 13px 14px;
       background: rgba(255,255,255,0.16);
       color: #fff;
-      font-size: 16px;
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
@@ -1163,8 +1166,33 @@
   const defaultCityKey = 'kyiv';
   const defaultCity = cityMap[defaultCityKey];
 
-  const map = L.map('map').setView([defaultCity.lat, defaultCity.lng], 12);
+  const map = L.map('map', {
+    preferCanvas: true,
+    zoomControl: true,
+    zoomAnimation: false,
+    fadeAnimation: false,
+    markerZoomAnimation: false
+  }).setView([defaultCity.lat, defaultCity.lng], 12);
+
   let currentTileLayer = null;
+  let settings = loadSettings();
+
+  let addMode = false;
+  let selected = null;
+  let temp = null;
+  let currentType = 'safe';
+  let data = [];
+
+  let currentOpenPointId = null;
+  let userLocationMarker = null;
+  let userLocationCircle = null;
+
+  let markerLayer = L.layerGroup().addTo(map);
+  let circleLayer = L.layerGroup().addTo(map);
+
+  let renderQueued = false;
+  let mergeScanTimer = null;
+  let mapReady = false;
 
   function getIconPath(type) {
     if (type === 'question') return 'icons/question.png';
@@ -1193,7 +1221,6 @@
         const parsed = JSON.parse(saved);
 
         let timeFilterMinutes = 1440;
-
         if (typeof parsed.timeFilterMinutes === 'number') {
           timeFilterMinutes = parsed.timeFilterMinutes;
         } else if (typeof parsed.timeFilterHours === 'number') {
@@ -1243,14 +1270,16 @@
     saveVotes(votes);
   }
 
-  let settings = loadSettings();
-
   function applyMapTheme(theme) {
     if (currentTileLayer) {
       map.removeLayer(currentTileLayer);
     }
+
     currentTileLayer = L.tileLayer(mapThemes[theme].url, {
-      attribution: mapThemes[theme].attribution
+      attribution: mapThemes[theme].attribution,
+      updateWhenIdle: true,
+      updateWhenZooming: false,
+      keepBuffer: 4
     }).addTo(map);
   }
 
@@ -1271,55 +1300,12 @@
       paddingTopLeft: [20, 20],
       paddingBottomRight: [20, 20],
       animate,
-      duration: animate ? 0.8 : 0
+      duration: animate ? 0.6 : 0
     });
   }
 
-  applyMapTheme(settings.mapTheme);
-
-  const addBtn = document.getElementById('addBtn');
-  const settingsBtn = document.getElementById('settingsBtn');
-  const geoBtn = document.getElementById('geoBtn');
-
-  const pickerBar = document.getElementById('pickerBar');
-  const pickerClose = document.getElementById('pickerClose');
-  const pickerItems = document.querySelectorAll('.picker-item');
-
-  const descSheet = document.getElementById('descSheet');
-  const sheetClose = document.getElementById('sheetClose');
-  const sheetIcon = document.getElementById('sheetIcon');
-  const sheetTitle = document.getElementById('sheetTitle');
-  const descInput = document.getElementById('descInput');
-  const descCounter = document.getElementById('descCounter');
-  const saveBtn = document.getElementById('saveBtn');
-
-  const settingsSheet = document.getElementById('settingsSheet');
-  const settingsBody = document.getElementById('settingsBody');
-  const settingsClose = document.getElementById('settingsClose');
-  const themeToggle = document.getElementById('themeToggle');
-  const themeToggleRow = document.getElementById('themeToggleRow');
-  const themeLabel = document.getElementById('themeLabel');
-  const themeIcon = document.getElementById('themeIcon');
-  const timeSlider = document.getElementById('timeSlider');
-  const timeValue = document.getElementById('timeValue');
-  const citySelect = document.getElementById('citySelect');
-  const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-
-  const successModalBackdrop = document.getElementById('successModalBackdrop');
-  const successModalClose = document.getElementById('successModalClose');
-
-  let addMode = false;
-  let selected = null;
-  let temp = null;
-  let currentType = 'safe';
-  let data = [];
-  let layers = [];
-  let currentOpenPointId = null;
-  let mergeInProgress = false;
-  let userLocationMarker = null;
-  let userLocationCircle = null;
-
   function populateCitySelect() {
+    const citySelect = document.getElementById('citySelect');
     const entries = Object.entries(cityMap).sort((a, b) => a[1].name.localeCompare(b[1].name, 'uk'));
     citySelect.innerHTML = entries
       .map(([key, city]) => `<option value="${key}">${city.name}</option>`)
@@ -1344,15 +1330,8 @@
   }
 
   function updateTimeDisplay(minutes) {
-    timeValue.textContent = formatMinutesText(minutes);
+    document.getElementById('timeValue').textContent = formatMinutesText(minutes);
   }
-
-  timeSlider.value = clampMinutes(settings.timeFilterMinutes);
-  updateTimeDisplay(clampMinutes(settings.timeFilterMinutes));
-
-  timeSlider.addEventListener('input', (e) => {
-    updateTimeDisplay(parseInt(e.target.value, 10));
-  });
 
   function updateFilterUI() {
     const filterIds = {
@@ -1367,27 +1346,19 @@
     for (const [type, id] of Object.entries(filterIds)) {
       const toggle = document.getElementById(id);
       if (!toggle) continue;
-
-      if (settings.filters[type]) {
-        toggle.classList.add('active');
-      } else {
-        toggle.classList.remove('active');
-      }
+      toggle.classList.toggle('active', !!settings.filters[type]);
     }
   }
 
   function updateThemeUI() {
     const isNight = settings.mapTheme === 'night';
+    const themeToggle = document.getElementById('themeToggle');
+    const themeLabel = document.getElementById('themeLabel');
+    const themeIcon = document.getElementById('themeIcon');
 
-    if (isNight) {
-      themeToggle.classList.add('active');
-      themeLabel.textContent = 'Нічна тема';
-      themeIcon.textContent = '🌙';
-    } else {
-      themeToggle.classList.remove('active');
-      themeLabel.textContent = 'Денна тема';
-      themeIcon.textContent = '☀️';
-    }
+    themeToggle.classList.toggle('active', isNight);
+    themeLabel.textContent = isNight ? 'Нічна тема' : 'Денна тема';
+    themeIcon.textContent = isNight ? '🌙' : '☀️';
   }
 
   function initFilterToggles() {
@@ -1401,7 +1372,7 @@
           e.stopPropagation();
           settings.filters[type] = !settings.filters[type];
           updateFilterUI();
-          render();
+          queueRender();
         });
       }
 
@@ -1409,13 +1380,16 @@
         if (e.target !== toggle) {
           settings.filters[type] = !settings.filters[type];
           updateFilterUI();
-          render();
+          queueRender();
         }
       });
     });
   }
 
   function initThemeToggle() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeToggleRow = document.getElementById('themeToggleRow');
+
     themeToggle.addEventListener('click', (e) => {
       e.stopPropagation();
       settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
@@ -1429,8 +1403,7 @@
   }
 
   function getIcon(type, zoom) {
-    let s = zoom < 12 ? 22 : zoom < 14 ? 28 : 34;
-    s = Math.round(s * 2.4);
+    let s = zoom < 11 ? 26 : zoom < 13 ? 31 : zoom < 15 ? 36 : 42;
 
     return L.divIcon({
       className: '',
@@ -1575,14 +1548,10 @@
         .filter(Boolean)
         .join(', ');
 
-      return `
-        <div class="popup-desc">${escapeHtml(mergedText || 'Без опису')}</div>
-      `;
+      return `<div class="popup-desc">${escapeHtml(mergedText || 'Без опису')}</div>`;
     }
 
-    return `
-      <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
-    `;
+    return `<div class="popup-desc">${escapeHtml(point.desc || '')}</div>`;
   }
 
   function popupHtml(point, index) {
@@ -1656,10 +1625,12 @@
 
   function reopenCurrentPopup() {
     if (!currentOpenPointId) return;
-    const layerObj = layers.find(m => m.pointId === currentOpenPointId && m.marker);
-    if (layerObj?.marker) {
-      layerObj.marker.openPopup();
-    }
+
+    markerLayer.eachLayer(layer => {
+      if (layer.pointId === currentOpenPointId) {
+        layer.openPopup();
+      }
+    });
   }
 
   function addGroupCircle(point) {
@@ -1671,18 +1642,28 @@
       weight: 2,
       opacity: 1,
       fillColor: point.mergedKind === 'safe' ? '#18c964' : '#ff3b30',
-      fillOpacity: 0.32
-    }).addTo(map);
+      fillOpacity: 0.32,
+      interactive: false
+    });
+  }
+
+  function queueRender() {
+    if (renderQueued) return;
+    renderQueued = true;
+
+    requestAnimationFrame(() => {
+      renderQueued = false;
+      render();
+    });
   }
 
   function render() {
+    if (!mapReady) return;
+
     const previouslyOpenPointId = currentOpenPointId;
 
-    layers.forEach(item => {
-      if (item.marker) map.removeLayer(item.marker);
-      if (item.circle) map.removeLayer(item.circle);
-    });
-    layers = [];
+    markerLayer.clearLayers();
+    circleLayer.clearLayers();
 
     const zoom = map.getZoom();
     const now = Date.now();
@@ -1693,38 +1674,46 @@
       if (now - p.time > timeLimit) return;
 
       const circle = addGroupCircle(p);
+      if (circle) circleLayer.addLayer(circle);
 
       const marker = L.marker([p.lat, p.lng], {
-        icon: getIcon(p.type, zoom)
-      }).addTo(map);
+        icon: getIcon(p.type, zoom),
+        keyboard: false
+      });
 
-      marker.bindPopup(popupHtml(p, i));
+      marker.pointId = p.id;
+
+      marker.bindPopup(popupHtml(p, i), {
+        autoPan: false,
+        keepInView: false,
+        closeButton: false,
+        offset: [0, -4],
+        className: 'radar-popup-wrap'
+      });
 
       marker.on('popupopen', () => {
         currentOpenPointId = p.id;
-        setTimeout(() => {
-          attachPopupInputCounter(i);
-        }, 10);
+        setTimeout(() => attachPopupInputCounter(i), 20);
       });
 
       marker.on('popupclose', () => {
-        if (currentOpenPointId === p.id) {
-          currentOpenPointId = null;
-        }
+        if (currentOpenPointId === p.id) currentOpenPointId = null;
       });
 
-      layers.push({ marker, circle, pointId: p.id });
+      markerLayer.addLayer(marker);
     });
 
     if (previouslyOpenPointId) {
       currentOpenPointId = previouslyOpenPointId;
-      setTimeout(() => {
-        reopenCurrentPopup();
-      }, 20);
+      setTimeout(() => reopenCurrentPopup(), 20);
     }
   }
 
   function updatePickerActive() {
+    const pickerItems = document.querySelectorAll('.picker-item');
+    const sheetIcon = document.getElementById('sheetIcon');
+    const sheetTitle = document.getElementById('sheetTitle');
+
     pickerItems.forEach(x => x.classList.remove('active'));
     document.querySelector(`.picker-item[data-type="${currentType}"]`)?.classList.add('active');
     sheetIcon.src = getIconPath(currentType);
@@ -1738,7 +1727,7 @@
   function positionSheetNearButton(sheet, button) {
     const isMobile = window.innerWidth <= 600;
 
-    if (sheet === settingsSheet) {
+    if (sheet.id === 'settingsSheet') {
       sheet.style.display = 'flex';
       updateSettingsSheetLayout();
       return;
@@ -1770,16 +1759,23 @@
   }
 
   function showPickerBar() {
+    const pickerBar = document.getElementById('pickerBar');
+    const addBtn = document.getElementById('addBtn');
     pickerBar.style.display = 'block';
     positionSheetNearButton(pickerBar, addBtn);
   }
 
   function showDescSheet() {
+    const descSheet = document.getElementById('descSheet');
+    const addBtn = document.getElementById('addBtn');
     descSheet.style.display = 'block';
     positionSheetNearButton(descSheet, addBtn);
   }
 
   function updateSettingsSheetLayout() {
+    const settingsSheet = document.getElementById('settingsSheet');
+    const settingsBody = document.getElementById('settingsBody');
+
     if (settingsSheet.style.display === 'none') return;
 
     const vh = window.innerHeight;
@@ -1817,6 +1813,7 @@
 
     const head = document.getElementById('settingsHead');
     const save = document.getElementById('saveSettingsBtn');
+
     if (!head || !save || !settingsBody) return;
 
     const totalHeight = settingsSheet.clientHeight;
@@ -1826,6 +1823,9 @@
   }
 
   function showSettingsSheet() {
+    const settingsSheet = document.getElementById('settingsSheet');
+    const citySelect = document.getElementById('citySelect');
+
     document.body.classList.add('settings-open');
     settingsSheet.style.display = 'flex';
     citySelect.value = settings.selectedCity || defaultCityKey;
@@ -1833,14 +1833,16 @@
   }
 
   function showSuccessModal() {
-    successModalBackdrop.style.display = 'flex';
+    document.getElementById('successModalBackdrop').style.display = 'flex';
   }
 
   function hideSuccessModal() {
-    successModalBackdrop.style.display = 'none';
+    document.getElementById('successModalBackdrop').style.display = 'none';
   }
 
   function showUserLocation(lat, lng, accuracy = 0) {
+    const geoBtn = document.getElementById('geoBtn');
+
     if (userLocationMarker) {
       map.removeLayer(userLocationMarker);
     }
@@ -1885,6 +1887,8 @@
   }
 
   function locateUser() {
+    const geoBtn = document.getElementById('geoBtn');
+
     if (!navigator.geolocation) {
       alert('Геолокація не підтримується на цьому пристрої');
       return;
@@ -1901,7 +1905,7 @@
         showUserLocation(lat, lng, accuracy);
         map.flyTo([lat, lng], Math.max(map.getZoom(), 16), {
           animate: true,
-          duration: 0.8
+          duration: 0.6
         });
 
         geoBtn.classList.remove('loading');
@@ -1919,6 +1923,11 @@
   }
 
   function closeCreateMode() {
+    const pickerBar = document.getElementById('pickerBar');
+    const descSheet = document.getElementById('descSheet');
+    const descInput = document.getElementById('descInput');
+    const descCounter = document.getElementById('descCounter');
+
     addMode = false;
     pickerBar.style.display = 'none';
     descSheet.style.display = 'none';
@@ -1931,6 +1940,33 @@
       map.removeLayer(temp);
       temp = null;
     }
+  }
+
+  function queueMergeScan() {
+    clearTimeout(mergeScanTimer);
+    mergeScanTimer = setTimeout(async () => {
+      try {
+        const candidates = [...data].sort((a, b) => a.time - b.time);
+        const processed = new Set();
+
+        for (const point of candidates) {
+          if (processed.has(point.id)) continue;
+
+          const nearby = candidates.filter(p =>
+            !processed.has(p.id) &&
+            distanceMeters(point.lat, point.lng, p.lat, p.lng) <= MERGE_RADIUS_METERS
+          );
+
+          nearby.forEach(p => processed.add(p.id));
+
+          if (nearby.length >= MERGE_MIN_COUNT) {
+            await mergeNearbyPoints(point.id);
+          }
+        }
+      } catch (e) {
+        console.error('merge scan error', e);
+      }
+    }, 1200);
   }
 
   window.closePopup = function() {
@@ -1975,7 +2011,41 @@
     await updateDoc(ref, { comments: newComments });
   };
 
-  pickerItems.forEach(el => {
+  function safeInvalidateMap() {
+    setTimeout(() => {
+      map.invalidateSize(false);
+      queueRender();
+    }, 50);
+  }
+
+  applyMapTheme(settings.mapTheme);
+
+  const addBtn = document.getElementById('addBtn');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const geoBtn = document.getElementById('geoBtn');
+  const pickerClose = document.getElementById('pickerClose');
+  const sheetClose = document.getElementById('sheetClose');
+  const settingsClose = document.getElementById('settingsClose');
+  const successModalClose = document.getElementById('successModalClose');
+  const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+  const descInput = document.getElementById('descInput');
+  const saveBtn = document.getElementById('saveBtn');
+  const timeSlider = document.getElementById('timeSlider');
+  const citySelect = document.getElementById('citySelect');
+  const successModalBackdrop = document.getElementById('successModalBackdrop');
+
+  timeSlider.value = clampMinutes(settings.timeFilterMinutes);
+  updateTimeDisplay(clampMinutes(settings.timeFilterMinutes));
+
+  timeSlider.addEventListener('input', (e) => {
+    updateTimeDisplay(parseInt(e.target.value, 10));
+  });
+
+  descInput.addEventListener('input', () => {
+    document.getElementById('descCounter').textContent = `${descInput.value.length} / 100`;
+  });
+
+  document.querySelectorAll('.picker-item').forEach(el => {
     el.addEventListener('click', () => {
       currentType = el.dataset.type;
       updatePickerActive();
@@ -1984,16 +2054,16 @@
 
   addBtn.addEventListener('click', () => {
     addMode = true;
-    settingsSheet.style.display = 'none';
+    document.getElementById('settingsSheet').style.display = 'none';
     document.body.classList.remove('settings-open');
-    pickerBar.style.display = 'none';
-    descSheet.style.display = 'none';
+    document.getElementById('pickerBar').style.display = 'none';
+    document.getElementById('descSheet').style.display = 'none';
     showPickerBar();
   });
 
   settingsBtn.addEventListener('click', () => {
-    pickerBar.style.display = 'none';
-    descSheet.style.display = 'none';
+    document.getElementById('pickerBar').style.display = 'none';
+    document.getElementById('descSheet').style.display = 'none';
     showSettingsSheet();
   });
 
@@ -2005,16 +2075,14 @@
   sheetClose.addEventListener('click', closeCreateMode);
 
   settingsClose.addEventListener('click', () => {
-    settingsSheet.style.display = 'none';
+    document.getElementById('settingsSheet').style.display = 'none';
     document.body.classList.remove('settings-open');
   });
 
   successModalClose.addEventListener('click', hideSuccessModal);
 
   successModalBackdrop.addEventListener('click', (e) => {
-    if (e.target === successModalBackdrop) {
-      hideSuccessModal();
-    }
+    if (e.target === successModalBackdrop) hideSuccessModal();
   });
 
   saveSettingsBtn.addEventListener('click', () => {
@@ -2023,15 +2091,12 @@
 
     saveSettings(settings);
     applyMapTheme(settings.mapTheme);
-    render();
-    settingsSheet.style.display = 'none';
+
+    document.getElementById('settingsSheet').style.display = 'none';
     document.body.classList.remove('settings-open');
 
     flyToCity(settings.selectedCity, true);
-  });
-
-  descInput.addEventListener('input', () => {
-    descCounter.textContent = `${descInput.value.length} / 100`;
+    safeInvalidateMap();
   });
 
   map.on('click', e => {
@@ -2044,11 +2109,12 @@
     }
 
     temp = L.marker(selected, {
-      icon: getIcon(currentType, map.getZoom())
+      icon: getIcon(currentType, map.getZoom()),
+      keyboard: false
     }).addTo(map);
 
     updatePickerActive();
-    pickerBar.style.display = 'none';
+    document.getElementById('pickerBar').style.display = 'none';
     showDescSheet();
   });
 
@@ -2076,61 +2142,68 @@
       mergedSourceIds: []
     });
 
-    await mergeNearbyPoints(addedRef.id);
+    try {
+      await mergeNearbyPoints(addedRef.id);
+    } catch (e) {
+      console.error('merge after add error', e);
+    }
 
     closeCreateMode();
     showSuccessModal();
+    safeInvalidateMap();
   });
 
-  map.on('zoomend', () => {
-    render();
-  });
+  map.on('zoomend', queueRender);
+  map.on('moveend', () => {});
 
   window.addEventListener('resize', () => {
-    if (pickerBar.style.display === 'block') showPickerBar();
-    if (descSheet.style.display === 'block') showDescSheet();
-    if (settingsSheet.style.display !== 'none') {
-      updateSettingsSheetLayout();
-    }
+    if (document.getElementById('pickerBar').style.display === 'block') showPickerBar();
+    if (document.getElementById('descSheet').style.display === 'block') showDescSheet();
+    if (document.getElementById('settingsSheet').style.display !== 'none') updateSettingsSheetLayout();
+    safeInvalidateMap();
   });
 
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
-      if (settingsSheet.style.display !== 'none') {
+      if (document.getElementById('settingsSheet').style.display !== 'none') {
         updateSettingsSheetLayout();
       }
+      safeInvalidateMap();
     }, 250);
   });
 
   const pointsQuery = query(collection(db, "points"), orderBy("time", "desc"));
 
-  onSnapshot(pointsQuery, async (snapshot) => {
-    data = [];
+  onSnapshot(pointsQuery, (snapshot) => {
+    const fresh = [];
+    const now = Date.now();
 
     snapshot.forEach((itemDoc) => {
       const point = { id: itemDoc.id, ...itemDoc.data() };
-
-      if (Date.now() - point.time < LIFE) {
-        data.push(point);
+      if (now - point.time < LIFE) {
+        fresh.push(point);
       }
     });
 
-    if (!mergeInProgress) {
-      mergeInProgress = true;
-
-      try {
-        for (const point of data) {
-          await mergeNearbyPoints(point.id);
-        }
-      } catch (e) {
-        console.error('merge error', e);
-      }
-
-      mergeInProgress = false;
-    }
-
-    render();
+    data = fresh;
+    queueRender();
+    queueMergeScan();
   });
+
+  function initTelegramMiniAppFixes() {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) return;
+
+    try {
+      tg.ready();
+      tg.expand();
+      tg.enableClosingConfirmation?.();
+
+      setTimeout(() => safeInvalidateMap(), 50);
+      setTimeout(() => safeInvalidateMap(), 250);
+      setTimeout(() => safeInvalidateMap(), 600);
+    } catch (e) {}
+  }
 
   populateCitySelect();
   updateFilterUI();
@@ -2138,8 +2211,17 @@
   initFilterToggles();
   initThemeToggle();
   updatePickerActive();
-  render();
-  flyToCity(settings.selectedCity || defaultCityKey, false);
+
+  map.whenReady(() => {
+    mapReady = true;
+    flyToCity(settings.selectedCity || defaultCityKey, false);
+    safeInvalidateMap();
+    queueRender();
+  });
+
+  initTelegramMiniAppFixes();
+  setTimeout(() => safeInvalidateMap(), 200);
+  setTimeout(() => safeInvalidateMap(), 800);
 </script>
 
 </body>
