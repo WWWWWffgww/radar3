@@ -10,22 +10,17 @@
     :root {
       --fab-bottom: calc(12px + env(safe-area-inset-bottom));
       --fab-gap: 7px;
-
       --geo-size: 38px;
       --settings-size: 38px;
       --add-size: 41px;
-
       --geo-radius: 12px;
       --settings-radius: 12px;
       --add-radius: 50%;
-
       --sheet-side: 10px;
       --sheet-top: max(56px, calc(env(safe-area-inset-top) + 8px));
       --sheet-bottom: calc(58px + env(safe-area-inset-bottom));
-
       --sheet-radius: 22px;
       --sheet-padding: 12px;
-
       --title-size: 16px;
       --label-size: 12px;
       --item-text-size: 14px;
@@ -79,9 +74,7 @@
       transform: translateY(8px);
     }
 
-    #geoBtn,
-    #settingsBtn,
-    #addBtn {
+    #geoBtn, #settingsBtn, #addBtn {
       border: none;
       cursor: pointer;
       display: flex;
@@ -139,27 +132,8 @@
       color: #fff;
     }
 
-    #pickerBar {
+    #pickerBar, #descSheet {
       position: fixed;
-      right: 10px;
-      bottom: calc(60px + env(safe-area-inset-bottom));
-      width: 300px;
-      z-index: 1001;
-      display: none;
-      background: rgba(28,28,30,0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 20px;
-      padding: 10px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    #descSheet {
-      position: fixed;
-      right: 10px;
-      bottom: calc(60px + env(safe-area-inset-bottom));
-      width: 300px;
       z-index: 1002;
       display: none;
       background: rgba(28,28,30,0.96);
@@ -170,6 +144,26 @@
       box-shadow: 0 18px 40px rgba(0,0,0,0.22);
       border: 1px solid rgba(255,255,255,0.08);
       color: #fff;
+    }
+
+    #pickerBar {
+      width: 300px;
+    }
+
+    #descSheet {
+      width: 320px;
+    }
+
+    @media (max-width: 600px) {
+      #pickerBar, #descSheet {
+        left: 50% !important;
+        top: 50% !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: translate(-50%, -50%) !important;
+        width: calc(100vw - 24px) !important;
+        max-width: 340px;
+      }
     }
 
     #settingsSheet {
@@ -190,6 +184,16 @@
       border: 1px solid rgba(255,255,255,0.08);
       color: #fff;
       overflow: hidden;
+    }
+
+    @media (min-width: 601px) {
+      #settingsSheet {
+        left: auto;
+        right: 10px;
+        width: 320px;
+        top: 68px;
+        bottom: calc(60px + env(safe-area-inset-bottom));
+      }
     }
 
     #settingsBody {
@@ -225,9 +229,7 @@
       font-size: 12px;
     }
 
-    #pickerClose,
-    #sheetClose,
-    #settingsClose {
+    #pickerClose, #sheetClose, #settingsClose {
       border: none;
       background: rgba(255,255,255,0.12);
       color: #fff;
@@ -274,8 +276,7 @@
       font-size: 11px;
     }
 
-    #sheetHead,
-    #settingsHead {
+    #sheetHead, #settingsHead {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -298,19 +299,12 @@
       flex: 0 0 auto;
     }
 
-    #sheetTitle,
-    #settingsTitle {
+    #sheetTitle, #settingsTitle {
       font-size: var(--title-size);
       font-weight: 700;
     }
 
-    #descInput,
-    #citySelect,
-    .popup-input,
-    button,
-    input,
-    textarea,
-    select {
+    #descInput, #citySelect, .popup-input, button, input, textarea, select {
       font-size: 16px;
     }
 
@@ -331,8 +325,7 @@
       color: rgba(255,255,255,0.5);
     }
 
-    #descCounter,
-    .popup-counter {
+    #descCounter, .popup-counter {
       text-align: right;
       font-size: 12px;
       color: rgba(255,255,255,0.55);
@@ -340,9 +333,7 @@
       margin-bottom: 10px;
     }
 
-    #saveBtn,
-    #saveSettingsBtn,
-    .popup-btn {
+    #saveBtn, #saveSettingsBtn, .popup-btn {
       width: 100%;
       border: none;
       border-radius: 16px;
@@ -535,197 +526,61 @@
       font-size: 14px;
     }
 
-    .leaflet-popup-content-wrapper {
-      border-radius: 24px;
-      padding: 0;
-      box-shadow: 0 22px 50px rgba(0,0,0,0.22);
-      background: rgba(28,28,30,0.96);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      color: #fff;
-    }
-
-    .leaflet-popup-content {
-      margin: 0 !important;
-      width: min(340px, calc(100vw - 24px)) !important;
-      max-width: calc(100vw - 24px) !important;
-    }
-
-    .leaflet-popup-tip,
-    .leaflet-popup-close-button {
+    /* CUSTOM POPUP - CENTERED ON ALL DEVICES */
+    .custom-popup-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2000;
       display: none;
-    }
-
-    .radar-popup {
-      padding: 14px;
-      color: #fff;
-    }
-
-    .popup-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .popup-head-left {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      min-width: 0;
-      flex: 1;
-    }
-
-    .popup-icon {
-      width: 44px;
-      height: 44px;
-      object-fit: contain;
-      flex: 0 0 auto;
-    }
-
-    .popup-meta {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .popup-title-row {
-      display: flex;
       align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 4px;
+      justify-content: center;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 20px;
     }
 
-    .popup-title {
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1.15;
-      color: #fff;
-      margin-bottom: 0;
-    }
-
-    .popup-life {
-      font-size: 11px;
-      color: #8be28b;
-      white-space: nowrap;
-      font-weight: 800;
-    }
-
-    .popup-time {
-      font-size: 13px;
-      color: rgba(255,255,255,0.74);
-      white-space: nowrap;
-      margin-bottom: 3px;
-    }
-
-    .popup-close {
-      width: 32px;
-      height: 32px;
-      border: none;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.14);
-      color: #fff;
-      font-size: 22px;
-      line-height: 1;
-      cursor: pointer;
-      flex: 0 0 auto;
-    }
-
-    .popup-desc {
-      font-size: 15px;
-      line-height: 1.4;
-      color: #fff;
-      white-space: pre-wrap;
-      word-break: break-word;
-      margin-bottom: 12px;
-    }
-
-    .popup-comments-title {
-      font-size: 14px;
-      color: rgba(255,255,255,0.72);
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .popup-comments {
-      max-height: 160px;
+    .custom-popup {
+      width: min(380px, calc(100vw - 40px));
+      max-height: 80vh;
       overflow-y: auto;
-      margin-bottom: 12px;
-    }
-
-    .comment-item {
-      background: rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 11px 12px;
-      margin-bottom: 8px;
-    }
-
-    .comment-text {
-      font-size: 14px;
-      line-height: 1.35;
+      background: rgba(28,28,30,0.98);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 28px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
       color: #fff;
-      white-space: pre-wrap;
-      word-break: break-word;
+      animation: popupFadeIn 0.2s ease;
     }
 
-    .comment-time {
-      margin-top: 6px;
-      font-size: 12px;
-      color: rgba(255,255,255,0.58);
+    @keyframes popupFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
-    .reaction-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 6px;
-      margin-bottom: 10px;
+    .custom-popup .radar-popup {
+      padding: 20px;
     }
 
-    .reaction-btn {
-      border: none;
-      border-radius: 10px;
-      padding: 5px 9px;
-      cursor: pointer;
-      background: rgba(255,255,255,0.10);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 13px;
+    .custom-popup .popup-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
     }
 
-    .reaction-btn.like {
-      background: rgba(10,132,255,0.14);
-      border: 1px solid rgba(10,132,255,0.22);
-    }
-
-    .reaction-btn.dislike {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .reaction-btn.disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-
-    .popup-input {
-      width: 100%;
-      border: none;
-      background: rgba(255,255,255,0.14);
-      color: #fff;
-      border-radius: 14px;
-      padding: 13px 14px;
-      outline: none;
-      font-family: inherit;
-    }
-
-    .popup-input::placeholder {
-      color: rgba(255,255,255,0.5);
+    .custom-popup .popup-head {
+      position: relative;
+      padding-right: 40px;
     }
 
     .success-modal-backdrop {
@@ -735,11 +590,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding:
-        max(16px, env(safe-area-inset-top))
-        12px
-        max(16px, env(safe-area-inset-bottom))
-        12px;
+      padding: max(16px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom)) 12px;
       background: rgba(80, 80, 80, 0.22);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
@@ -787,49 +638,9 @@
       transform: scale(0.98);
     }
 
-    /* MOBILE POPUP AS BOTTOM SHEET - FIXED */
-    @media (max-width: 600px) {
-      .leaflet-popup-pane .leaflet-popup {
-        position: fixed !important;
-        left: 50% !important;
-        top: auto !important;
-        bottom: 20px !important;
-        transform: translateX(-50%) !important;
-        margin: 0 !important;
-        width: calc(100vw - 20px) !important;
-        max-width: calc(100vw - 20px) !important;
-        z-index: 1200 !important;
-      }
-
-      .leaflet-popup-content-wrapper {
-        width: 100% !important;
-        border-radius: 24px !important;
-      }
-
-      .leaflet-popup-content {
-        width: 100% !important;
-        max-width: 100% !important;
-        max-height: 65vh !important;
-        overflow-y: auto !important;
-      }
-    }
-
-    /* Desktop popup - centered */
-    @media (min-width: 601px) {
-      .leaflet-popup-pane .leaflet-popup {
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-      }
-
-      #settingsSheet {
-        left: auto;
-        right: 10px;
-        width: 320px;
-        top: 68px;
-        bottom: calc(60px + env(safe-area-inset-bottom));
-      }
+    /* Leaflet popup полностью отключен */
+    .leaflet-popup {
+      display: none !important;
     }
 
     @media (max-height: 760px) {
@@ -844,72 +655,34 @@
         --item-text-size: 13px;
         --save-size: 14px;
       }
-
       .filter-item-left img {
         width: 24px;
         height: 24px;
       }
-
       .filter-toggle {
         width: 38px;
         height: 22px;
       }
-
       .filter-toggle::after {
         width: 18px;
         height: 18px;
       }
-
       .filter-toggle.active::after {
         left: 18px;
       }
-
       #themeIcon {
         font-size: 18px;
         width: 24px;
       }
-
       .time-slider-container {
         padding: 8px;
       }
-
       .time-slider-value {
         font-size: 11px;
       }
-
       .time-value {
         font-size: 11px;
         padding: 4px 8px;
-      }
-    }
-
-    @media (max-height: 680px) {
-      :root {
-        --sheet-top: max(44px, calc(env(safe-area-inset-top) + 4px));
-        --sheet-bottom: calc(54px + env(safe-area-inset-bottom));
-        --sheet-padding: 9px;
-        --sheet-radius: 18px;
-        --title-size: 14px;
-        --label-size: 10px;
-        --item-text-size: 12px;
-        --save-size: 14px;
-      }
-
-      .filter-item {
-        padding: 6px 8px;
-      }
-
-      .filter-item-left img {
-        width: 22px;
-        height: 22px;
-      }
-
-      .time-slider-container {
-        padding: 7px;
-      }
-
-      .time-slider-value {
-        gap: 4px;
       }
     }
   </style>
@@ -924,7 +697,6 @@
       <path d="M11 2h2v2.06A8.002 8.002 0 0 1 19.94 11H22v2h-2.06A8.002 8.002 0 0 1 13 19.94V22h-2v-2.06A8.002 8.002 0 0 1 4.06 13H2v-2h2.06A8.002 8.002 0 0 1 11 4.06V2zm1 4a6 6 0 1 0 0 12a6 6 0 0 0 0-12zm0 3.2a2.8 2.8 0 1 1 0 5.6a2.8 2.8 0 0 1 0-5.6z"/>
     </svg>
   </button>
-
   <button id="settingsBtn" aria-label="Налаштування" title="Налаштування">⚙️</button>
   <button id="addBtn" aria-label="Додати мітку" title="Додати мітку">+</button>
 </div>
@@ -934,37 +706,13 @@
     <div id="pickerHint">Обери тип і ткни на карту</div>
     <button id="pickerClose">×</button>
   </div>
-
   <div class="picker-grid">
-    <div class="picker-item active" data-type="safe">
-      <img src="icons/safe.png" alt="Безпечно">
-      <span>Безпечно</span>
-    </div>
-
-    <div class="picker-item" data-type="block">
-      <img src="icons/block.png" alt="Блокпост">
-      <span>Блокпост</span>
-    </div>
-
-    <div class="picker-item" data-type="danger2">
-      <img src="icons/danger2.png" alt="Злодій">
-      <span>Злодій</span>
-    </div>
-
-    <div class="picker-item" data-type="trash">
-      <img src="icons/trash.png" alt="Сміття">
-      <span>Сміття</span>
-    </div>
-
-    <div class="picker-item" data-type="question">
-      <img src="icons/question.png" alt="Питання">
-      <span>Питання</span>
-    </div>
-
-    <div class="picker-item" data-type="poop">
-      <img src="icons/kaka.png" alt="Лайно">
-      <span>Лайно</span>
-    </div>
+    <div class="picker-item active" data-type="safe"><img src="icons/safe.png" alt="Безпечно"><span>Безпечно</span></div>
+    <div class="picker-item" data-type="block"><img src="icons/block.png" alt="Блокпост"><span>Блокпост</span></div>
+    <div class="picker-item" data-type="danger2"><img src="icons/danger2.png" alt="Злодій"><span>Злодій</span></div>
+    <div class="picker-item" data-type="trash"><img src="icons/trash.png" alt="Сміття"><span>Сміття</span></div>
+    <div class="picker-item" data-type="question"><img src="icons/question.png" alt="Питання"><span>Питання</span></div>
+    <div class="picker-item" data-type="poop"><img src="icons/kaka.png" alt="Лайно"><span>Лайно</span></div>
   </div>
 </div>
 
@@ -976,7 +724,6 @@
     </div>
     <button id="sheetClose">×</button>
   </div>
-
   <textarea id="descInput" maxlength="100" placeholder="Опис..."></textarea>
   <div id="descCounter">0 / 100</div>
   <button id="saveBtn">Зберегти</button>
@@ -987,103 +734,50 @@
     <div id="settingsTitle">⚙️ Налаштування</div>
     <button id="settingsClose">×</button>
   </div>
-
   <div id="settingsBody">
     <div class="settings-group">
       <div class="settings-label">🏙️ Місто</div>
-      <div class="city-select-wrap">
-        <select id="citySelect"></select>
-      </div>
+      <div class="city-select-wrap"><select id="citySelect"></select></div>
     </div>
-
     <div class="settings-group">
       <div class="settings-label">🌓 Тема карти</div>
       <div class="filter-item" id="themeToggleRow">
-        <div class="filter-item-left">
-          <span id="themeIcon">☀️</span>
-          <span id="themeLabel">Денна тема</span>
-        </div>
+        <div class="filter-item-left"><span id="themeIcon">☀️</span><span id="themeLabel">Денна тема</span></div>
         <div class="filter-toggle" id="themeToggle"></div>
       </div>
     </div>
-
     <div class="settings-group">
       <div class="settings-label">⏱️ Фільтр за часом</div>
       <div class="time-slider-container">
         <input type="range" id="timeSlider" class="time-slider" min="15" max="1440" step="15" value="1440">
-        <div class="time-slider-value">
-          <span>🕒 15 хв</span>
-          <span class="time-value" id="timeValue">24 год</span>
-          <span>📅 24 год</span>
-        </div>
+        <div class="time-slider-value"><span>🕒 15 хв</span><span class="time-value" id="timeValue">24 год</span><span>📅 24 год</span></div>
       </div>
     </div>
-
     <div class="settings-group">
       <div class="settings-label">👁️ Фільтр типів міток</div>
       <div class="filter-group" id="filterGroup">
-        <div class="filter-item" data-filter-type="safe">
-          <div class="filter-item-left">
-            <img src="icons/safe.png" alt="">
-            <span>Безпечно</span>
-          </div>
-          <div class="filter-toggle" id="filterSafe"></div>
-        </div>
-
-        <div class="filter-item" data-filter-type="block">
-          <div class="filter-item-left">
-            <img src="icons/block.png" alt="">
-            <span>Блокпост</span>
-          </div>
-          <div class="filter-toggle" id="filterBlock"></div>
-        </div>
-
-        <div class="filter-item" data-filter-type="danger2">
-          <div class="filter-item-left">
-            <img src="icons/danger2.png" alt="">
-            <span>Злодій</span>
-          </div>
-          <div class="filter-toggle" id="filterDanger2"></div>
-        </div>
-
-        <div class="filter-item" data-filter-type="trash">
-          <div class="filter-item-left">
-            <img src="icons/trash.png" alt="">
-            <span>Сміття</span>
-          </div>
-          <div class="filter-toggle" id="filterTrash"></div>
-        </div>
-
-        <div class="filter-item" data-filter-type="question">
-          <div class="filter-item-left">
-            <img src="icons/question.png" alt="">
-            <span>Питання</span>
-          </div>
-          <div class="filter-toggle" id="filterQuestion"></div>
-        </div>
-
-        <div class="filter-item" data-filter-type="poop">
-          <div class="filter-item-left">
-            <img src="icons/kaka.png" alt="">
-            <span>Лайно</span>
-          </div>
-          <div class="filter-toggle" id="filterPoop"></div>
-        </div>
+        <div class="filter-item" data-filter-type="safe"><div class="filter-item-left"><img src="icons/safe.png" alt=""><span>Безпечно</span></div><div class="filter-toggle" id="filterSafe"></div></div>
+        <div class="filter-item" data-filter-type="block"><div class="filter-item-left"><img src="icons/block.png" alt=""><span>Блокпост</span></div><div class="filter-toggle" id="filterBlock"></div></div>
+        <div class="filter-item" data-filter-type="danger2"><div class="filter-item-left"><img src="icons/danger2.png" alt=""><span>Злодій</span></div><div class="filter-toggle" id="filterDanger2"></div></div>
+        <div class="filter-item" data-filter-type="trash"><div class="filter-item-left"><img src="icons/trash.png" alt=""><span>Сміття</span></div><div class="filter-toggle" id="filterTrash"></div></div>
+        <div class="filter-item" data-filter-type="question"><div class="filter-item-left"><img src="icons/question.png" alt=""><span>Питання</span></div><div class="filter-toggle" id="filterQuestion"></div></div>
+        <div class="filter-item" data-filter-type="poop"><div class="filter-item-left"><img src="icons/kaka.png" alt=""><span>Лайно</span></div><div class="filter-toggle" id="filterPoop"></div></div>
       </div>
     </div>
   </div>
-
   <button id="saveSettingsBtn">Зберегти</button>
 </div>
 
 <div id="successModalBackdrop" class="success-modal-backdrop">
   <div class="success-modal">
-    <div class="success-modal-text">
-      Мітку успішно додано.<br>
-      Вона з’явиться на мапі протягом 5 хвилин
-    </div>
+    <div class="success-modal-text">Мітку успішно додано.<br>Вона з’явиться на мапі протягом 5 хвилин</div>
     <button id="successModalClose" class="success-modal-btn">Закрити</button>
   </div>
+</div>
+
+<!-- Custom Popup Container -->
+<div id="customPopupContainer" class="custom-popup-container">
+  <div id="customPopup" class="custom-popup"></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1118,8 +812,7 @@
   const LIFE = 24 * 60 * 60 * 1000;
   const VOTES_KEY = 'radar_votes';
   const TILE_CACHE_NAME = 'radar-tile-cache-v5';
-
-  const GROUP_RADIUS_METERS = 165;   // 150-180m range
+  const GROUP_RADIUS_METERS = 165;
   const GROUP_MIN_COUNT = 3;
 
   const labelMap = {
@@ -1157,87 +850,54 @@
   };
 
   const mapThemes = {
-    day: {
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution: '&copy; OpenStreetMap contributors'
-    },
-    night: {
-      url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-    }
+    day: { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '&copy; OpenStreetMap contributors' },
+    night: { url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', attribution: '&copy; OpenStreetMap contributors &copy; CARTO' }
   };
 
   const defaultCityKey = 'kyiv';
   const defaultCity = cityMap[defaultCityKey];
 
-  /* Cached Tile Layer */
+  // Cached Tile Layer
   const CachedTileLayer = L.TileLayer.extend({
     createTile(coords, done) {
       const tile = document.createElement('img');
-
       L.DomEvent.on(tile, 'load', L.bind(this._tileOnLoad, this, done, tile));
       L.DomEvent.on(tile, 'error', L.bind(this._tileOnError, this, done, tile));
-
       if (this.options.crossOrigin || this.options.crossOrigin === '') {
         tile.crossOrigin = this.options.crossOrigin === true ? '' : this.options.crossOrigin;
       }
-
       tile.alt = '';
       tile.setAttribute('role', 'presentation');
-
       const url = this.getTileUrl(coords);
-
-      const fallbackToNormal = () => {
-        tile.src = url;
-      };
-
+      const fallbackToNormal = () => { tile.src = url; };
       if (!('caches' in window) || !url.startsWith('http')) {
         fallbackToNormal();
         return tile;
       }
-
       caches.open(TILE_CACHE_NAME).then(async (cache) => {
         const cached = await cache.match(url, { ignoreVary: true, ignoreSearch: false });
-
         if (cached) {
           const blob = await cached.blob();
           const objectUrl = URL.createObjectURL(blob);
-          tile.onload = () => {
-            URL.revokeObjectURL(objectUrl);
-            done(null, tile);
-          };
-          tile.onerror = () => {
-            URL.revokeObjectURL(objectUrl);
-            fallbackToNormal();
-          };
+          tile.onload = () => { URL.revokeObjectURL(objectUrl); done(null, tile); };
+          tile.onerror = () => { URL.revokeObjectURL(objectUrl); fallbackToNormal(); };
           tile.src = objectUrl;
           return;
         }
-
         try {
           const resp = await fetch(url, { mode: 'cors', cache: 'force-cache' });
           if (resp && resp.ok) {
             cache.put(url, resp.clone()).catch(() => {});
             const blob = await resp.blob();
             const objectUrl = URL.createObjectURL(blob);
-            tile.onload = () => {
-              URL.revokeObjectURL(objectUrl);
-              done(null, tile);
-            };
-            tile.onerror = () => {
-              URL.revokeObjectURL(objectUrl);
-              fallbackToNormal();
-            };
+            tile.onload = () => { URL.revokeObjectURL(objectUrl); done(null, tile); };
+            tile.onerror = () => { URL.revokeObjectURL(objectUrl); fallbackToNormal(); };
             tile.src = objectUrl;
             return;
           }
         } catch (e) {}
-
         fallbackToNormal();
-      }).catch(() => {
-        fallbackToNormal();
-      });
-
+      }).catch(() => { fallbackToNormal(); });
       return tile;
     }
   });
@@ -1255,17 +915,15 @@
 
   let currentTileLayer = null;
   let settings = loadSettings();
-
   let addMode = false;
   let selected = null;
   let temp = null;
   let currentType = 'safe';
   let data = [];
-
   let currentOpenPointId = null;
+  let currentOpenPointIndex = null;
   let userLocationMarker = null;
   let userLocationCircle = null;
-
   let renderQueued = false;
   let mapReady = false;
   let suspendRenderWhileTyping = false;
@@ -1285,86 +943,34 @@
       mapTheme: 'day',
       timeFilterMinutes: 1440,
       selectedCity: defaultCityKey,
-      filters: {
-        safe: true,
-        block: true,
-        danger2: true,
-        trash: true,
-        question: true,
-        poop: true
-      }
+      filters: { safe: true, block: true, danger2: true, trash: true, question: true, poop: true }
     };
-
     try {
       const saved = localStorage.getItem(SETTINGS_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-
         let timeFilterMinutes = 1440;
-        if (typeof parsed.timeFilterMinutes === 'number') {
-          timeFilterMinutes = parsed.timeFilterMinutes;
-        } else if (typeof parsed.timeFilterHours === 'number') {
-          timeFilterMinutes = Math.round(parsed.timeFilterHours * 60);
-        }
-
+        if (typeof parsed.timeFilterMinutes === 'number') timeFilterMinutes = parsed.timeFilterMinutes;
+        else if (typeof parsed.timeFilterHours === 'number') timeFilterMinutes = Math.round(parsed.timeFilterHours * 60);
         const selectedCity = cityMap[parsed.selectedCity] ? parsed.selectedCity : defaultCityKey;
-
-        return {
-          ...defaultSettings,
-          ...parsed,
-          mapTheme: parsed.mapTheme || 'day',
-          timeFilterMinutes,
-          selectedCity,
-          filters: { ...defaultSettings.filters, ...(parsed.filters || {}) }
-        };
+        return { ...defaultSettings, ...parsed, mapTheme: parsed.mapTheme || 'day', timeFilterMinutes, selectedCity, filters: { ...defaultSettings.filters, ...(parsed.filters || {}) } };
       }
     } catch (e) {}
-
     return defaultSettings;
   }
 
-  function saveSettings(settings) {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  }
-
-  function loadVotes() {
-    try {
-      return JSON.parse(localStorage.getItem(VOTES_KEY) || '{}');
-    } catch (e) {
-      return {};
-    }
-  }
-
-  function saveVotes(votes) {
-    localStorage.setItem(VOTES_KEY, JSON.stringify(votes));
-  }
-
-  function hasVoted(pointId) {
-    const votes = loadVotes();
-    return !!votes[pointId];
-  }
-
-  function setVoted(pointId, type) {
-    const votes = loadVotes();
-    votes[pointId] = type;
-    saveVotes(votes);
-  }
+  function saveSettings(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+  function loadVotes() { try { return JSON.parse(localStorage.getItem(VOTES_KEY) || '{}'); } catch(e) { return {}; } }
+  function saveVotes(v) { localStorage.setItem(VOTES_KEY, JSON.stringify(v)); }
+  function hasVoted(id) { return !!loadVotes()[id]; }
+  function setVoted(id, type) { const v = loadVotes(); v[id] = type; saveVotes(v); }
 
   function createCachedTileLayer(theme) {
-    return new CachedTileLayer(mapThemes[theme].url, {
-      attribution: mapThemes[theme].attribution,
-      updateWhenIdle: true,
-      updateWhenZooming: false,
-      keepBuffer: 8,
-      tileSize: 256,
-      crossOrigin: 'anonymous'
-    });
+    return new CachedTileLayer(mapThemes[theme].url, { attribution: mapThemes[theme].attribution, updateWhenIdle: true, updateWhenZooming: false, keepBuffer: 8, tileSize: 256, crossOrigin: 'anonymous' });
   }
 
   function applyMapTheme(theme) {
-    if (currentTileLayer) {
-      map.removeLayer(currentTileLayer);
-    }
+    if (currentTileLayer) map.removeLayer(currentTileLayer);
     currentTileLayer = createCachedTileLayer(theme);
     currentTileLayer.addTo(map);
   }
@@ -1372,241 +978,92 @@
   function kmToBounds(lat, lng, radiusKm) {
     const latDelta = radiusKm / 111;
     const lngDelta = radiusKm / (111 * Math.cos(lat * Math.PI / 180));
-    return L.latLngBounds(
-      [lat - latDelta, lng - lngDelta],
-      [lat + latDelta, lng + lngDelta]
-    );
+    return L.latLngBounds([lat - latDelta, lng - lngDelta], [lat + latDelta, lng + lngDelta]);
   }
 
   function flyToCity(cityKey, animate = true) {
     const city = cityMap[cityKey] || defaultCity;
     const bounds = kmToBounds(city.lat, city.lng, city.radiusKm || 12);
-
-    map.fitBounds(bounds, {
-      paddingTopLeft: [20, 20],
-      paddingBottomRight: [20, 20],
-      animate,
-      duration: animate ? 0.55 : 0
-    });
-
+    map.fitBounds(bounds, { paddingTopLeft: [20, 20], paddingBottomRight: [20, 20], animate, duration: animate ? 0.55 : 0 });
     prewarmCityTiles(bounds);
   }
 
   function populateCitySelect() {
     const citySelect = document.getElementById('citySelect');
     const entries = Object.entries(cityMap).sort((a, b) => a[1].name.localeCompare(b[1].name, 'uk'));
-    citySelect.innerHTML = entries
-      .map(([key, city]) => `<option value="${key}">${city.name}</option>`)
-      .join('');
-
+    citySelect.innerHTML = entries.map(([key, city]) => `<option value="${key}">${city.name}</option>`).join('');
     citySelect.value = settings.selectedCity || defaultCityKey;
   }
 
-  function clampMinutes(value) {
-    const num = Number(value) || 15;
-    return Math.min(1440, Math.max(15, num));
-  }
-
-  function formatMinutesText(totalMinutes) {
-    totalMinutes = clampMinutes(totalMinutes);
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-
-    if (hours === 0) return `${minutes} хв`;
-    if (minutes === 0) return `${hours} год`;
-    return `${hours} год ${minutes} хв`;
-  }
-
-  function updateTimeDisplay(minutes) {
-    document.getElementById('timeValue').textContent = formatMinutesText(minutes);
-  }
-
+  function clampMinutes(v) { return Math.min(1440, Math.max(15, Number(v) || 15)); }
+  function formatMinutesText(m) { m = clampMinutes(m); const h = Math.floor(m / 60), min = m % 60; if (h === 0) return `${min} хв`; if (min === 0) return `${h} год`; return `${h} год ${min} хв`; }
+  function updateTimeDisplay(m) { document.getElementById('timeValue').textContent = formatMinutesText(m); }
   function updateFilterUI() {
-    const filterIds = {
-      safe: 'filterSafe',
-      block: 'filterBlock',
-      danger2: 'filterDanger2',
-      trash: 'filterTrash',
-      question: 'filterQuestion',
-      poop: 'filterPoop'
-    };
-
-    for (const [type, id] of Object.entries(filterIds)) {
-      const toggle = document.getElementById(id);
-      if (!toggle) continue;
-      toggle.classList.toggle('active', !!settings.filters[type]);
-    }
+    const ids = { safe: 'filterSafe', block: 'filterBlock', danger2: 'filterDanger2', trash: 'filterTrash', question: 'filterQuestion', poop: 'filterPoop' };
+    for (const [type, id] of Object.entries(ids)) { const toggle = document.getElementById(id); if (toggle) toggle.classList.toggle('active', !!settings.filters[type]); }
   }
-
   function updateThemeUI() {
     const isNight = settings.mapTheme === 'night';
-    const themeToggle = document.getElementById('themeToggle');
-    const themeLabel = document.getElementById('themeLabel');
-    const themeIcon = document.getElementById('themeIcon');
-
-    themeToggle.classList.toggle('active', isNight);
-    themeLabel.textContent = isNight ? 'Нічна тема' : 'Денна тема';
-    themeIcon.textContent = isNight ? '🌙' : '☀️';
+    document.getElementById('themeToggle').classList.toggle('active', isNight);
+    document.getElementById('themeLabel').textContent = isNight ? 'Нічна тема' : 'Денна тема';
+    document.getElementById('themeIcon').textContent = isNight ? '🌙' : '☀️';
   }
 
   function initFilterToggles() {
-    const filterItems = document.querySelectorAll('.filter-item[data-filter-type]');
-    filterItems.forEach(item => {
+    document.querySelectorAll('.filter-item[data-filter-type]').forEach(item => {
       const type = item.dataset.filterType;
       const toggle = item.querySelector('.filter-toggle');
-
-      if (toggle) {
-        toggle.addEventListener('click', (e) => {
-          e.stopPropagation();
-          settings.filters[type] = !settings.filters[type];
-          updateFilterUI();
-          queueRender();
-        });
-      }
-
-      item.addEventListener('click', (e) => {
-        if (e.target !== toggle) {
-          settings.filters[type] = !settings.filters[type];
-          updateFilterUI();
-          queueRender();
-        }
-      });
+      if (toggle) toggle.addEventListener('click', (e) => { e.stopPropagation(); settings.filters[type] = !settings.filters[type]; updateFilterUI(); queueRender(); });
+      item.addEventListener('click', (e) => { if (e.target !== toggle) { settings.filters[type] = !settings.filters[type]; updateFilterUI(); queueRender(); } });
     });
   }
 
   function initThemeToggle() {
     const themeToggle = document.getElementById('themeToggle');
     const themeToggleRow = document.getElementById('themeToggleRow');
-
-    themeToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
-      updateThemeUI();
-    });
-
-    themeToggleRow.addEventListener('click', () => {
-      settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night';
-      updateThemeUI();
-    });
+    themeToggle.addEventListener('click', (e) => { e.stopPropagation(); settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night'; updateThemeUI(); });
+    themeToggleRow.addEventListener('click', () => { settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night'; updateThemeUI(); });
   }
 
-  // Smaller icons by default, bigger when zoomed in
   function getIcon(type, zoom) {
     let size;
-    
-    if (zoom < 12) {
-      size = 18;   // Very small on far zoom
-    } else if (zoom < 14) {
-      size = 22;   // Small
-    } else if (zoom < 16) {
-      size = 28;   // Medium
-    } else if (zoom < 18) {
-      size = 34;   // Larger
-    } else {
-      size = 40;   // Full size on max zoom
-    }
-
-    return L.divIcon({
-      className: '',
-      html: `<img src="${getIconPath(type)}" class="pin-img" style="width:100%;height:100%;">`,
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size - 4],
-      popupAnchor: [0, -(size - 12)]
-    });
+    if (zoom < 12) size = 18;
+    else if (zoom < 14) size = 22;
+    else if (zoom < 16) size = 28;
+    else if (zoom < 18) size = 34;
+    else size = 40;
+    return L.divIcon({ className: '', html: `<img src="${getIconPath(type)}" class="pin-img" style="width:100%;height:100%;">`, iconSize: [size, size], iconAnchor: [size / 2, size - 4], popupAnchor: [0, -(size - 12)] });
   }
 
-  function formatDateTime(t) {
-    return new Date(t).toLocaleString('uk-UA', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  function formatTime(t) {
-    return new Date(t).toLocaleTimeString('uk-UA', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  function escapeHtml(text) {
-    return String(text || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function timeLeftText(createdAt) {
-    const end = createdAt + LIFE;
-    const left = end - Date.now();
-    if (left <= 0) return 'Зникла';
-
-    const hours = Math.floor(left / (1000 * 60 * 60));
-    const minutes = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
-    return `зникне через ${hours}:${String(minutes).padStart(2, '0')} год`;
-  }
-
-  function distanceMeters(lat1, lng1, lat2, lng2) {
-    const R = 6371000;
-    const toRad = deg => deg * Math.PI / 180;
-
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  }
+  function formatDateTime(t) { return new Date(t).toLocaleString('uk-UA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+  function formatTime(t) { return new Date(t).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }); }
+  function escapeHtml(t) { return String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
+  function timeLeftText(createdAt) { const left = (createdAt + LIFE) - Date.now(); if (left <= 0) return 'Зникла'; const h = Math.floor(left / (1000 * 60 * 60)), m = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60)); return `зникне через ${h}:${String(m).padStart(2, '0')} год`; }
+  function distanceMeters(lat1, lng1, lat2, lng2) { const R = 6371000, toRad = d => d * Math.PI / 180, dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1), a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2; return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); }
 
   function popupHtml(point, index) {
-    const commentsHtml = (point.comments || []).map(c => `
-      <div class="comment-item">
-        <div class="comment-text">${escapeHtml(c.text)}</div>
-        <div class="comment-time">${formatTime(c.time)}</div>
-      </div>
-    `).join('');
-
+    const commentsHtml = (point.comments || []).map(c => `<div class="comment-item"><div class="comment-text">${escapeHtml(c.text)}</div><div class="comment-time">${formatTime(c.time)}</div></div>`).join('');
     const voted = hasVoted(point.id);
-
     return `
       <div class="radar-popup">
         <div class="popup-head">
           <div class="popup-head-left">
             <img src="${getIconPath(point.type)}" class="popup-icon">
             <div class="popup-meta">
-              <div class="popup-title-row">
-                <div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div>
-                <div class="popup-life">${timeLeftText(point.time)}</div>
-              </div>
+              <div class="popup-title-row"><div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div><div class="popup-life">${timeLeftText(point.time)}</div></div>
               <div class="popup-time">${formatDateTime(point.time)}</div>
             </div>
           </div>
-
-          <button class="popup-close" onclick="window.closePopup()">×</button>
+          <button class="popup-close" onclick="window.closeCustomPopup()">×</button>
         </div>
-
         <div class="popup-comments-title">Опис</div>
         <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
-
         <div class="popup-comments-title">Коментарі</div>
-
-        <div class="popup-comments">
-          ${commentsHtml || '<div class="comment-item"><div class="comment-text">Немає коментарів</div></div>'}
-        </div>
-
+        <div class="popup-comments">${commentsHtml || '<div class="comment-item"><div class="comment-text">Немає коментарів</div></div>'}</div>
         <div class="reaction-row">
           <button class="reaction-btn like ${voted ? 'disabled' : ''}" onclick="window.vote(${index}, 'like')">👍 ${point.likes || 0}</button>
           <button class="reaction-btn dislike ${voted ? 'disabled' : ''}" onclick="window.vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
         </div>
-
         <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
         <div class="popup-counter" id="commentCounter_${index}">0 / 100</div>
         <button class="popup-btn" onclick="window.addComment(${index})">Додати коментар</button>
@@ -1614,604 +1071,284 @@
     `;
   }
 
+  function showCustomPopup(point, index) {
+    const container = document.getElementById('customPopupContainer');
+    const popupDiv = document.getElementById('customPopup');
+    popupDiv.innerHTML = popupHtml(point, index);
+    container.style.display = 'flex';
+    currentOpenPointId = point.id;
+    currentOpenPointIndex = index;
+    
+    // Attach input counter
+    setTimeout(() => {
+      const input = document.getElementById(`commentInput_${index}`);
+      const counter = document.getElementById(`commentCounter_${index}`);
+      if (input && counter) {
+        input.oninput = () => { counter.textContent = `${input.value.length} / 100`; };
+        input.onfocus = () => { suspendRenderWhileTyping = true; };
+        input.onblur = () => { setTimeout(() => { suspendRenderWhileTyping = false; }, 150); };
+        counter.textContent = `${input.value.length} / 100`;
+      }
+    }, 20);
+  }
+
+  window.closeCustomPopup = function() {
+    document.getElementById('customPopupContainer').style.display = 'none';
+    currentOpenPointId = null;
+    currentOpenPointIndex = null;
+  };
+
   function isTypingInEditableField() {
     const el = document.activeElement;
     if (!el) return false;
-
     const tag = (el.tagName || '').toLowerCase();
     return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
   }
 
-  function shouldSkipRenderNow() {
-    return suspendRenderWhileTyping || isTypingInEditableField();
-  }
+  function shouldSkipRenderNow() { return suspendRenderWhileTyping || isTypingInEditableField(); }
 
   function getVisiblePoints() {
     const now = Date.now();
     const timeLimit = clampMinutes(settings.timeFilterMinutes) * 60 * 1000;
-
-    return data.filter((p) => {
-      if (!settings.filters[p.type]) return false;
-      if (now - p.time > timeLimit) return false;
-      return true;
-    });
+    return data.filter(p => settings.filters[p.type] && (now - p.time <= timeLimit));
   }
 
   function getPointVisualHash(point) {
-    return JSON.stringify({
-      lat: point.lat,
-      lng: point.lng,
-      type: point.type,
-      desc: point.desc || '',
-      time: point.time,
-      comments: point.comments || [],
-      likes: point.likes || 0,
-      dislikes: point.dislikes || 0
-    });
-  }
-
-  function attachPopupInputCounter(index) {
-    const input = document.getElementById(`commentInput_${index}`);
-    const counter = document.getElementById(`commentCounter_${index}`);
-    if (!input || !counter) return;
-
-    input.oninput = () => {
-      counter.textContent = `${input.value.length} / 100`;
-    };
-
-    input.onfocus = () => {
-      suspendRenderWhileTyping = true;
-    };
-
-    input.onblur = () => {
-      setTimeout(() => {
-        suspendRenderWhileTyping = false;
-      }, 150);
-    };
-
-    input.addEventListener('touchstart', () => {
-      suspendRenderWhileTyping = true;
-    }, { passive: true });
-
-    counter.textContent = `${input.value.length} / 100`;
+    return JSON.stringify({ lat: point.lat, lng: point.lng, type: point.type, desc: point.desc || '', time: point.time, comments: point.comments || [], likes: point.likes || 0, dislikes: point.dislikes || 0 });
   }
 
   function buildGroupCircles(points) {
-    const groups = [];
-    const visited = new Set();
-
+    const groups = [], visited = new Set();
     for (let i = 0; i < points.length; i++) {
       if (visited.has(points[i].id)) continue;
-
-      const queue = [points[i]];
-      const component = [];
+      const queue = [points[i]], component = [];
       visited.add(points[i].id);
-
       while (queue.length) {
         const current = queue.shift();
         component.push(current);
-
         for (let j = 0; j < points.length; j++) {
           const candidate = points[j];
           if (visited.has(candidate.id)) continue;
-
           if (distanceMeters(current.lat, current.lng, candidate.lat, candidate.lng) <= GROUP_RADIUS_METERS) {
             visited.add(candidate.id);
             queue.push(candidate);
           }
         }
       }
-
       if (component.length >= GROUP_MIN_COUNT) {
         const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
         const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
-        groups.push({
-          lat: avgLat,
-          lng: avgLng,
-          count: component.length
-        });
+        groups.push({ lat: avgLat, lng: avgLng, count: component.length });
       }
     }
-
     return groups;
-  }
-
-  function bindMarkerPopup(marker, point, index) {
-    marker.bindPopup(popupHtml(point, index), {
-      autoPan: false,
-      keepInView: false,
-      closeButton: false,
-      offset: [0, -4],
-      className: 'radar-popup-wrap'
-    });
-
-    marker.off('popupopen');
-    marker.off('popupclose');
-
-    marker.on('popupopen', () => {
-      currentOpenPointId = point.id;
-      setTimeout(() => attachPopupInputCounter(index), 20);
-    });
-
-    marker.on('popupclose', () => {
-      if (currentOpenPointId === point.id) currentOpenPointId = null;
-    });
   }
 
   function updateExistingMarker(entry, point, index, zoom) {
     const newHash = getPointVisualHash(point);
-    const newIconSizeKey = `${point.type}_${zoom}`;
-
-    if (entry.iconKey !== newIconSizeKey) {
-      entry.marker.setIcon(getIcon(point.type, zoom));
-      entry.iconKey = newIconSizeKey;
-    }
-
-    if (entry.lat !== point.lat || entry.lng !== point.lng) {
-      entry.marker.setLatLng([point.lat, point.lng]);
-      entry.lat = point.lat;
-      entry.lng = point.lng;
-    }
-
-    if (entry.hash !== newHash) {
-      const popup = entry.marker.getPopup();
-      const html = popupHtml(point, index);
-
-      if (popup) {
-        popup.setContent(html);
-      } else {
-        bindMarkerPopup(entry.marker, point, index);
-      }
-
-      entry.hash = newHash;
-    }
+    const newIconKey = `${point.type}_${zoom}`;
+    if (entry.iconKey !== newIconKey) { entry.marker.setIcon(getIcon(point.type, zoom)); entry.iconKey = newIconKey; }
+    if (entry.lat !== point.lat || entry.lng !== point.lng) { entry.marker.setLatLng([point.lat, point.lng]); entry.lat = point.lat; entry.lng = point.lng; }
+    if (entry.hash !== newHash) { entry.hash = newHash; }
+    // Store point data for popup
+    entry.marker.pointData = point;
+    entry.marker.pointIndex = index;
   }
 
   function removeMarkerEntry(id) {
     const entry = markerRegistry.get(id);
-    if (!entry) return;
-
-    if (entry.marker) map.removeLayer(entry.marker);
-    markerRegistry.delete(id);
-
-    if (currentOpenPointId === id) {
-      currentOpenPointId = null;
-    }
+    if (entry) { if (entry.marker) map.removeLayer(entry.marker); markerRegistry.delete(id); }
+    if (currentOpenPointId === id) currentOpenPointId = null;
   }
 
   function queueRender(force = false) {
     if (!force && shouldSkipRenderNow()) return;
     if (renderQueued) return;
-
     renderQueued = true;
-
-    requestAnimationFrame(() => {
-      renderQueued = false;
-      if (!force && shouldSkipRenderNow()) return;
-      render(force);
-    });
+    requestAnimationFrame(() => { renderQueued = false; if (!force && shouldSkipRenderNow()) return; render(force); });
   }
 
   function render(force = false) {
     if (!mapReady) return;
     if (!force && shouldSkipRenderNow()) return;
-
     const zoom = map.getZoom();
     const visiblePoints = getVisiblePoints();
     const visibleIds = new Set(visiblePoints.map(p => p.id));
-
-    // Remove markers that are no longer visible
-    for (const [id] of markerRegistry) {
-      if (!visibleIds.has(id)) {
-        removeMarkerEntry(id);
-      }
-    }
-
-    // Add or update markers
+    for (const [id] of markerRegistry) if (!visibleIds.has(id)) removeMarkerEntry(id);
     visiblePoints.forEach((point, index) => {
       const existing = markerRegistry.get(point.id);
-
       if (!existing) {
-        const marker = L.marker([point.lat, point.lng], {
-          icon: getIcon(point.type, zoom),
-          keyboard: false
-        }).addTo(map);
-
+        const marker = L.marker([point.lat, point.lng], { icon: getIcon(point.type, zoom), keyboard: false }).addTo(map);
         marker.pointId = point.id;
-        bindMarkerPopup(marker, point, index);
-
-        markerRegistry.set(point.id, {
-          marker,
-          hash: getPointVisualHash(point),
-          lat: point.lat,
-          lng: point.lng,
-          iconKey: `${point.type}_${zoom}`
+        marker.pointData = point;
+        marker.pointIndex = index;
+        marker.on('click', (e) => {
+          e.originalEvent.stopPropagation();
+          showCustomPopup(point, index);
         });
+        markerRegistry.set(point.id, { marker, hash: getPointVisualHash(point), lat: point.lat, lng: point.lng, iconKey: `${point.type}_${zoom}` });
       } else {
         updateExistingMarker(existing, point, index, zoom);
       }
     });
-
-    // Draw group circles WITHOUT removing markers
     groupCircleLayer.clearLayers();
-    const groups = buildGroupCircles(visiblePoints);
-
-    groups.forEach(g => {
-      L.circle([g.lat, g.lng], {
-        radius: GROUP_RADIUS_METERS,
-        color: '#ff3b30',
-        weight: 2.5,
-        opacity: 0.9,
-        fillColor: '#ff3b30',
-        fillOpacity: 0.2,
-        interactive: false
-      }).addTo(groupCircleLayer);
+    buildGroupCircles(visiblePoints).forEach(g => {
+      L.circle([g.lat, g.lng], { radius: GROUP_RADIUS_METERS, color: '#ff3b30', weight: 2.5, opacity: 0.9, fillColor: '#ff3b30', fillOpacity: 0.2, interactive: false }).addTo(groupCircleLayer);
     });
-
-    if (currentOpenPointId && Date.now() > suppressPopupRestoreUntil) {
-      const entry = markerRegistry.get(currentOpenPointId);
-      if (entry && !entry.marker.isPopupOpen()) {
-        setTimeout(() => {
-          const reopen = markerRegistry.get(currentOpenPointId);
-          if (reopen && !reopen.marker.isPopupOpen() && Date.now() > suppressPopupRestoreUntil) {
-            reopen.marker.openPopup();
-          }
-        }, 20);
-      }
-    }
   }
 
   function updatePickerActive() {
-    const pickerItems = document.querySelectorAll('.picker-item');
-    const sheetIcon = document.getElementById('sheetIcon');
-    const sheetTitle = document.getElementById('sheetTitle');
-
-    pickerItems.forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.picker-item').forEach(x => x.classList.remove('active'));
     document.querySelector(`.picker-item[data-type="${currentType}"]`)?.classList.add('active');
-    sheetIcon.src = getIconPath(currentType);
-    sheetTitle.textContent = labelMap[currentType] || currentType;
-
-    if (temp && selected) {
-      temp.setIcon(getIcon(currentType, map.getZoom()));
-    }
+    document.getElementById('sheetIcon').src = getIconPath(currentType);
+    document.getElementById('sheetTitle').textContent = labelMap[currentType] || currentType;
+    if (temp && selected) temp.setIcon(getIcon(currentType, map.getZoom()));
   }
 
-  function positionSheetNearButton(sheet, button) {
-    const isMobile = window.innerWidth <= 600;
-
-    if (sheet.id === 'settingsSheet') {
-      sheet.style.display = 'flex';
-      updateSettingsSheetLayout();
-      return;
-    }
-
-    sheet.style.display = 'block';
-
-    if (isMobile) {
-      sheet.style.left = '8px';
-      sheet.style.right = '8px';
-      sheet.style.width = 'auto';
-      sheet.style.top = 'auto';
-      sheet.style.bottom = `calc(56px + env(safe-area-inset-bottom))`;
-      return;
-    }
-
-    const gap = 10;
-    const btnRect = button.getBoundingClientRect();
-    const sheetRect = sheet.getBoundingClientRect();
-
-    let left = btnRect.right - sheetRect.width;
-    left = Math.max(8, Math.min(left, window.innerWidth - sheetRect.width - 8));
-
-    const top = btnRect.top - sheetRect.height - gap;
-    sheet.style.left = `${left}px`;
-    sheet.style.top = `${Math.max(8, top)}px`;
-    sheet.style.right = 'auto';
-    sheet.style.bottom = 'auto';
+  function centerElementOnScreen(element) {
+    element.style.display = 'block';
+    setTimeout(() => {
+      const rect = element.getBoundingClientRect();
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const centerY = window.innerHeight / 2;
+      const elementCenter = rect.top + rect.height / 2;
+      const offset = elementCenter - centerY;
+      if (Math.abs(offset) > 50) {
+        window.scrollBy({ top: offset, behavior: 'smooth' });
+      }
+    }, 10);
   }
 
   function showPickerBar() {
     const pickerBar = document.getElementById('pickerBar');
-    const addBtn = document.getElementById('addBtn');
     pickerBar.style.display = 'block';
-    positionSheetNearButton(pickerBar, addBtn);
+    if (window.innerWidth <= 600) centerElementOnScreen(pickerBar);
   }
 
   function showDescSheet() {
     const descSheet = document.getElementById('descSheet');
-    const addBtn = document.getElementById('addBtn');
     descSheet.style.display = 'block';
-    positionSheetNearButton(descSheet, addBtn);
+    if (window.innerWidth <= 600) centerElementOnScreen(descSheet);
   }
 
   function updateSettingsSheetLayout() {
-    const settingsSheet = document.getElementById('settingsSheet');
-    const settingsBody = document.getElementById('settingsBody');
-
-    if (settingsSheet.style.display === 'none') return;
-
-    const vh = window.innerHeight;
-    const isDesktop = window.innerWidth > 600;
-
-    if (isDesktop) {
-      settingsSheet.style.top = '68px';
-      settingsSheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
-      settingsSheet.style.left = 'auto';
-      settingsSheet.style.right = '10px';
-      settingsSheet.style.width = '320px';
+    const sheet = document.getElementById('settingsSheet');
+    if (sheet.style.display === 'none') return;
+    if (window.innerWidth > 600) {
+      sheet.style.left = 'auto';
+      sheet.style.right = '10px';
+      sheet.style.top = '68px';
+      sheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
+      sheet.style.width = '320px';
     } else {
-      let topGap = 56;
-      let bottomGap = 58;
-      let sideGap = 10;
-
-      if (vh <= 760) {
-        topGap = 50;
-        bottomGap = 56;
-        sideGap = 8;
-      }
-
-      if (vh <= 680) {
-        topGap = 44;
-        bottomGap = 54;
-        sideGap = 8;
-      }
-
-      settingsSheet.style.left = `${sideGap}px`;
-      settingsSheet.style.right = `${sideGap}px`;
-      settingsSheet.style.top = `${topGap}px`;
-      settingsSheet.style.bottom = `${bottomGap}px`;
-      settingsSheet.style.width = 'auto';
+      sheet.style.left = '10px';
+      sheet.style.right = '10px';
+      sheet.style.top = '56px';
+      sheet.style.bottom = '58px';
+      sheet.style.width = 'auto';
     }
-
-    const head = document.getElementById('settingsHead');
-    const save = document.getElementById('saveSettingsBtn');
-
-    if (!head || !save || !settingsBody) return;
-
-    const totalHeight = settingsSheet.clientHeight;
-    const reserved = head.offsetHeight + save.offsetHeight + 20;
-    const bodyHeight = Math.max(100, totalHeight - reserved);
-    settingsBody.style.maxHeight = `${bodyHeight}px`;
+    const head = document.getElementById('settingsHead'), save = document.getElementById('saveSettingsBtn'), body = document.getElementById('settingsBody');
+    if (head && save && body) {
+      const totalHeight = sheet.clientHeight;
+      const reserved = head.offsetHeight + save.offsetHeight + 20;
+      body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
+    }
   }
 
   function showSettingsSheet() {
-    const settingsSheet = document.getElementById('settingsSheet');
-    const citySelect = document.getElementById('citySelect');
-
     document.body.classList.add('settings-open');
-    settingsSheet.style.display = 'flex';
-    citySelect.value = settings.selectedCity || defaultCityKey;
+    document.getElementById('settingsSheet').style.display = 'flex';
+    document.getElementById('citySelect').value = settings.selectedCity || defaultCityKey;
     updateSettingsSheetLayout();
   }
 
-  function showSuccessModal() {
-    document.getElementById('successModalBackdrop').style.display = 'flex';
-  }
-
-  function hideSuccessModal() {
-    document.getElementById('successModalBackdrop').style.display = 'none';
-  }
+  function showSuccessModal() { document.getElementById('successModalBackdrop').style.display = 'flex'; }
+  function hideSuccessModal() { document.getElementById('successModalBackdrop').style.display = 'none'; }
 
   function showUserLocation(lat, lng, accuracy = 0) {
-    const geoBtn = document.getElementById('geoBtn');
-
-    if (userLocationMarker) {
-      map.removeLayer(userLocationMarker);
-    }
-
-    if (userLocationCircle) {
-      map.removeLayer(userLocationCircle);
-    }
-
-    const userIcon = L.divIcon({
-      className: '',
-      html: `
-        <div style="
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #0a84ff;
-          border: 3px solid #ffffff;
-          box-shadow: 0 0 0 5px rgba(10,132,255,0.22);
-        "></div>
-      `,
-      iconSize: [16, 16],
-      iconAnchor: [8, 8]
-    });
-
-    userLocationMarker = L.marker([lat, lng], {
-      icon: userIcon,
-      zIndexOffset: 2000
-    }).addTo(map);
-
-    if (accuracy > 0) {
-      userLocationCircle = L.circle([lat, lng], {
-        radius: accuracy,
-        color: '#0a84ff',
-        weight: 1.5,
-        opacity: 0.7,
-        fillColor: '#0a84ff',
-        fillOpacity: 0.12
-      }).addTo(map);
-    }
-
-    geoBtn.classList.add('active');
+    if (userLocationMarker) map.removeLayer(userLocationMarker);
+    if (userLocationCircle) map.removeLayer(userLocationCircle);
+    const userIcon = L.divIcon({ className: '', html: `<div style="width:16px;height:16px;border-radius:50%;background:#0a84ff;border:3px solid #fff;box-shadow:0 0 0 5px rgba(10,132,255,0.22);"></div>`, iconSize: [16, 16], iconAnchor: [8, 8] });
+    userLocationMarker = L.marker([lat, lng], { icon: userIcon, zIndexOffset: 2000 }).addTo(map);
+    if (accuracy > 0) userLocationCircle = L.circle([lat, lng], { radius: accuracy, color: '#0a84ff', weight: 1.5, opacity: 0.7, fillColor: '#0a84ff', fillOpacity: 0.12 }).addTo(map);
+    document.getElementById('geoBtn').classList.add('active');
   }
 
   function locateUser() {
-    const geoBtn = document.getElementById('geoBtn');
-
-    if (!navigator.geolocation) {
-      alert('Геолокація не підтримується на цьому пристрої');
-      return;
-    }
-
-    geoBtn.classList.add('loading');
-
+    const btn = document.getElementById('geoBtn');
+    if (!navigator.geolocation) return alert('Геолокація не підтримується');
+    btn.classList.add('loading');
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const accuracy = position.coords.accuracy || 0;
-
-        showUserLocation(lat, lng, accuracy);
-        map.flyTo([lat, lng], Math.max(map.getZoom(), 16), {
-          animate: true,
-          duration: 0.6
-        });
-
-        geoBtn.classList.remove('loading');
-      },
-      () => {
-        geoBtn.classList.remove('loading');
-        alert('Не вдалося отримати ваше місцезнаходження');
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 30000
-      }
+      (pos) => { showUserLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy || 0); map.flyTo([pos.coords.latitude, pos.coords.longitude], Math.max(map.getZoom(), 16), { animate: true, duration: 0.6 }); btn.classList.remove('loading'); },
+      () => { btn.classList.remove('loading'); alert('Не вдалося отримати місцезнаходження'); },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
     );
   }
 
   function closeCreateMode() {
-    const pickerBar = document.getElementById('pickerBar');
-    const descSheet = document.getElementById('descSheet');
-    const descInput = document.getElementById('descInput');
-    const descCounter = document.getElementById('descCounter');
-
     addMode = false;
-    pickerBar.style.display = 'none';
-    descSheet.style.display = 'none';
+    document.getElementById('pickerBar').style.display = 'none';
+    document.getElementById('descSheet').style.display = 'none';
     selected = null;
-    descInput.value = '';
-    descCounter.textContent = '0 / 100';
+    document.getElementById('descInput').value = '';
+    document.getElementById('descCounter').textContent = '0 / 100';
     document.body.classList.remove('settings-open');
-
-    if (temp) {
-      map.removeLayer(temp);
-      temp = null;
-    }
+    if (temp) { map.removeLayer(temp); temp = null; }
   }
 
   function safeInvalidateMap(force = false) {
     if (!force && shouldSkipRenderNow()) return;
-
-    setTimeout(() => {
-      if (!force && shouldSkipRenderNow()) return;
-      map.invalidateSize(false);
-      queueRender(force);
-    }, 50);
+    setTimeout(() => { if (!force && shouldSkipRenderNow()) return; map.invalidateSize(false); queueRender(force); }, 50);
   }
 
   function latLngBoundsToTileUrls(bounds, zoom, theme) {
-    const tileLayer = createCachedTileLayer(theme);
-
-    function lngToTileX(lng, z) {
-      return Math.floor(((lng + 180) / 360) * Math.pow(2, z));
-    }
-
-    function latToTileY(lat, z) {
-      const rad = lat * Math.PI / 180;
-      return Math.floor(
-        ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * Math.pow(2, z)
-      );
-    }
-
-    const nw = bounds.getNorthWest();
-    const se = bounds.getSouthEast();
-
-    const minX = lngToTileX(nw.lng, zoom);
-    const maxX = lngToTileX(se.lng, zoom);
-    const minY = latToTileY(nw.lat, zoom);
-    const maxY = latToTileY(se.lat, zoom);
-
+    const tl = createCachedTileLayer(theme);
+    const lngToTileX = (lng, z) => Math.floor(((lng + 180) / 360) * Math.pow(2, z));
+    const latToTileY = (lat, z) => { const rad = lat * Math.PI / 180; return Math.floor(((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * Math.pow(2, z)); };
+    const nw = bounds.getNorthWest(), se = bounds.getSouthEast();
+    const minX = lngToTileX(nw.lng, zoom), maxX = lngToTileX(se.lng, zoom), minY = latToTileY(nw.lat, zoom), maxY = latToTileY(se.lat, zoom);
     const urls = [];
-    for (let x = minX; x <= maxX; x++) {
-      for (let y = minY; y <= maxY; y++) {
-        urls.push(tileLayer.getTileUrl({ x, y, z: zoom }));
-      }
-    }
+    for (let x = minX; x <= maxX; x++) for (let y = minY; y <= maxY; y++) urls.push(tl.getTileUrl({ x, y, z: zoom }));
     return urls;
   }
 
   function prewarmCityTiles(bounds) {
     if (!('caches' in window)) return;
-
-    const zooms = [11, 12, 13];
-    const theme = settings.mapTheme;
-
-    caches.open(TILE_CACHE_NAME).then(async (cache) => {
+    const zooms = [11, 12, 13], theme = settings.mapTheme;
+    caches.open(TILE_CACHE_NAME).then(async cache => {
       for (const z of zooms) {
-        const urls = latLngBoundsToTileUrls(bounds, z, theme).slice(0, 120);
-        for (const url of urls) {
-          try {
-            const match = await cache.match(url);
-            if (!match) {
-              fetch(url, { mode: 'cors', cache: 'force-cache' }).then(resp => {
-                if (resp && resp.ok) cache.put(url, resp.clone()).catch(() => {});
-              }).catch(() => {});
-            }
-          } catch (e) {}
+        for (const url of latLngBoundsToTileUrls(bounds, z, theme).slice(0, 120)) {
+          try { if (!(await cache.match(url))) fetch(url, { mode: 'cors', cache: 'force-cache' }).then(r => { if (r && r.ok) cache.put(url, r.clone()).catch(() => {}); }).catch(() => {}); } catch(e) {}
         }
       }
     }).catch(() => {});
   }
 
-  window.closePopup = function() {
-    map.closePopup();
-  };
-
   window.vote = async function(index, type) {
     const item = data[index];
-    if (!item?.id) return;
-    if (hasVoted(item.id)) return;
-
+    if (!item?.id || hasVoted(item.id)) return;
     suppressPopupRestoreUntil = Date.now() + 900;
-
     const ref = doc(db, "points", item.id);
-
-    if (type === 'like') {
-      await updateDoc(ref, { likes: (item.likes || 0) + 1 });
-    } else {
-      await updateDoc(ref, { dislikes: (item.dislikes || 0) + 1 });
-    }
-
+    if (type === 'like') await updateDoc(ref, { likes: (item.likes || 0) + 1 });
+    else await updateDoc(ref, { dislikes: (item.dislikes || 0) + 1 });
     setVoted(item.id, type);
-
-    setTimeout(() => {
-      queueRender(true);
-    }, 60);
+    setTimeout(() => queueRender(true), 60);
   };
 
   window.addComment = async function(index) {
     const input = document.getElementById(`commentInput_${index}`);
     if (!input) return;
-
     const text = input.value.trim();
     if (!text) return alert('Коментар обовʼязковий');
     if (text.length > 100) return alert('Максимум 100 символів');
-
     const item = data[index];
     if (!item?.id) return;
-
     suspendRenderWhileTyping = true;
     suppressPopupRestoreUntil = Date.now() + 1200;
-
     const ref = doc(db, "points", item.id);
-    const newComments = [
-      ...(item.comments || []),
-      { text, time: Date.now() }
-    ];
-
-    await updateDoc(ref, { comments: newComments });
-
+    await updateDoc(ref, { comments: [...(item.comments || []), { text, time: Date.now() }] });
     input.blur();
-
-    setTimeout(() => {
-      suspendRenderWhileTyping = false;
-      queueRender(true);
-    }, 160);
+    setTimeout(() => { suspendRenderWhileTyping = false; queueRender(true); }, 160);
   };
 
   applyMapTheme(settings.mapTheme);
@@ -2232,21 +1369,9 @@
 
   timeSlider.value = clampMinutes(settings.timeFilterMinutes);
   updateTimeDisplay(clampMinutes(settings.timeFilterMinutes));
-
-  timeSlider.addEventListener('input', (e) => {
-    updateTimeDisplay(parseInt(e.target.value, 10));
-  });
-
-  descInput.addEventListener('input', () => {
-    document.getElementById('descCounter').textContent = `${descInput.value.length} / 100`;
-  });
-
-  document.querySelectorAll('.picker-item').forEach(el => {
-    el.addEventListener('click', () => {
-      currentType = el.dataset.type;
-      updatePickerActive();
-    });
-  });
+  timeSlider.addEventListener('input', (e) => updateTimeDisplay(parseInt(e.target.value, 10)));
+  descInput.addEventListener('input', () => { document.getElementById('descCounter').textContent = `${descInput.value.length} / 100`; });
+  document.querySelectorAll('.picker-item').forEach(el => { el.addEventListener('click', () => { currentType = el.dataset.type; updatePickerActive(); }); });
 
   addBtn.addEventListener('click', () => {
     addMode = true;
@@ -2263,56 +1388,29 @@
     showSettingsSheet();
   });
 
-  geoBtn.addEventListener('click', () => {
-    locateUser();
-  });
-
+  geoBtn.addEventListener('click', locateUser);
   pickerClose.addEventListener('click', closeCreateMode);
   sheetClose.addEventListener('click', closeCreateMode);
-
-  settingsClose.addEventListener('click', () => {
-    document.getElementById('settingsSheet').style.display = 'none';
-    document.body.classList.remove('settings-open');
-  });
-
+  settingsClose.addEventListener('click', () => { document.getElementById('settingsSheet').style.display = 'none'; document.body.classList.remove('settings-open'); });
   successModalClose.addEventListener('click', hideSuccessModal);
-
-  successModalBackdrop.addEventListener('click', (e) => {
-    if (e.target === successModalBackdrop) hideSuccessModal();
-  });
+  successModalBackdrop.addEventListener('click', (e) => { if (e.target === successModalBackdrop) hideSuccessModal(); });
 
   saveSettingsBtn.addEventListener('click', () => {
     settings.timeFilterMinutes = clampMinutes(parseInt(timeSlider.value, 10));
     settings.selectedCity = cityMap[citySelect.value] ? citySelect.value : defaultCityKey;
-
     saveSettings(settings);
     applyMapTheme(settings.mapTheme);
-
     document.getElementById('settingsSheet').style.display = 'none';
     document.body.classList.remove('settings-open');
-
-    const city = cityMap[settings.selectedCity] || defaultCity;
-    const bounds = kmToBounds(city.lat, city.lng, city.radiusKm || 12);
-
     flyToCity(settings.selectedCity, true);
-    prewarmCityTiles(bounds);
     safeInvalidateMap(true);
   });
 
   map.on('click', e => {
     if (!addMode) return;
-
     selected = e.latlng;
-
-    if (temp) {
-      map.removeLayer(temp);
-    }
-
-    temp = L.marker(selected, {
-      icon: getIcon(currentType, map.getZoom()),
-      keyboard: false
-    }).addTo(map);
-
+    if (temp) map.removeLayer(temp);
+    temp = L.marker(selected, { icon: getIcon(currentType, map.getZoom()), keyboard: false }).addTo(map);
     updatePickerActive();
     document.getElementById('pickerBar').style.display = 'none';
     showDescSheet();
@@ -2320,73 +1418,25 @@
 
   saveBtn.addEventListener('click', async () => {
     const desc = descInput.value.trim();
-
     if (!selected) return alert('Торкнись мапи');
     if (!desc) return alert("Опис обов’язковий");
     if (desc.length > 100) return alert('Максимум 100 символів');
-
     suppressPopupRestoreUntil = Date.now() + 1200;
-    currentOpenPointId = null;
-    map.closePopup();
-
-    await addDoc(collection(db, "points"), {
-      lat: selected.lat,
-      lng: selected.lng,
-      type: currentType,
-      desc,
-      time: Date.now(),
-      comments: [],
-      likes: 0,
-      dislikes: 0
-    });
-
+    window.closeCustomPopup();
+    await addDoc(collection(db, "points"), { lat: selected.lat, lng: selected.lng, type: currentType, desc, time: Date.now(), comments: [], likes: 0, dislikes: 0 });
     closeCreateMode();
     showSuccessModal();
-
-    setTimeout(() => {
-      queueRender(true);
-    }, 80);
+    setTimeout(() => queueRender(true), 80);
   });
 
-  map.on('zoomend', () => {
-    queueRender(true);
-  });
-
-  window.addEventListener('resize', () => {
-    if (shouldSkipRenderNow()) return;
-
-    if (document.getElementById('pickerBar').style.display === 'block') showPickerBar();
-    if (document.getElementById('descSheet').style.display === 'block') showDescSheet();
-    if (document.getElementById('settingsSheet').style.display !== 'none') updateSettingsSheetLayout();
-
-    safeInvalidateMap();
-  });
-
-  window.addEventListener('orientationchange', () => {
-    setTimeout(() => {
-      if (shouldSkipRenderNow()) return;
-
-      if (document.getElementById('settingsSheet').style.display !== 'none') {
-        updateSettingsSheetLayout();
-      }
-
-      safeInvalidateMap(true);
-    }, 250);
-  });
+  map.on('zoomend', () => queueRender(true));
+  window.addEventListener('resize', () => { if (!shouldSkipRenderNow()) { safeInvalidateMap(); updateSettingsSheetLayout(); } });
+  window.addEventListener('orientationchange', () => { setTimeout(() => { safeInvalidateMap(true); updateSettingsSheetLayout(); }, 250); });
 
   const pointsQuery = query(collection(db, "points"), orderBy("time", "desc"));
-
   onSnapshot(pointsQuery, (snapshot) => {
-    const fresh = [];
-    const now = Date.now();
-
-    snapshot.forEach((itemDoc) => {
-      const point = { id: itemDoc.id, ...itemDoc.data() };
-      if (now - point.time < LIFE) {
-        fresh.push(point);
-      }
-    });
-
+    const fresh = [], now = Date.now();
+    snapshot.forEach(doc => { const point = { id: doc.id, ...doc.data() }; if (now - point.time < LIFE) fresh.push(point); });
     data = fresh;
     queueRender();
   });
@@ -2394,15 +1444,7 @@
   function initTelegramMiniAppFixes() {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
-
-    try {
-      tg.ready();
-      tg.expand();
-
-      setTimeout(() => safeInvalidateMap(true), 50);
-      setTimeout(() => safeInvalidateMap(true), 250);
-      setTimeout(() => safeInvalidateMap(true), 600);
-    } catch (e) {}
+    try { tg.ready(); tg.expand(); setTimeout(() => safeInvalidateMap(true), 50); setTimeout(() => safeInvalidateMap(true), 250); setTimeout(() => safeInvalidateMap(true), 600); } catch(e) {}
   }
 
   populateCitySelect();
@@ -2414,12 +1456,7 @@
 
   map.whenReady(() => {
     mapReady = true;
-    const city = cityMap[settings.selectedCity] || defaultCity;
-    const bounds = kmToBounds(city.lat, city.lng, city.radiusKm || 12);
-
     flyToCity(settings.selectedCity || defaultCityKey, false);
-    prewarmCityTiles(bounds);
-
     safeInvalidateMap(true);
     queueRender(true);
   });
