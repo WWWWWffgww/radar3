@@ -578,8 +578,8 @@
     }
 
     .popup-icon {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       object-fit: contain;
       flex: 0 0 auto;
     }
@@ -633,7 +633,7 @@
     }
 
     .popup-desc {
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.4;
       color: #fff;
       white-space: pre-wrap;
@@ -787,7 +787,32 @@
       transform: scale(0.98);
     }
 
+    /* ==== MOBILE POPUP AS BOTTOM SHEET ==== */
     @media (max-width: 600px) {
+      .leaflet-popup-pane .leaflet-popup {
+        position: fixed !important;
+        left: 50% !important;
+        top: auto !important;
+        bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+        transform: translateX(-50%) !important;
+        margin: 0 !important;
+        width: calc(100vw - 16px) !important;
+        max-width: calc(100vw - 16px) !important;
+        z-index: 1200 !important;
+      }
+
+      .leaflet-popup-content-wrapper {
+        width: 100% !important;
+        border-radius: 22px !important;
+      }
+
+      .leaflet-popup-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 58vh !important;
+        overflow-y: auto !important;
+      }
+
       .success-modal-backdrop {
         align-items: center;
         justify-content: center;
@@ -1092,9 +1117,7 @@
     doc,
     updateDoc,
     query,
-    orderBy,
-    getDocs,
-    deleteDoc
+    orderBy
   } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1113,10 +1136,11 @@
   const SETTINGS_KEY = 'radar_settings';
   const LIFE = 24 * 60 * 60 * 1000;
   const VOTES_KEY = 'radar_votes';
+  const TILE_CACHE_NAME = 'radar-tile-cache-v5';
 
-  const MERGE_RADIUS_METERS = 80;
-  const MERGE_MIN_COUNT = 3;
-  const GROUP_CIRCLE_RADIUS = 175;
+  /* ====== ВАЖНО ====== */
+  const GROUP_RADIUS_METERS = 160;   // можешь ставить 150-180
+  const GROUP_MIN_COUNT = 3;
 
   const labelMap = {
     safe: 'Безпечно',
@@ -1166,12 +1190,87 @@
   const defaultCityKey = 'kyiv';
   const defaultCity = cityMap[defaultCityKey];
 
+  /* ==== Cached Tile Layer ==== */
+  const CachedTileLayer = L.TileLayer.extend({
+    createTile(coords, done) {
+      const tile = document.createElement('img');
+
+      L.DomEvent.on(tile, 'load', L.bind(this._tileOnLoad, this, done, tile));
+      L.DomEvent.on(tile, 'error', L.bind(this._tileOnError, this, done, tile));
+
+      if (this.options.crossOrigin || this.options.crossOrigin === '') {
+        tile.crossOrigin = this.options.crossOrigin === true ? '' : this.options.crossOrigin;
+      }
+
+      tile.alt = '';
+      tile.setAttribute('role', 'presentation');
+
+      const url = this.getTileUrl(coords);
+
+      const fallbackToNormal = () => {
+        tile.src = url;
+      };
+
+      if (!('caches' in window) || !url.startsWith('http')) {
+        fallbackToNormal();
+        return tile;
+      }
+
+      caches.open(TILE_CACHE_NAME).then(async (cache) => {
+        const cached = await cache.match(url, { ignoreVary: true, ignoreSearch: false });
+
+        if (cached) {
+          const blob = await cached.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          tile.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            done(null, tile);
+          };
+          tile.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            fallbackToNormal();
+          };
+          tile.src = objectUrl;
+          return;
+        }
+
+        try {
+          const resp = await fetch(url, { mode: 'cors', cache: 'force-cache' });
+          if (resp && resp.ok) {
+            cache.put(url, resp.clone()).catch(() => {});
+            const blob = await resp.blob();
+            const objectUrl = URL.createObjectURL(blob);
+            tile.onload = () => {
+              URL.revokeObjectURL(objectUrl);
+              done(null, tile);
+            };
+            tile.onerror = () => {
+              URL.revokeObjectURL(objectUrl);
+              fallbackToNormal();
+            };
+            tile.src = objectUrl;
+            return;
+          }
+        } catch (e) {}
+
+        fallbackToNormal();
+      }).catch(() => {
+        fallbackToNormal();
+      });
+
+      return tile;
+    }
+  });
+
   const map = L.map('map', {
     preferCanvas: true,
     zoomControl: true,
-    zoomAnimation: false,
+    zoomAnimation: true,
     fadeAnimation: false,
-    markerZoomAnimation: false
+    markerZoomAnimation: false,
+    inertia: true,
+    wheelDebounceTime: 40,
+    updateWhenIdle: true
   }).setView([defaultCity.lat, defaultCity.lng], 12);
 
   let currentTileLayer = null;
@@ -1188,12 +1287,12 @@
   let userLocationCircle = null;
 
   let renderQueued = false;
-  let mergeScanTimer = null;
   let mapReady = false;
   let suspendRenderWhileTyping = false;
   let suppressPopupRestoreUntil = 0;
 
   const markerRegistry = new Map();
+  const groupCircleLayer = L.layerGroup().addTo(map);
 
   function getIconPath(type) {
     if (type === 'question') return 'icons/question.png';
@@ -1271,17 +1370,23 @@
     saveVotes(votes);
   }
 
+  function createCachedTileLayer(theme) {
+    return new CachedTileLayer(mapThemes[theme].url, {
+      attribution: mapThemes[theme].attribution,
+      updateWhenIdle: true,
+      updateWhenZooming: false,
+      keepBuffer: 8,
+      tileSize: 256,
+      crossOrigin: 'anonymous'
+    });
+  }
+
   function applyMapTheme(theme) {
     if (currentTileLayer) {
       map.removeLayer(currentTileLayer);
     }
-
-    currentTileLayer = L.tileLayer(mapThemes[theme].url, {
-      attribution: mapThemes[theme].attribution,
-      updateWhenIdle: true,
-      updateWhenZooming: false,
-      keepBuffer: 4
-    }).addTo(map);
+    currentTileLayer = createCachedTileLayer(theme);
+    currentTileLayer.addTo(map);
   }
 
   function kmToBounds(lat, lng, radiusKm) {
@@ -1301,8 +1406,10 @@
       paddingTopLeft: [20, 20],
       paddingBottomRight: [20, 20],
       animate,
-      duration: animate ? 0.6 : 0
+      duration: animate ? 0.55 : 0
     });
+
+    prewarmCityTiles(bounds);
   }
 
   function populateCitySelect() {
@@ -1404,7 +1511,13 @@
   }
 
   function getIcon(type, zoom) {
-    let s = zoom < 11 ? 26 : zoom < 13 ? 31 : zoom < 15 ? 36 : 42;
+    let s;
+
+    if (zoom < 11) s = 20;
+    else if (zoom < 13) s = 24;
+    else if (zoom < 15) s = 28;
+    else if (zoom < 17) s = 31;
+    else s = 35;
 
     return L.divIcon({
       className: '',
@@ -1466,95 +1579,6 @@
     return R * c;
   }
 
-  function getBaseDescriptions(point) {
-    if (Array.isArray(point.mergedDescriptions) && point.mergedDescriptions.length) {
-      return point.mergedDescriptions;
-    }
-
-    return [{
-      type: point.type,
-      desc: point.desc || '',
-      time: point.time,
-      pointId: point.id
-    }];
-  }
-
-  function getBaseSourceIds(point) {
-    if (Array.isArray(point.mergedSourceIds) && point.mergedSourceIds.length) {
-      return point.mergedSourceIds;
-    }
-    return [point.id];
-  }
-
-  async function mergeNearbyPoints(newPointId) {
-    const snap = await getDocs(query(collection(db, "points"), orderBy("time", "asc")));
-
-    const allPoints = [];
-    snap.forEach(itemDoc => {
-      const point = { id: itemDoc.id, ...itemDoc.data() };
-      if (Date.now() - point.time < LIFE) {
-        allPoints.push(point);
-      }
-    });
-
-    const target = allPoints.find(p => p.id === newPointId);
-    if (!target) return;
-
-    const nearby = allPoints.filter(p =>
-      distanceMeters(target.lat, target.lng, p.lat, p.lng) <= MERGE_RADIUS_METERS
-    );
-
-    if (nearby.length < MERGE_MIN_COUNT) return;
-
-    nearby.sort((a, b) => a.time - b.time);
-    const leader = nearby[0];
-
-    const mergedDescriptions = nearby
-      .flatMap(getBaseDescriptions)
-      .sort((a, b) => (a.time || 0) - (b.time || 0));
-
-    const mergedComments = nearby
-      .flatMap(p => Array.isArray(p.comments) ? p.comments : [])
-      .sort((a, b) => (a.time || 0) - (b.time || 0));
-
-    const totalLikes = nearby.reduce((sum, p) => sum + (p.likes || 0), 0);
-    const totalDislikes = nearby.reduce((sum, p) => sum + (p.dislikes || 0), 0);
-    const mergedSourceIds = [...new Set(nearby.flatMap(getBaseSourceIds))];
-
-    const onlySafe = mergedDescriptions.every(item => item.type === 'safe');
-
-    await updateDoc(doc(db, "points", leader.id), {
-      merged: true,
-      mergedKind: onlySafe ? 'safe' : 'danger',
-      mergedCount: mergedDescriptions.length,
-      mergedRadius: GROUP_CIRCLE_RADIUS,
-      mergedDescriptions,
-      mergedSourceIds,
-      comments: mergedComments,
-      likes: totalLikes,
-      dislikes: totalDislikes
-    });
-
-    for (const point of nearby) {
-      if (point.id !== leader.id) {
-        await deleteDoc(doc(db, "points", point.id));
-      }
-    }
-  }
-
-  function buildDescriptionsHtml(point) {
-    if (point.merged && Array.isArray(point.mergedDescriptions) && point.mergedDescriptions.length) {
-      const mergedText = point.mergedDescriptions
-        .map(item => (item.desc || '').trim())
-        .filter(Boolean)
-        .join(', ');
-
-      return `<div class="popup-desc">${escapeHtml(mergedText || 'Без опису')}</div>`;
-    }
-
-    return `<div class="popup-desc">${escapeHtml(point.desc || '')}</div>`;
-  }
-
   function popupHtml(point, index) {
     const commentsHtml = (point.comments || []).map(c => `
       <div class="comment-item">
@@ -1564,14 +1588,6 @@
     `).join('');
 
     const voted = hasVoted(point.id);
-
-    const mergeBadge = point.merged
-      ? `<div class="popup-time">Об’єднано міток: ${point.mergedCount || 1}</div>`
-      : '';
-
-    const zoneTitle = point.merged
-      ? `<div class="popup-time">${point.mergedKind === 'safe' ? '🟢 Безпечна зона' : '🔴 Небезпечна зона'}</div>`
-      : '';
 
     return `
       <div class="radar-popup">
@@ -1584,8 +1600,6 @@
                 <div class="popup-life">${timeLeftText(point.time)}</div>
               </div>
               <div class="popup-time">${formatDateTime(point.time)}</div>
-              ${zoneTitle}
-              ${mergeBadge}
             </div>
           </div>
 
@@ -1593,7 +1607,7 @@
         </div>
 
         <div class="popup-comments-title">Опис</div>
-        ${buildDescriptionsHtml(point)}
+        <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
 
         <div class="popup-comments-title">Коментарі</div>
 
@@ -1625,10 +1639,6 @@
     return suspendRenderWhileTyping || isTypingInEditableField();
   }
 
-  function shouldRestorePopupNow() {
-    return !shouldSkipRenderNow() && Date.now() > suppressPopupRestoreUntil;
-  }
-
   function getVisiblePoints() {
     const now = Date.now();
     const timeLimit = clampMinutes(settings.timeFilterMinutes) * 60 * 1000;
@@ -1649,13 +1659,7 @@
       time: point.time,
       comments: point.comments || [],
       likes: point.likes || 0,
-      dislikes: point.dislikes || 0,
-      merged: !!point.merged,
-      mergedKind: point.mergedKind || null,
-      mergedCount: point.mergedCount || 1,
-      mergedRadius: point.mergedRadius || GROUP_CIRCLE_RADIUS,
-      mergedDescriptions: point.mergedDescriptions || [],
-      mergedSourceIds: point.mergedSourceIds || []
+      dislikes: point.dislikes || 0
     });
   }
 
@@ -1675,8 +1679,7 @@
     input.onblur = () => {
       setTimeout(() => {
         suspendRenderWhileTyping = false;
-        safeInvalidateMap(true);
-      }, 180);
+      }, 150);
     };
 
     input.addEventListener('touchstart', () => {
@@ -1686,18 +1689,44 @@
     counter.textContent = `${input.value.length} / 100`;
   }
 
-  function buildCircle(point) {
-    if (!point.merged || (point.mergedCount || 0) < MERGE_MIN_COUNT) return null;
+  function buildGroupCircles(points) {
+    const groups = [];
+    const visited = new Set();
 
-    return L.circle([point.lat, point.lng], {
-      radius: point.mergedRadius || GROUP_CIRCLE_RADIUS,
-      color: '#ffd400',
-      weight: 2,
-      opacity: 1,
-      fillColor: point.mergedKind === 'safe' ? '#18c964' : '#ff3b30',
-      fillOpacity: 0.32,
-      interactive: false
-    });
+    for (let i = 0; i < points.length; i++) {
+      if (visited.has(points[i].id)) continue;
+
+      const queue = [points[i]];
+      const component = [];
+      visited.add(points[i].id);
+
+      while (queue.length) {
+        const current = queue.shift();
+        component.push(current);
+
+        for (let j = 0; j < points.length; j++) {
+          const candidate = points[j];
+          if (visited.has(candidate.id)) continue;
+
+          if (distanceMeters(current.lat, current.lng, candidate.lat, candidate.lng) <= GROUP_RADIUS_METERS) {
+            visited.add(candidate.id);
+            queue.push(candidate);
+          }
+        }
+      }
+
+      if (component.length >= GROUP_MIN_COUNT) {
+        const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
+        const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
+        groups.push({
+          lat: avgLat,
+          lng: avgLng,
+          count: component.length
+        });
+      }
+    }
+
+    return groups;
   }
 
   function bindMarkerPopup(marker, point, index) {
@@ -1731,30 +1760,11 @@
       entry.iconKey = newIconSizeKey;
     }
 
-    const needMove = entry.lat !== point.lat || entry.lng !== point.lng;
-    if (needMove) {
+    if (entry.lat !== point.lat || entry.lng !== point.lng) {
       entry.marker.setLatLng([point.lat, point.lng]);
       entry.lat = point.lat;
       entry.lng = point.lng;
     }
-
-    const needCircle = !!point.merged && (point.mergedCount || 0) >= MERGE_MIN_COUNT;
-
-    if (needCircle && !entry.circle) {
-      entry.circle = buildCircle(point);
-      if (entry.circle) entry.circle.addTo(map);
-    } else if (!needCircle && entry.circle) {
-      map.removeLayer(entry.circle);
-      entry.circle = null;
-    } else if (needCircle && entry.circle) {
-      entry.circle.setLatLng([point.lat, point.lng]);
-      entry.circle.setRadius(point.mergedRadius || GROUP_CIRCLE_RADIUS);
-      entry.circle.setStyle({
-        fillColor: point.mergedKind === 'safe' ? '#18c964' : '#ff3b30'
-      });
-    }
-
-    const popupIsOpen = entry.marker.isPopupOpen();
 
     if (entry.hash !== newHash) {
       const popup = entry.marker.getPopup();
@@ -1767,15 +1777,6 @@
       }
 
       entry.hash = newHash;
-    } else {
-      const popup = entry.marker.getPopup();
-      if (popup && popup.getContent() !== popupHtml(point, index)) {
-        popup.setContent(popupHtml(point, index));
-      }
-    }
-
-    if (popupIsOpen && point.id === currentOpenPointId && !shouldSkipRenderNow()) {
-      setTimeout(() => attachPopupInputCounter(index), 20);
     }
   }
 
@@ -1783,13 +1784,7 @@
     const entry = markerRegistry.get(id);
     if (!entry) return;
 
-    if (entry.marker) {
-      map.removeLayer(entry.marker);
-    }
-    if (entry.circle) {
-      map.removeLayer(entry.circle);
-    }
-
+    if (entry.marker) map.removeLayer(entry.marker);
     markerRegistry.delete(id);
 
     if (currentOpenPointId === id) {
@@ -1836,15 +1831,8 @@
         marker.pointId = point.id;
         bindMarkerPopup(marker, point, index);
 
-        let circle = null;
-        if (point.merged && (point.mergedCount || 0) >= MERGE_MIN_COUNT) {
-          circle = buildCircle(point);
-          if (circle) circle.addTo(map);
-        }
-
         markerRegistry.set(point.id, {
           marker,
-          circle,
           hash: getPointVisualHash(point),
           lat: point.lat,
           lng: point.lng,
@@ -1855,15 +1843,28 @@
       }
     });
 
-    if (currentOpenPointId && shouldRestorePopupNow()) {
+    groupCircleLayer.clearLayers();
+    const groups = buildGroupCircles(visiblePoints);
+
+    groups.forEach(g => {
+      L.circle([g.lat, g.lng], {
+        radius: GROUP_RADIUS_METERS,
+        color: '#ffd400',
+        weight: 2,
+        opacity: 1,
+        fillColor: '#ff3b30',
+        fillOpacity: 0.24,
+        interactive: false
+      }).addTo(groupCircleLayer);
+    });
+
+    if (currentOpenPointId && Date.now() > suppressPopupRestoreUntil) {
       const entry = markerRegistry.get(currentOpenPointId);
       if (entry && !entry.marker.isPopupOpen()) {
         setTimeout(() => {
-          if (shouldRestorePopupNow()) {
-            const reopen = markerRegistry.get(currentOpenPointId);
-            if (reopen && !reopen.marker.isPopupOpen()) {
-              reopen.marker.openPopup();
-            }
+          const reopen = markerRegistry.get(currentOpenPointId);
+          if (reopen && !reopen.marker.isPopupOpen() && Date.now() > suppressPopupRestoreUntil) {
+            reopen.marker.openPopup();
           }
         }, 20);
       }
@@ -2103,31 +2104,68 @@
     }
   }
 
-  function queueMergeScan() {
-    clearTimeout(mergeScanTimer);
-    mergeScanTimer = setTimeout(async () => {
-      try {
-        const candidates = [...data].sort((a, b) => a.time - b.time);
-        const processed = new Set();
+  function safeInvalidateMap(force = false) {
+    if (!force && shouldSkipRenderNow()) return;
 
-        for (const point of candidates) {
-          if (processed.has(point.id)) continue;
+    setTimeout(() => {
+      if (!force && shouldSkipRenderNow()) return;
+      map.invalidateSize(false);
+      queueRender(force);
+    }, 50);
+  }
 
-          const nearby = candidates.filter(p =>
-            !processed.has(p.id) &&
-            distanceMeters(point.lat, point.lng, p.lat, p.lng) <= MERGE_RADIUS_METERS
-          );
+  function latLngBoundsToTileUrls(bounds, zoom, theme) {
+    const tileLayer = createCachedTileLayer(theme);
 
-          nearby.forEach(p => processed.add(p.id));
+    function lngToTileX(lng, z) {
+      return Math.floor(((lng + 180) / 360) * Math.pow(2, z));
+    }
 
-          if (nearby.length >= MERGE_MIN_COUNT) {
-            await mergeNearbyPoints(point.id);
-          }
-        }
-      } catch (e) {
-        console.error('merge scan error', e);
+    function latToTileY(lat, z) {
+      const rad = lat * Math.PI / 180;
+      return Math.floor(
+        ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * Math.pow(2, z)
+      );
+    }
+
+    const nw = bounds.getNorthWest();
+    const se = bounds.getSouthEast();
+
+    const minX = lngToTileX(nw.lng, zoom);
+    const maxX = lngToTileX(se.lng, zoom);
+    const minY = latToTileY(nw.lat, zoom);
+    const maxY = latToTileY(se.lat, zoom);
+
+    const urls = [];
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        urls.push(tileLayer.getTileUrl({ x, y, z: zoom }));
       }
-    }, 1200);
+    }
+    return urls;
+  }
+
+  function prewarmCityTiles(bounds) {
+    if (!('caches' in window)) return;
+
+    const zooms = [11, 12, 13];
+    const theme = settings.mapTheme;
+
+    caches.open(TILE_CACHE_NAME).then(async (cache) => {
+      for (const z of zooms) {
+        const urls = latLngBoundsToTileUrls(bounds, z, theme).slice(0, 120);
+        for (const url of urls) {
+          try {
+            const match = await cache.match(url);
+            if (!match) {
+              fetch(url, { mode: 'cors', cache: 'force-cache' }).then(resp => {
+                if (resp && resp.ok) cache.put(url, resp.clone()).catch(() => {});
+              }).catch(() => {});
+            }
+          } catch (e) {}
+        }
+      }
+    }).catch(() => {});
   }
 
   window.closePopup = function() {
@@ -2139,7 +2177,7 @@
     if (!item?.id) return;
     if (hasVoted(item.id)) return;
 
-    suppressPopupRestoreUntil = Date.now() + 1200;
+    suppressPopupRestoreUntil = Date.now() + 900;
 
     const ref = doc(db, "points", item.id);
 
@@ -2153,7 +2191,7 @@
 
     setTimeout(() => {
       queueRender(true);
-    }, 80);
+    }, 60);
   };
 
   window.addComment = async function(index) {
@@ -2168,7 +2206,7 @@
     if (!item?.id) return;
 
     suspendRenderWhileTyping = true;
-    suppressPopupRestoreUntil = Date.now() + 1800;
+    suppressPopupRestoreUntil = Date.now() + 1200;
 
     const ref = doc(db, "points", item.id);
     const newComments = [
@@ -2183,18 +2221,8 @@
     setTimeout(() => {
       suspendRenderWhileTyping = false;
       queueRender(true);
-    }, 180);
+    }, 160);
   };
-
-  function safeInvalidateMap(force = false) {
-    if (!force && shouldSkipRenderNow()) return;
-
-    setTimeout(() => {
-      if (!force && shouldSkipRenderNow()) return;
-      map.invalidateSize(false);
-      queueRender(force);
-    }, 50);
-  }
 
   applyMapTheme(settings.mapTheme);
 
@@ -2273,8 +2301,12 @@
     document.getElementById('settingsSheet').style.display = 'none';
     document.body.classList.remove('settings-open');
 
+    const city = cityMap[settings.selectedCity] || defaultCity;
+    const bounds = kmToBounds(city.lat, city.lng, city.radiusKm || 12);
+
     flyToCity(settings.selectedCity, true);
-    safeInvalidateMap();
+    prewarmCityTiles(bounds);
+    safeInvalidateMap(true);
   });
 
   map.on('click', e => {
@@ -2303,11 +2335,11 @@
     if (!desc) return alert("Опис обов’язковий");
     if (desc.length > 100) return alert('Максимум 100 символів');
 
-    suppressPopupRestoreUntil = Date.now() + 1800;
+    suppressPopupRestoreUntil = Date.now() + 1200;
     currentOpenPointId = null;
     map.closePopup();
 
-    const addedRef = await addDoc(collection(db, "points"), {
+    await addDoc(collection(db, "points"), {
       lat: selected.lat,
       lng: selected.lng,
       type: currentType,
@@ -2315,20 +2347,8 @@
       time: Date.now(),
       comments: [],
       likes: 0,
-      dislikes: 0,
-      merged: false,
-      mergedKind: null,
-      mergedCount: 1,
-      mergedRadius: GROUP_CIRCLE_RADIUS,
-      mergedDescriptions: [],
-      mergedSourceIds: []
+      dislikes: 0
     });
-
-    try {
-      await mergeNearbyPoints(addedRef.id);
-    } catch (e) {
-      console.error('merge after add error', e);
-    }
 
     closeCreateMode();
     showSuccessModal();
@@ -2360,7 +2380,7 @@
         updateSettingsSheetLayout();
       }
 
-      safeInvalidateMap();
+      safeInvalidateMap(true);
     }, 250);
   });
 
@@ -2379,7 +2399,6 @@
 
     data = fresh;
     queueRender();
-    queueMergeScan();
   });
 
   function initTelegramMiniAppFixes() {
@@ -2390,9 +2409,9 @@
       tg.ready();
       tg.expand();
 
-      setTimeout(() => safeInvalidateMap(), 50);
-      setTimeout(() => safeInvalidateMap(), 250);
-      setTimeout(() => safeInvalidateMap(), 600);
+      setTimeout(() => safeInvalidateMap(true), 50);
+      setTimeout(() => safeInvalidateMap(true), 250);
+      setTimeout(() => safeInvalidateMap(true), 600);
     } catch (e) {}
   }
 
@@ -2405,7 +2424,12 @@
 
   map.whenReady(() => {
     mapReady = true;
+    const city = cityMap[settings.selectedCity] || defaultCity;
+    const bounds = kmToBounds(city.lat, city.lng, city.radiusKm || 12);
+
     flyToCity(settings.selectedCity || defaultCityKey, false);
+    prewarmCityTiles(bounds);
+
     safeInvalidateMap(true);
     queueRender(true);
   });
