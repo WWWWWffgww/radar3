@@ -64,6 +64,13 @@
       align-items: center;
       gap: var(--fab-gap);
       z-index: 1003;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    body.settings-open #fabBar {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
     }
 
     #geoBtn,
@@ -167,7 +174,7 @@
       right: var(--sheet-side);
       top: var(--sheet-top);
       bottom: var(--sheet-bottom);
-      z-index: 1002;
+      z-index: 1015;
       display: none;
       flex-direction: column;
       background: rgba(28,28,30,0.96);
@@ -722,18 +729,26 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding:
+        max(16px, env(safe-area-inset-top))
+        12px
+        max(16px, env(safe-area-inset-bottom))
+        12px;
       background: rgba(80, 80, 80, 0.22);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
+      box-sizing: border-box;
     }
 
     .success-modal {
-      width: min(380px, calc(100vw - 32px));
-      border-radius: 24px;
-      padding: 18px;
+      width: min(340px, calc(100vw - 24px));
+      max-width: calc(100vw - 24px);
+      max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      overflow-y: auto;
+      border-radius: 22px;
+      padding: 16px;
       box-sizing: border-box;
-      background: rgba(72, 72, 74, 0.55);
+      background: rgba(72, 72, 74, 0.72);
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
       box-shadow: 0 20px 60px rgba(0,0,0,0.28);
@@ -742,11 +757,12 @@
     }
 
     .success-modal-text {
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.4;
       color: #fff;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       text-align: left;
+      word-break: break-word;
     }
 
     .success-modal-btn {
@@ -766,6 +782,35 @@
 
     .success-modal-btn:active {
       transform: scale(0.98);
+    }
+
+    @media (max-width: 600px) {
+      .success-modal-backdrop {
+        align-items: center;
+        justify-content: center;
+        padding:
+          max(12px, env(safe-area-inset-top))
+          10px
+          max(12px, env(safe-area-inset-bottom))
+          10px;
+      }
+
+      .success-modal {
+        width: calc(100vw - 20px);
+        max-width: calc(100vw - 20px);
+        border-radius: 20px;
+        padding: 14px;
+      }
+
+      .success-modal-text {
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .success-modal-btn {
+        font-size: 15px;
+        padding: 12px 14px;
+      }
     }
 
     @media (min-width: 601px) {
@@ -1781,6 +1826,7 @@
   }
 
   function showSettingsSheet() {
+    document.body.classList.add('settings-open');
     settingsSheet.style.display = 'flex';
     citySelect.value = settings.selectedCity || defaultCityKey;
     updateSettingsSheetLayout();
@@ -1879,6 +1925,7 @@
     selected = null;
     descInput.value = '';
     descCounter.textContent = '0 / 100';
+    document.body.classList.remove('settings-open');
 
     if (temp) {
       map.removeLayer(temp);
@@ -1938,6 +1985,7 @@
   addBtn.addEventListener('click', () => {
     addMode = true;
     settingsSheet.style.display = 'none';
+    document.body.classList.remove('settings-open');
     pickerBar.style.display = 'none';
     descSheet.style.display = 'none';
     showPickerBar();
@@ -1958,6 +2006,7 @@
 
   settingsClose.addEventListener('click', () => {
     settingsSheet.style.display = 'none';
+    document.body.classList.remove('settings-open');
   });
 
   successModalClose.addEventListener('click', hideSuccessModal);
@@ -1976,6 +2025,7 @@
     applyMapTheme(settings.mapTheme);
     render();
     settingsSheet.style.display = 'none';
+    document.body.classList.remove('settings-open');
 
     flyToCity(settings.selectedCity, true);
   });
