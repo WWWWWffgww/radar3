@@ -30,56 +30,69 @@
       user-select: none;
     }
 
-    #addBtn {
+    #fabBar {
       position: fixed;
       right: 16px;
-      bottom: 16px;
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(28,28,30,0.6);
-      color: #fff;
-      font-size: 34px;
-      line-height: 1;
-      z-index: 1000;
-      cursor: pointer;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.24);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      bottom: max(16px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1003;
     }
 
-    #settingsBtn {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+    #geoBtn,
+    #settingsBtn,
+    #addBtn {
       border: none;
-      background: transparent;
-      color: #fff;
-      font-size: 22px;
-      z-index: 1003;
       cursor: pointer;
-      box-shadow: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      isolation: isolate;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+      -webkit-tap-highlight-color: transparent;
     }
 
-    #settingsBtn::before {
-      content: "";
-      position: absolute;
-      width: 31px;
-      height: 31px;
+    #geoBtn,
+    #settingsBtn {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.82);
+      color: #1c1c1e;
+    }
+
+    #geoBtn svg {
+      width: 28px;
+      height: 28px;
+      fill: currentColor;
+      display: block;
+    }
+
+    #geoBtn.loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    #geoBtn.active {
+      background: rgba(10,132,255,0.95);
+      color: #fff;
+    }
+
+    #settingsBtn {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    #addBtn {
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
-      background: rgba(28,28,30,0.6);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      z-index: -1;
+      background: rgba(28,28,30,0.78);
+      color: #fff;
+      font-size: 34px;
+      line-height: 1;
     }
 
     #pickerBar {
@@ -119,9 +132,11 @@
 
     #settingsSheet {
       position: fixed;
-      top: 72px;
       right: 16px;
+      bottom: 88px;
       width: 320px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
       z-index: 1002;
       display: none;
       background: rgba(28,28,30,0.96);
@@ -661,23 +676,32 @@
     }
 
     @media (max-width: 600px) {
-      #addBtn {
-        right: 14px;
-        bottom: 8px;
-        width: 56px;
-        height: 56px;
+      #fabBar {
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        gap: 8px;
+      }
+
+      #geoBtn,
+      #settingsBtn {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+      }
+
+      #geoBtn svg {
+        width: 25px;
+        height: 25px;
       }
 
       #settingsBtn {
-        top: 12px;
-        right: 12px;
-        width: 44px;
-        height: 44px;
+        font-size: 20px;
       }
 
-      #settingsBtn::before {
-        width: 29px;
-        height: 29px;
+      #addBtn {
+        width: 54px;
+        height: 54px;
+        font-size: 32px;
       }
 
       #pickerBar,
@@ -691,16 +715,82 @@
         left: 8px;
         right: 8px;
         width: auto;
-        bottom: 8px;
+        bottom: calc(74px + env(safe-area-inset-bottom));
         top: auto;
         transform: none;
       }
 
       #settingsSheet {
-        top: 64px;
+        left: 8px;
         right: 8px;
-        left: auto;
-        transform: none;
+        width: auto;
+        top: auto;
+        bottom: calc(86px + env(safe-area-inset-bottom) + 32px);
+        max-height: calc(100vh - 170px);
+        padding: 12px;
+        border-radius: 22px;
+      }
+
+      #settingsHead {
+        margin-bottom: 10px;
+      }
+
+      #settingsTitle {
+        font-size: 17px;
+      }
+
+      .settings-group {
+        margin-bottom: 12px;
+      }
+
+      .settings-label {
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+
+      .filter-group {
+        gap: 8px;
+      }
+
+      .filter-item {
+        padding: 7px 10px;
+        border-radius: 12px;
+      }
+
+      .filter-item-left {
+        gap: 10px;
+      }
+
+      .filter-item-left img {
+        width: 28px;
+        height: 28px;
+      }
+
+      .filter-item-left span {
+        font-size: 14px;
+      }
+
+      .time-slider-container {
+        padding: 10px;
+        border-radius: 14px;
+      }
+
+      .time-slider-value {
+        margin-top: 8px;
+        font-size: 12px;
+      }
+
+      .time-value {
+        padding: 4px 10px;
+        font-size: 12px;
+      }
+
+      #saveSettingsBtn {
+        padding: 13px 14px;
+        font-size: 16px;
+        border-radius: 16px;
+        position: sticky;
+        bottom: 0;
       }
 
       .picker-item img {
@@ -722,8 +812,16 @@
 
 <div id="map"></div>
 
-<button id="settingsBtn">⚙️</button>
-<button id="addBtn">+</button>
+<div id="fabBar">
+  <button id="geoBtn" aria-label="Показати моє місцезнаходження" title="Показати моє місцезнаходження">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M11 2h2v2.06A8.002 8.002 0 0 1 19.94 11H22v2h-2.06A8.002 8.002 0 0 1 13 19.94V22h-2v-2.06A8.002 8.002 0 0 1 4.06 13H2v-2h2.06A8.002 8.002 0 0 1 11 4.06V2zm1 4a6 6 0 1 0 0 12a6 6 0 0 0 0-12zm0 3.2a2.8 2.8 0 1 1 0 5.6a2.8 2.8 0 0 1 0-5.6z"/>
+    </svg>
+  </button>
+
+  <button id="settingsBtn" aria-label="Налаштування" title="Налаштування">⚙️</button>
+  <button id="addBtn" aria-label="Додати мітку" title="Додати мітку">+</button>
+</div>
 
 <div id="pickerBar">
   <div id="pickerTop">
@@ -1022,6 +1120,7 @@
 
   const addBtn = document.getElementById('addBtn');
   const settingsBtn = document.getElementById('settingsBtn');
+  const geoBtn = document.getElementById('geoBtn');
 
   const pickerBar = document.getElementById('pickerBar');
   const pickerClose = document.getElementById('pickerClose');
@@ -1056,6 +1155,8 @@
   let layers = [];
   let currentOpenPointId = null;
   let mergeInProgress = false;
+  let userLocationMarker = null;
+  let userLocationCircle = null;
 
   function clampMinutes(value) {
     const num = Number(value) || 15;
@@ -1481,16 +1582,17 @@
         sheet.style.left = '8px';
         sheet.style.right = '8px';
         sheet.style.width = 'auto';
-        sheet.style.bottom = '8px';
+        sheet.style.bottom = `calc(74px + env(safe-area-inset-bottom))`;
         sheet.style.top = 'auto';
         return;
       }
 
       if (sheet === settingsSheet) {
+        sheet.style.left = '8px';
         sheet.style.right = '8px';
-        sheet.style.top = '64px';
-        sheet.style.left = 'auto';
-        sheet.style.bottom = 'auto';
+        sheet.style.width = 'auto';
+        sheet.style.top = 'auto';
+        sheet.style.bottom = `calc(86px + env(safe-area-inset-bottom) + 32px)`;
         return;
       }
     }
@@ -1509,6 +1611,10 @@
       const top = btnRect.bottom + gap;
       sheet.style.left = `${left}px`;
       sheet.style.top = `${Math.max(8, top)}px`;
+    } else if (placement === 'above-fab') {
+      const top = btnRect.top - sheetRect.height - gap;
+      sheet.style.left = `${left}px`;
+      sheet.style.top = `${Math.max(8, top)}px`;
     }
   }
 
@@ -1524,7 +1630,7 @@
 
   function showSettingsSheet() {
     settingsSheet.style.display = 'block';
-    positionSheetNearButton(settingsSheet, settingsBtn, 'bottom-right');
+    positionSheetNearButton(settingsSheet, settingsBtn, 'above-fab');
   }
 
   function showSuccessModal() {
@@ -1533,6 +1639,84 @@
 
   function hideSuccessModal() {
     successModalBackdrop.style.display = 'none';
+  }
+
+  function showUserLocation(lat, lng, accuracy = 0) {
+    if (userLocationMarker) {
+      map.removeLayer(userLocationMarker);
+    }
+
+    if (userLocationCircle) {
+      map.removeLayer(userLocationCircle);
+    }
+
+    const userIcon = L.divIcon({
+      className: '',
+      html: `
+        <div style="
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #0a84ff;
+          border: 3px solid #ffffff;
+          box-shadow: 0 0 0 6px rgba(10,132,255,0.22);
+        "></div>
+      `,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
+    });
+
+    userLocationMarker = L.marker([lat, lng], {
+      icon: userIcon,
+      zIndexOffset: 2000
+    }).addTo(map);
+
+    if (accuracy > 0) {
+      userLocationCircle = L.circle([lat, lng], {
+        radius: accuracy,
+        color: '#0a84ff',
+        weight: 1.5,
+        opacity: 0.7,
+        fillColor: '#0a84ff',
+        fillOpacity: 0.12
+      }).addTo(map);
+    }
+
+    geoBtn.classList.add('active');
+  }
+
+  function locateUser() {
+    if (!navigator.geolocation) {
+      alert('Геолокація не підтримується на цьому пристрої');
+      return;
+    }
+
+    geoBtn.classList.add('loading');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const accuracy = position.coords.accuracy || 0;
+
+        showUserLocation(lat, lng, accuracy);
+        map.flyTo([lat, lng], Math.max(map.getZoom(), 16), {
+          animate: true,
+          duration: 0.8
+        });
+
+        geoBtn.classList.remove('loading');
+      },
+      () => {
+        geoBtn.classList.remove('loading');
+        alert('Не вдалося отримати ваше місцезнаходження');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      }
+    );
   }
 
   function closeCreateMode() {
@@ -1610,6 +1794,10 @@
     pickerBar.style.display = 'none';
     descSheet.style.display = 'none';
     showSettingsSheet();
+  });
+
+  geoBtn.addEventListener('click', () => {
+    locateUser();
   });
 
   pickerClose.addEventListener('click', closeCreateMode);
