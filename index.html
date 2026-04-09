@@ -157,88 +157,89 @@
       color: #fff;
     }
 
-    /* =========================================================
-       BLOCK: CSS_SHARED_WINDOWS
-       Спільні стилі вікон
-       ========================================================= */
-    #pickerBar,
-    #descSheet {
-      position: fixed;
-      z-index: 1001;
-      display: none;
-      background: rgba(28, 28, 30, 0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 22px;
-      padding: 12px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
+/* =========================================================
+   BLOCK: CSS_SHARED_WINDOWS
+   Спільні стилі вікон
+   ========================================================= */
+#pickerBar,
+#descSheet {
+  position: fixed;
+  z-index: 1001;
+  display: none;
+  background: rgba(28, 28, 30, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 22px;
+  padding: 12px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
 
-    /* =========================================================
-       BLOCK: CSS_LAYOUT_MOBILE
-       Мобільна адаптація
-       ========================================================= */
-    @media (max-width: 600px) {
-      #pickerBar,
-      #descSheet {
-        left: 10px !important;
-        right: 10px !important;
-        top: auto !important;
-        bottom: calc(80px + env(safe-area-inset-bottom)) !important;
-        width: auto !important;
-        transform: none !important;
-      }
+ /* =========================================================
+   BLOCK: CSS_LAYOUT_MOBILE
+   Мобільна адаптація
+   ========================================================= */
+@media (max-width: 600px) {
+  #pickerBar,
+  #descSheet {
+    left: 10px !important;
+    right: 10px !important;
+    top: auto !important;
+    bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+    width: auto !important;
+    transform: none !important;
+  }
 
-      .leaflet-popup-pane .leaflet-popup {
-        position: fixed !important;
-        left: 10px !important;
-        right: 10px !important;
-        top: auto !important;
-        bottom: 20px !important;
-        transform: none !important;
-        width: calc(100% - 20px) !important;
-        max-width: calc(100% - 20px) !important;
-        margin: 0 !important;
-        z-index: 1200 !important;
-      }
+  .leaflet-popup-pane .leaflet-popup {
+    position: fixed !important;
+    left: 10px !important;
+    right: 10px !important;
+    top: auto !important;
+    bottom: 20px !important;
+    transform: none !important;
+    width: calc(100% - 20px) !important;
+    max-width: calc(100% - 20px) !important;
+    margin: 0 !important;
+    z-index: 1200 !important;
+  }
 
-      .leaflet-popup-content-wrapper {
-        width: 100% !important;
-        border-radius: 24px !important;
-      }
+  .leaflet-popup-content-wrapper {
+    width: 100% !important;
+    border-radius: 24px !important;
+  }
 
-      .leaflet-popup-content {
-        width: 100% !important;
-        max-width: 100% !important;
-        max-height: 60vh !important;
-        overflow-y: auto !important;
-      }
-    }
+  .leaflet-popup-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+  }
+}
 
-    /* =========================================================
-       BLOCK: CSS_LAYOUT_DESKTOP
-       Десктопна адаптація
-       ========================================================= */
-    @media (min-width: 601px) {
-      #pickerBar,
-      #descSheet {
-        left: 50% !important;
-        top: 50% !important;
-        right: auto !important;
-        bottom: auto !important;
-        transform: translate(-50%, -50%) !important;
-        width: 320px !important;
-      }
+  /* =========================================================
+   BLOCK: CSS_LAYOUT_DESKTOP
+   Десктопна адаптація
+   ========================================================= */
+@media (min-width: 601px) {
+  #pickerBar,
+  #descSheet {
+    left: 50% !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: 24px !important;
+    transform: translateX(-50%) !important;
+    width: 320px !important;
+    max-width: calc(100vw - 20px) !important;
+  }
 
-      .leaflet-popup-pane .leaflet-popup {
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-      }
-    }
+  .leaflet-popup-pane .leaflet-popup {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+}
 
     /* =========================================================
        BLOCK: CSS_SETTINGS_WINDOW
