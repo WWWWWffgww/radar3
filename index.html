@@ -217,19 +217,24 @@
   }
 }
 
-  /* =========================================================
+/* =========================================================
    BLOCK: CSS_LAYOUT_DESKTOP
-   Десктопна адаптація
+   Десктопна адаптація 
    ========================================================= */
 @media (min-width: 601px) {
   #pickerBar,
   #descSheet {
-    left: 50% !important;
-    right: auto !important;
+    position: fixed !important;
+
+    right: 10px !important;
+    left: auto !important;
+
+    bottom: calc(var(--fab-bottom) + 30px) !important;
     top: auto !important;
-    bottom: 24px !important;
-    transform: translateX(-50%) !important;
-    width: 320px !important;
+
+    transform: none !important;
+
+    width: 300px !important;
     max-width: calc(100vw - 20px) !important;
   }
 
