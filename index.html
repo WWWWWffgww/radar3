@@ -267,57 +267,86 @@
       }
     }
 
-    /* =========================================================
-       BLOCK: CSS_SETTINGS_WINDOW
-       Вікно налаштувань
-       ========================================================= */
-    #settingsSheet {
-      position: fixed;
-      left: var(--sheet-side);
-      right: var(--sheet-side);
-      top: var(--sheet-top);
-      bottom: var(--sheet-bottom);
-      z-index: 1015;
-      display: none;
-      flex-direction: column;
-      background: rgba(28, 28, 30, 0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: var(--sheet-radius);
-      padding: var(--sheet-padding);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #fff;
-      overflow: hidden;
-    }
+/* =========================================================
+   BLOCK: CSS_SETTINGS_WINDOW
+   Вікно налаштувань
+   ========================================================= */
+#settingsSheet {
+  position: fixed;
+  left: var(--sheet-side);
+  right: var(--sheet-side);
+  top: var(--sheet-top);
+  bottom: var(--sheet-bottom);
+  z-index: 1015;
+  display: none;
+  flex-direction: column;
+  background: rgba(28, 28, 30, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: var(--sheet-radius);
+  padding: var(--sheet-padding);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  overflow: hidden;
+}
 
-    @media (min-width: 601px) {
-      #settingsSheet {
-        left: auto;
-        right: 10px;
-        width: 320px;
-        top: 68px;
-        bottom: calc(60px + env(safe-area-inset-bottom));
-      }
-    }
+@media (min-width: 601px) {
+  #settingsSheet {
+    left: auto;
+    right: 10px;
+    width: 320px;
+    top: 68px;
+    bottom: calc(60px + env(safe-area-inset-bottom));
+    transform: none !important;
+    transition: none !important;
+  }
+}
 
-    #settingsBody {
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding-right: 2px;
-      -webkit-overflow-scrolling: touch;
-    }
+@media (max-width: 600px) {
+  #settingsSheet {
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 82dvh !important;
+    max-height: 82dvh !important;
 
-    #settingsBody::-webkit-scrollbar {
-      width: 6px;
-    }
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
 
-    #settingsBody::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.14);
-      border-radius: 10px;
-    }
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
+
+    transform: translateY(100%);
+    transition: transform 0.22s ease;
+  }
+
+  #settingsSheet.show-mobile {
+    transform: translateY(0);
+  }
+}
+
+#settingsBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+#settingsBody::-webkit-scrollbar {
+  width: 6px;
+}
+
+#settingsBody::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+}
 
     /* =========================================================
        BLOCK: CSS_WINDOW_HEADERS
@@ -1952,52 +1981,71 @@
       }
     };
 
-    /* =========================================================
-       BLOCK: WINDOW_SETTINGS_SHEET
-       Вікно налаштувань
-       ========================================================= */
-    const SettingsWindow = {
-      show() {
-        document.body.classList.add("settings-open");
-        DOM.settingsSheet.style.display = "flex";
-        DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
-        this.updateLayout();
-      },
+   /* =========================================================
+   BLOCK: WINDOW_SETTINGS_SHEET
+   Вікно налаштувань
+   ========================================================= */
+const SettingsWindow = {
+  show() {
+    document.body.classList.add("settings-open");
+    DOM.settingsSheet.style.display = "flex";
+    DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
+    this.updateLayout();
 
-      hide() {
+    if (LayoutHelpers.isMobile()) {
+      requestAnimationFrame(() => {
+        DOM.settingsSheet.classList.add("show-mobile");
+      });
+    }
+  },
+
+  hide() {
+    if (LayoutHelpers.isMobile()) {
+      DOM.settingsSheet.classList.remove("show-mobile");
+      setTimeout(() => {
         DOM.settingsSheet.style.display = "none";
         document.body.classList.remove("settings-open");
-      },
+      }, 220);
+      return;
+    }
 
-      updateLayout() {
-        const sheet = DOM.settingsSheet;
-        if (sheet.style.display === "none") return;
+    DOM.settingsSheet.style.display = "none";
+    document.body.classList.remove("settings-open");
+  },
 
-        if (LayoutHelpers.isDesktop()) {
-          sheet.style.left = "auto";
-          sheet.style.right = "10px";
-          sheet.style.top = "68px";
-          sheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
-          sheet.style.width = "320px";
-        } else {
-          sheet.style.left = "10px";
-          sheet.style.right = "10px";
-          sheet.style.top = "56px";
-          sheet.style.bottom = "58px";
-          sheet.style.width = "auto";
-        }
+  updateLayout() {
+    const sheet = DOM.settingsSheet;
+    if (sheet.style.display === "none") return;
 
-        const head = document.getElementById("settingsHead");
-        const save = DOM.saveSettingsBtn;
-        const body = DOM.settingsBody;
+    if (LayoutHelpers.isDesktop()) {
+      sheet.style.left = "auto";
+      sheet.style.right = "10px";
+      sheet.style.top = "68px";
+      sheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
+      sheet.style.width = "320px";
+      sheet.style.height = "auto";
+      sheet.style.maxHeight = "none";
+    } else {
+      sheet.style.left = "0";
+      sheet.style.right = "0";
+      sheet.style.top = "auto";
+      sheet.style.bottom = "0";
+      sheet.style.width = "100vw";
+      sheet.style.height = "82dvh";
+      sheet.style.maxHeight = "82dvh";
+    }
 
-        if (head && save && body) {
-          const totalHeight = sheet.clientHeight;
-          const reserved = head.offsetHeight + save.offsetHeight + 20;
-          body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
-        }
-      }
-    };
+    const head = document.getElementById("settingsHead");
+    const save = DOM.saveSettingsBtn;
+    const body = DOM.settingsBody;
+
+    if (head && save && body) {
+      const totalHeight = sheet.clientHeight;
+      const reserved = head.offsetHeight + save.offsetHeight + 20;
+      body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
+    }
+  }
+};
 
     /* =========================================================
        BLOCK: WINDOW_SUCCESS_MODAL
@@ -2967,38 +3015,38 @@
       }
     };
 
-    /* =========================================================
-       BLOCK: WINDOW_SETTINGS_SHEET_EVENTS
-       Події вікна налаштувань
-       ========================================================= */
-    const SettingsWindowEvents = {
-      init() {
-        DOM.settingsClose.addEventListener("click", () => {
-          SettingsWindow.hide();
-        });
+/* =========================================================
+   BLOCK: WINDOW_SETTINGS_SHEET_EVENTS
+   Події вікна налаштувань
+   ========================================================= */
+const SettingsWindowEvents = {
+  init() {
+    DOM.settingsClose.addEventListener("click", () => {
+      SettingsWindow.hide();
+    });
 
-        DOM.timeSlider.addEventListener("input", e => {
-          SettingsUIEngine.updateTimeDisplay(parseInt(e.target.value, 10));
-        });
+    DOM.timeSlider.addEventListener("input", e => {
+      SettingsUIEngine.updateTimeDisplay(parseInt(e.target.value, 10));
+    });
 
-        DOM.saveSettingsBtn.addEventListener("click", () => {
-          APP_STATE.settings.timeFilterMinutes = TimeUtils.clampMinutes(
-            parseInt(DOM.timeSlider.value, 10)
-          );
+    DOM.saveSettingsBtn.addEventListener("click", () => {
+      APP_STATE.settings.timeFilterMinutes = TimeUtils.clampMinutes(
+        parseInt(DOM.timeSlider.value, 10)
+      );
 
-          APP_STATE.settings.selectedCity = CITY_CONFIG[DOM.citySelect.value]
-            ? DOM.citySelect.value
-            : APP_CONFIG.DEFAULT_CITY_KEY;
+      APP_STATE.settings.selectedCity = CITY_CONFIG[DOM.citySelect.value]
+        ? DOM.citySelect.value
+        : APP_CONFIG.DEFAULT_CITY_KEY;
 
-          LocalStorageEngine.saveSettings(APP_STATE.settings);
-          MapThemeEngine.apply(APP_STATE.settings.mapTheme);
+      LocalStorageEngine.saveSettings(APP_STATE.settings);
+      MapThemeEngine.apply(APP_STATE.settings.mapTheme);
 
-          SettingsWindow.hide();
-          MapCityEngine.flyToCity(APP_STATE.settings.selectedCity, true);
-          AppUIHelpers.safeInvalidateMap(true);
-        });
-      }
-    };
+      SettingsWindow.hide();
+      MapCityEngine.flyToCity(APP_STATE.settings.selectedCity, true);
+      AppUIHelpers.safeInvalidateMap(true);
+    });
+  }
+};
 
     /* =========================================================
        BLOCK: WINDOW_SUCCESS_MODAL_EVENTS
@@ -3066,47 +3114,47 @@
       }
     };
 
-    /* =========================================================
-       BLOCK: MAP_EVENT_BINDINGS
-       Події мапи та вікна
-       ========================================================= */
-    const MapEventBindings = {
-      init() {
-        MAP_INSTANCE.on("click", e => {
-          if (!APP_STATE.addMode) return;
-          CreateMarkerFlow.selectMapPoint(e.latlng);
-        });
+ /* =========================================================
+   BLOCK: MAP_EVENT_BINDINGS
+   Події мапи та вікна
+   ========================================================= */
+const MapEventBindings = {
+  init() {
+    MAP_INSTANCE.on("click", e => {
+      if (!APP_STATE.addMode) return;
+      CreateMarkerFlow.selectMapPoint(e.latlng);
+    });
 
-        MAP_INSTANCE.on("zoomend", () => {
-          MarkerRenderEngine.queueRender(true);
-        });
+    MAP_INSTANCE.on("zoomend", () => {
+      MarkerRenderEngine.queueRender(true);
+    });
 
-        window.addEventListener("resize", () => {
-          if (!UIStateHelpers.shouldSkipRenderNow()) {
-            if (DOM.settingsSheet.style.display !== "none") {
-              SettingsWindow.updateLayout();
-            }
-            AppUIHelpers.safeInvalidateMap();
-          }
-        });
-
-        window.addEventListener("orientationchange", () => {
-          setTimeout(() => {
-            AppUIHelpers.safeInvalidateMap(true);
-            if (DOM.settingsSheet.style.display !== "none") {
-              SettingsWindow.updateLayout();
-            }
-          }, 250);
-        });
-
-        MAP_INSTANCE.whenReady(() => {
-          APP_STATE.mapReady = true;
-          MapCityEngine.flyToCity(APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY, false);
-          AppUIHelpers.safeInvalidateMap(true);
-          MarkerRenderEngine.queueRender(true);
-        });
+    window.addEventListener("resize", () => {
+      if (!UIStateHelpers.shouldSkipRenderNow()) {
+        if (DOM.settingsSheet.style.display !== "none") {
+          SettingsWindow.updateLayout();
+        }
+        AppUIHelpers.safeInvalidateMap();
       }
-    };
+    });
+
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => {
+        AppUIHelpers.safeInvalidateMap(true);
+        if (DOM.settingsSheet.style.display !== "none") {
+          SettingsWindow.updateLayout();
+        }
+      }, 250);
+    });
+
+    MAP_INSTANCE.whenReady(() => {
+      APP_STATE.mapReady = true;
+      MapCityEngine.flyToCity(APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY, false);
+      AppUIHelpers.safeInvalidateMap(true);
+      MarkerRenderEngine.queueRender(true);
+    });
+  }
+};
 
     /* =========================================================
        BLOCK: WINDOW_GLOBAL_ACTIONS
