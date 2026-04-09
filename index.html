@@ -2140,11 +2140,41 @@ const PopupPositionEngine = {
       className: "radar-popup-wrap"
     });
 
+    marker.off("click");
+    marker.off("touchstart");
+    marker.off("touchend");
     marker.off("popupopen");
     marker.off("popupclose");
 
+    const openPopupSafely = () => {
+      APP_STATE.currentOpenPointId = point.id;
+      APP_STATE.suppressPopupRestoreUntil = Date.now() + 500;
+
+      MAP_INSTANCE.closePopup();
+
+      setTimeout(() => {
+        try {
+          marker.openPopup();
+        } catch (e) {}
+      }, 30);
+    };
+
+    marker.on("click", openPopupSafely);
+
+    marker.on("touchstart", () => {
+      APP_STATE.currentOpenPointId = point.id;
+    });
+
+    marker.on("touchend", e => {
+      if (e?.originalEvent?.cancelable) {
+        e.originalEvent.preventDefault();
+      }
+      openPopupSafely();
+    });
+
     marker.on("popupopen", () => {
       APP_STATE.currentOpenPointId = point.id;
+
       setTimeout(() => {
         PopupCommentFeature.attachCounter(point.id);
         PopupCommentFeature.scrollCommentsToTop(point.id);
@@ -2159,28 +2189,31 @@ const PopupPositionEngine = {
   }
 };
 
-    /* =========================================================
-       BLOCK: POPUP_RESTORE_MANAGER
-       Логіка повторного відкриття popup
-       ========================================================= */
-    const PopupRestoreManager = {
-      restoreIfNeeded() {
-        if (!APP_STATE.currentOpenPointId) return;
-        if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
+ /* =========================================================
+   BLOCK: POPUP_RESTORE_MANAGER
+   Логіка повторного відкриття popup
+   ========================================================= */
+const PopupRestoreManager = {
+  restoreIfNeeded() {
+    if (!APP_STATE.currentOpenPointId) return;
+    if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
+    if (LayoutHelpers.isMobile()) return;
 
-        const entry = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
-        if (!entry) return;
-        if (entry.marker.isPopupOpen()) return;
+    const entry = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
+    if (!entry) return;
+    if (entry.marker.isPopupOpen()) return;
 
-        setTimeout(() => {
-          const reopen = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
-          if (!reopen) return;
-          if (reopen.marker.isPopupOpen()) return;
-          if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
-          reopen.marker.openPopup();
-        }, APP_CONFIG.POPUP_RESTORE_DELAY_MS);
-      }
-    };
+    setTimeout(() => {
+      const reopen = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
+      if (!reopen) return;
+      if (reopen.marker.isPopupOpen()) return;
+      if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
+      if (LayoutHelpers.isMobile()) return;
+
+      reopen.marker.openPopup();
+    }, APP_CONFIG.POPUP_RESTORE_DELAY_MS);
+  }
+};
 
  /* =========================================================
    BLOCK: POPUP_COMMENT_FEATURE
