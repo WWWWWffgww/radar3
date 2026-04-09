@@ -3050,6 +3050,25 @@ const CreateMarkerFlow = {
    ========================================================= */
 const DescWindowEvents = {
   init() {
+    let isSubmitting = false;
+
+    const submitDesc = async () => {
+      if (isSubmitting) return;
+      isSubmitting = true;
+
+      try {
+        if (document.activeElement && typeof document.activeElement.blur === "function") {
+          document.activeElement.blur();
+        }
+
+        await CreateMarkerFlow.saveMarker();
+      } finally {
+        setTimeout(() => {
+          isSubmitting = false;
+        }, 300);
+      }
+    };
+
     DOM.sheetClose.addEventListener("click", () => {
       DescWindow.hide();
       setTimeout(() => {
@@ -3061,9 +3080,15 @@ const DescWindowEvents = {
       DOM.descCounter.textContent = `${DOM.descInput.value.length} / 100`;
     });
 
-    DOM.saveBtn.addEventListener("click", async () => {
-      await CreateMarkerFlow.saveMarker();
+    DOM.saveBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      await submitDesc();
     });
+
+    DOM.saveBtn.addEventListener("touchend", async (e) => {
+      e.preventDefault();
+      await submitDesc();
+    }, { passive: false });
   }
 };
 
