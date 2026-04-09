@@ -2883,7 +2883,7 @@ const SettingsWindow = {
       }
     };
 
-   /* =========================================================
+/* =========================================================
    BLOCK: CREATE_MARKER_FLOW
    Процес додавання мітки
    ========================================================= */
@@ -2947,27 +2947,52 @@ const CreateMarkerFlow = {
       return;
     }
 
+    // 👉 фикс: сразу блокируем UI чтобы не было второго клика
+    DOM.saveBtn.disabled = true;
+
     APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
     APP_STATE.currentOpenPointId = null;
     MAP_INSTANCE.closePopup();
 
-    await addDoc(collection(db, "points"), {
-      lat: APP_STATE.selectedLatLng.lat,
-      lng: APP_STATE.selectedLatLng.lng,
-      type: APP_STATE.currentType,
-      desc,
-      time: Date.now(),
-      comments: [],
-      likes: 0,
-      dislikes: 0
-    });
+    try {
+      await addDoc(collection(db, "points"), {
+        lat: APP_STATE.selectedLatLng.lat,
+        lng: APP_STATE.selectedLatLng.lng,
+        type: APP_STATE.currentType,
+        desc,
+        time: Date.now(),
+        comments: [],
+        likes: 0,
+        dislikes: 0
+      });
 
-    this.closeCreateMode();
-    SuccessModalWindow.show();
+      // 👉 закрываем окно СРАЗУ
+      DescWindow.hide();
 
-    setTimeout(() => {
-      MarkerRenderEngine.queueRender(true);
-    }, 80);
+      // 👉 убираем временную метку
+      if (APP_STATE.tempMarker) {
+        MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+        APP_STATE.tempMarker = null;
+      }
+
+      // 👉 сбрасываем состояние
+      APP_STATE.selectedLatLng = null;
+      DescWindow.reset();
+      PickerWindow.hide();
+      APP_STATE.addMode = false;
+
+      SuccessModalWindow.show();
+
+      setTimeout(() => {
+        MarkerRenderEngine.queueRender(true);
+      }, 80);
+
+    } finally {
+      // 👉 возвращаем кнопку
+      setTimeout(() => {
+        DOM.saveBtn.disabled = false;
+      }, 400);
+    }
   }
 };
 
