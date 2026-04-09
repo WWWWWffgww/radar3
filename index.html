@@ -1,33 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>RADAR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
 
   <style>
+    /* =========================================================
+       BLOCK: CSS_VARIABLES
+       Глобальні CSS-змінні
+       ========================================================= */
     :root {
       --fab-bottom: calc(12px + env(safe-area-inset-bottom));
       --fab-gap: 7px;
+
       --geo-size: 38px;
       --settings-size: 38px;
       --add-size: 41px;
+
       --geo-radius: 12px;
       --settings-radius: 12px;
       --add-radius: 50%;
+
       --sheet-side: 10px;
       --sheet-top: max(56px, calc(env(safe-area-inset-top) + 8px));
       --sheet-bottom: calc(58px + env(safe-area-inset-bottom));
       --sheet-radius: 22px;
       --sheet-padding: 12px;
+
       --title-size: 16px;
       --label-size: 12px;
       --item-text-size: 14px;
       --save-size: 15px;
     }
 
-    html, body {
+    /* =========================================================
+       BLOCK: CSS_BASE
+       Базові стилі
+       ========================================================= */
+    html,
+    body {
       margin: 0;
       padding: 0;
       height: 100%;
@@ -57,6 +76,10 @@
       user-select: none;
     }
 
+    /* =========================================================
+       BLOCK: CSS_FAB_BUTTONS
+       Плаваючі кнопки
+       ========================================================= */
     #fabBar {
       position: fixed;
       right: 10px;
@@ -84,7 +107,7 @@
       justify-content: center;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.22);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
       -webkit-tap-highlight-color: transparent;
       padding: 0;
     }
@@ -93,7 +116,7 @@
       width: var(--geo-size);
       height: var(--geo-size);
       border-radius: var(--geo-radius);
-      background: rgba(255,255,255,0.85);
+      background: rgba(255, 255, 255, 0.85);
       color: #1c1c1e;
     }
 
@@ -101,7 +124,7 @@
       width: var(--settings-size);
       height: var(--settings-size);
       border-radius: var(--settings-radius);
-      background: rgba(255,255,255,0.85);
+      background: rgba(255, 255, 255, 0.85);
       color: #1c1c1e;
       font-size: 16px;
       line-height: 1;
@@ -111,7 +134,7 @@
       width: var(--add-size);
       height: var(--add-size);
       border-radius: var(--add-radius);
-      background: rgba(28,28,30,0.80);
+      background: rgba(28, 28, 30, 0.8);
       color: #fff;
       font-size: 24px;
       line-height: 1;
@@ -130,41 +153,36 @@
     }
 
     #geoBtn.active {
-      background: rgba(10,132,255,0.95);
+      background: rgba(10, 132, 255, 0.95);
       color: #fff;
     }
 
-    #pickerBar {
+    /* =========================================================
+       BLOCK: CSS_SHARED_WINDOWS
+       Спільні стилі вікон
+       ========================================================= */
+    #pickerBar,
+    #descSheet {
       position: fixed;
       z-index: 1001;
       display: none;
-      background: rgba(28,28,30,0.96);
+      background: rgba(28, 28, 30, 0.96);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border-radius: 22px;
       padding: 12px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       color: #fff;
     }
 
-    #descSheet {
-      position: fixed;
-      z-index: 1002;
-      display: none;
-      background: rgba(28,28,30,0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 22px;
-      padding: 12px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: #fff;
-    }
-
-    /* Мобільна версія - прив'язка до нижнього краю */
+    /* =========================================================
+       BLOCK: CSS_LAYOUT_MOBILE
+       Мобільна адаптація
+       ========================================================= */
     @media (max-width: 600px) {
-      #pickerBar, #descSheet {
+      #pickerBar,
+      #descSheet {
         left: 10px !important;
         right: 10px !important;
         top: auto !important;
@@ -172,11 +190,40 @@
         width: auto !important;
         transform: none !important;
       }
+
+      .leaflet-popup-pane .leaflet-popup {
+        position: fixed !important;
+        left: 10px !important;
+        right: 10px !important;
+        top: auto !important;
+        bottom: 20px !important;
+        transform: none !important;
+        width: calc(100% - 20px) !important;
+        max-width: calc(100% - 20px) !important;
+        margin: 0 !important;
+        z-index: 1200 !important;
+      }
+
+      .leaflet-popup-content-wrapper {
+        width: 100% !important;
+        border-radius: 24px !important;
+      }
+
+      .leaflet-popup-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 60vh !important;
+        overflow-y: auto !important;
+      }
     }
 
-    /* Десктоп версія - по центру */
+    /* =========================================================
+       BLOCK: CSS_LAYOUT_DESKTOP
+       Десктопна адаптація
+       ========================================================= */
     @media (min-width: 601px) {
-      #pickerBar, #descSheet {
+      #pickerBar,
+      #descSheet {
         left: 50% !important;
         top: 50% !important;
         right: auto !important;
@@ -184,8 +231,19 @@
         transform: translate(-50%, -50%) !important;
         width: 320px !important;
       }
+
+      .leaflet-popup-pane .leaflet-popup {
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+      }
     }
 
+    /* =========================================================
+       BLOCK: CSS_SETTINGS_WINDOW
+       Вікно налаштувань
+       ========================================================= */
     #settingsSheet {
       position: fixed;
       left: var(--sheet-side);
@@ -195,13 +253,13 @@
       z-index: 1015;
       display: none;
       flex-direction: column;
-      background: rgba(28,28,30,0.96);
+      background: rgba(28, 28, 30, 0.96);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border-radius: var(--sheet-radius);
       padding: var(--sheet-padding);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       color: #fff;
       overflow: hidden;
     }
@@ -230,74 +288,15 @@
     }
 
     #settingsBody::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.14);
+      background: rgba(255, 255, 255, 0.14);
       border-radius: 10px;
     }
 
-    #pickerTop {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      color: #fff;
-      font-size: 13px;
-      gap: 10px;
-    }
-
-    #pickerHint {
-      color: rgba(255,255,255,0.65);
-      font-size: 12px;
-    }
-
-    #pickerClose,
-    #sheetClose,
-    #settingsClose {
-      border: none;
-      background: rgba(255,255,255,0.12);
-      color: #fff;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      font-size: 20px;
-      line-height: 1;
-      cursor: pointer;
-      flex: 0 0 auto;
-    }
-
-    .picker-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .picker-item {
-      background: rgba(255,255,255,0.08);
-      border: 2px solid transparent;
-      border-radius: 14px;
-      padding: 7px 4px;
-      text-align: center;
-      cursor: pointer;
-      color: #fff;
-    }
-
-    .picker-item.active {
-      border-color: #0a84ff;
-      background: rgba(10,132,255,0.18);
-    }
-
-    .picker-item img {
-      width: 42px;
-      height: 42px;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto 4px;
-    }
-
-    .picker-item span {
-      display: block;
-      font-size: 11px;
-    }
-
+    /* =========================================================
+       BLOCK: CSS_WINDOW_HEADERS
+       Заголовки вікон
+       ========================================================= */
+    #pickerTop,
     #sheetHead,
     #settingsHead {
       display: flex;
@@ -305,7 +304,11 @@
       justify-content: space-between;
       gap: 10px;
       margin-bottom: 10px;
-      flex: 0 0 auto;
+    }
+
+    #pickerHint {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 12px;
     }
 
     #sheetLeft {
@@ -328,6 +331,63 @@
       font-weight: 700;
     }
 
+    #pickerClose,
+    #sheetClose,
+    #settingsClose {
+      border: none;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    /* =========================================================
+       BLOCK: CSS_PICKER_WINDOW
+       Вікно вибору типу мітки
+       ========================================================= */
+    .picker-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .picker-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 7px 4px;
+      text-align: center;
+      cursor: pointer;
+      color: #fff;
+    }
+
+    .picker-item.active {
+      border-color: #0a84ff;
+      background: rgba(10, 132, 255, 0.18);
+    }
+
+    .picker-item img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 4px;
+    }
+
+    .picker-item span {
+      display: block;
+      font-size: 11px;
+    }
+
+    /* =========================================================
+       BLOCK: CSS_FORM_CONTROLS
+       Поля вводу та кнопки
+       ========================================================= */
     #descInput,
     #citySelect,
     .popup-input,
@@ -343,7 +403,7 @@
       border: none;
       border-radius: 16px;
       padding: 12px 14px;
-      background: rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.12);
       color: #fff;
       font-family: inherit;
       outline: none;
@@ -351,15 +411,16 @@
       min-height: 84px;
     }
 
-    #descInput::placeholder {
-      color: rgba(255,255,255,0.5);
+    #descInput::placeholder,
+    .popup-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
     }
 
     #descCounter,
     .popup-counter {
       text-align: right;
       font-size: 12px;
-      color: rgba(255,255,255,0.55);
+      color: rgba(255, 255, 255, 0.55);
       margin-top: 6px;
       margin-bottom: 10px;
     }
@@ -376,7 +437,7 @@
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
-      box-shadow: 0 10px 22px rgba(10,132,255,0.28);
+      box-shadow: 0 10px 22px rgba(10, 132, 255, 0.28);
     }
 
     #saveSettingsBtn {
@@ -384,13 +445,17 @@
       margin-top: 10px;
     }
 
+    /* =========================================================
+       BLOCK: CSS_SETTINGS_CONTENT
+       Вміст налаштувань
+       ========================================================= */
     .settings-group {
       margin-bottom: 12px;
     }
 
     .settings-label {
       font-size: var(--label-size);
-      color: rgba(255,255,255,0.66);
+      color: rgba(255, 255, 255, 0.66);
       margin-bottom: 6px;
       font-weight: 600;
     }
@@ -407,7 +472,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 7px 10px;
-      background: rgba(255,255,255,0.06);
+      background: rgba(255, 255, 255, 0.06);
       border-radius: 12px;
       cursor: pointer;
     }
@@ -440,7 +505,7 @@
     .filter-toggle {
       width: 40px;
       height: 24px;
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 30px;
       position: relative;
       transition: 0.2s;
@@ -453,7 +518,7 @@
     }
 
     .filter-toggle::after {
-      content: '';
+      content: "";
       position: absolute;
       width: 20px;
       height: 20px;
@@ -469,7 +534,7 @@
     }
 
     .time-slider-container {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 14px;
       padding: 10px;
     }
@@ -479,7 +544,7 @@
       height: 4px;
       -webkit-appearance: none;
       appearance: none;
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 4px;
       outline: none;
     }
@@ -492,7 +557,7 @@
       background: #0a84ff;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .time-slider::-moz-range-thumb {
@@ -502,7 +567,7 @@
       border-radius: 50%;
       cursor: pointer;
       border: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .time-slider-value {
@@ -511,12 +576,12 @@
       align-items: center;
       margin-top: 8px;
       font-size: 12px;
-      color: rgba(255,255,255,0.7);
+      color: rgba(255, 255, 255, 0.7);
       gap: 6px;
     }
 
     .time-value {
-      background: rgba(10,132,255,0.3);
+      background: rgba(10, 132, 255, 0.3);
       padding: 4px 10px;
       border-radius: 20px;
       font-weight: 600;
@@ -533,7 +598,7 @@
       border: none;
       border-radius: 14px;
       padding: 12px 14px;
-      background: rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.08);
       color: #fff;
       font-family: inherit;
       outline: none;
@@ -554,17 +619,20 @@
       right: 14px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(255,255,255,0.7);
+      color: rgba(255, 255, 255, 0.7);
       pointer-events: none;
       font-size: 14px;
     }
 
-    /* Стилі для popup - на мобільному знизу, на десктопі по центру */
+    /* =========================================================
+       BLOCK: CSS_MARKER_POPUP
+       Popup мітки
+       ========================================================= */
     .leaflet-popup-content-wrapper {
       border-radius: 24px;
       padding: 0;
-      box-shadow: 0 22px 50px rgba(0,0,0,0.22);
-      background: rgba(28,28,30,0.96);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
+      background: rgba(28, 28, 30, 0.96);
       backdrop-filter: blur(22px);
       -webkit-backdrop-filter: blur(22px);
       color: #fff;
@@ -579,44 +647,6 @@
     .leaflet-popup-tip,
     .leaflet-popup-close-button {
       display: none;
-    }
-
-    /* Мобільний popup - прив'язаний до нижнього краю */
-    @media (max-width: 600px) {
-      .leaflet-popup-pane .leaflet-popup {
-        position: fixed !important;
-        left: 10px !important;
-        right: 10px !important;
-        top: auto !important;
-        bottom: 20px !important;
-        transform: none !important;
-        width: calc(100% - 20px) !important;
-        max-width: calc(100% - 20px) !important;
-        margin: 0 !important;
-        z-index: 1200 !important;
-      }
-
-      .leaflet-popup-content-wrapper {
-        width: 100% !important;
-        border-radius: 24px !important;
-      }
-
-      .leaflet-popup-content {
-        width: 100% !important;
-        max-width: 100% !important;
-        max-height: 60vh !important;
-        overflow-y: auto !important;
-      }
-    }
-
-    /* Десктопний popup - по центру */
-    @media (min-width: 601px) {
-      .leaflet-popup-pane .leaflet-popup {
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-      }
     }
 
     .radar-popup {
@@ -677,7 +707,7 @@
 
     .popup-time {
       font-size: 13px;
-      color: rgba(255,255,255,0.74);
+      color: rgba(255, 255, 255, 0.74);
       white-space: nowrap;
       margin-bottom: 3px;
     }
@@ -687,7 +717,7 @@
       height: 32px;
       border: none;
       border-radius: 50%;
-      background: rgba(255,255,255,0.14);
+      background: rgba(255, 255, 255, 0.14);
       color: #fff;
       font-size: 22px;
       line-height: 1;
@@ -706,7 +736,7 @@
 
     .popup-comments-title {
       font-size: 14px;
-      color: rgba(255,255,255,0.72);
+      color: rgba(255, 255, 255, 0.72);
       margin-bottom: 8px;
       font-weight: 600;
     }
@@ -718,7 +748,7 @@
     }
 
     .comment-item {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 14px;
       padding: 11px 12px;
       margin-bottom: 8px;
@@ -735,7 +765,7 @@
     .comment-time {
       margin-top: 6px;
       font-size: 12px;
-      color: rgba(255,255,255,0.58);
+      color: rgba(255, 255, 255, 0.58);
     }
 
     .reaction-row {
@@ -750,7 +780,7 @@
       border-radius: 10px;
       padding: 5px 9px;
       cursor: pointer;
-      background: rgba(255,255,255,0.10);
+      background: rgba(255, 255, 255, 0.1);
       color: #fff;
       display: inline-flex;
       align-items: center;
@@ -761,13 +791,13 @@
     }
 
     .reaction-btn.like {
-      background: rgba(10,132,255,0.14);
-      border: 1px solid rgba(10,132,255,0.22);
+      background: rgba(10, 132, 255, 0.14);
+      border: 1px solid rgba(10, 132, 255, 0.22);
     }
 
     .reaction-btn.dislike {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .reaction-btn.disabled {
@@ -779,7 +809,7 @@
     .popup-input {
       width: 100%;
       border: none;
-      background: rgba(255,255,255,0.14);
+      background: rgba(255, 255, 255, 0.14);
       color: #fff;
       border-radius: 14px;
       padding: 13px 14px;
@@ -787,10 +817,10 @@
       font-family: inherit;
     }
 
-    .popup-input::placeholder {
-      color: rgba(255,255,255,0.5);
-    }
-
+    /* =========================================================
+       BLOCK: CSS_SUCCESS_MODAL
+       Модальне вікно успіху
+       ========================================================= */
     .success-modal-backdrop {
       position: fixed;
       inset: 0;
@@ -814,8 +844,8 @@
       background: rgba(72, 72, 74, 0.72);
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.28);
-      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       color: #fff;
     }
 
@@ -833,7 +863,7 @@
       border: none;
       border-radius: 16px;
       padding: 13px 14px;
-      background: rgba(255,255,255,0.16);
+      background: rgba(255, 255, 255, 0.16);
       color: #fff;
       font-weight: 700;
       font-family: inherit;
@@ -846,6 +876,10 @@
       transform: scale(0.98);
     }
 
+    /* =========================================================
+       BLOCK: CSS_SMALL_HEIGHT_DEVICES
+       Низькі екрани / малі пристрої
+       ========================================================= */
     @media (max-height: 760px) {
       :root {
         --sheet-side: 8px;
@@ -858,789 +892,1974 @@
         --item-text-size: 13px;
         --save-size: 14px;
       }
-      .filter-item-left img { width: 24px; height: 24px; }
-      .filter-toggle { width: 38px; height: 22px; }
-      .filter-toggle::after { width: 18px; height: 18px; }
-      .filter-toggle.active::after { left: 18px; }
-      #themeIcon { font-size: 18px; width: 24px; }
-      .time-slider-container { padding: 8px; }
-      .time-slider-value { font-size: 11px; }
-      .time-value { font-size: 11px; padding: 4px 8px; }
+
+      .filter-item-left img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .filter-toggle {
+        width: 38px;
+        height: 22px;
+      }
+
+      .filter-toggle::after {
+        width: 18px;
+        height: 18px;
+      }
+
+      .filter-toggle.active::after {
+        left: 18px;
+      }
+
+      #themeIcon {
+        font-size: 18px;
+        width: 24px;
+      }
+
+      .time-slider-container {
+        padding: 8px;
+      }
+
+      .time-slider-value {
+        font-size: 11px;
+      }
+
+      .time-value {
+        font-size: 11px;
+        padding: 4px 8px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_MAP
+       Контейнер мапи
+       ========================================================= -->
+  <div id="map"></div>
 
-<div id="map"></div>
+  <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_FAB
+       Плаваючі кнопки
+       ========================================================= -->
+  <div id="fabBar">
+    <button id="geoBtn" aria-label="Показати моє місцезнаходження" title="Показати моє місцезнаходження">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M11 2h2v2.06A8.002 8.002 0 0 1 19.94 11H22v2h-2.06A8.002 8.002 0 0 1 13 19.94V22h-2v-2.06A8.002 8.002 0 0 1 4.06 13H2v-2h2.06A8.002 8.002 0 0 1 11 4.06V2zm1 4a6 6 0 1 0 0 12a6 6 0 0 0 0-12zm0 3.2a2.8 2.8 0 1 1 0 5.6a2.8 2.8 0 0 1 0-5.6z"/>
+      </svg>
+    </button>
 
-<div id="fabBar">
-  <button id="geoBtn" aria-label="Показати моє місцезнаходження" title="Показати моє місцезнаходження">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M11 2h2v2.06A8.002 8.002 0 0 1 19.94 11H22v2h-2.06A8.002 8.002 0 0 1 13 19.94V22h-2v-2.06A8.002 8.002 0 0 1 4.06 13H2v-2h2.06A8.002 8.002 0 0 1 11 4.06V2zm1 4a6 6 0 1 0 0 12a6 6 0 0 0 0-12zm0 3.2a2.8 2.8 0 1 1 0 5.6a2.8 2.8 0 0 1 0-5.6z"/>
-    </svg>
-  </button>
-  <button id="settingsBtn" aria-label="Налаштування" title="Налаштування">⚙️</button>
-  <button id="addBtn" aria-label="Додати мітку" title="Додати мітку">+</button>
-</div>
-
-<div id="pickerBar">
-  <div id="pickerTop">
-    <div id="pickerHint">Обери тип і ткни на карту</div>
-    <button id="pickerClose">×</button>
+    <button id="settingsBtn" aria-label="Налаштування" title="Налаштування">⚙️</button>
+    <button id="addBtn" aria-label="Додати мітку" title="Додати мітку">+</button>
   </div>
-  <div class="picker-grid">
-    <div class="picker-item active" data-type="safe"><img src="icons/safe.png" alt="Безпечно"><span>Безпечно</span></div>
-    <div class="picker-item" data-type="block"><img src="icons/block.png" alt="Блокпост"><span>Блокпост</span></div>
-    <div class="picker-item" data-type="danger2"><img src="icons/danger2.png" alt="Злодій"><span>Злодій</span></div>
-    <div class="picker-item" data-type="trash"><img src="icons/trash.png" alt="Сміття"><span>Сміття</span></div>
-    <div class="picker-item" data-type="question"><img src="icons/question.png" alt="Питання"><span>Питання</span></div>
-    <div class="picker-item" data-type="poop"><img src="icons/kaka.png" alt="Лайно"><span>Лайно</span></div>
-  </div>
-</div>
 
-<div id="descSheet">
-  <div id="sheetHead">
-    <div id="sheetLeft">
-      <img id="sheetIcon" src="icons/safe.png" alt="">
-      <div id="sheetTitle">Безпечно</div>
+  <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_PICKER
+       Вікно вибору типу мітки
+       ========================================================= -->
+  <div id="pickerBar">
+    <div id="pickerTop">
+      <div id="pickerHint">Обери тип і натисни на мапу</div>
+      <button id="pickerClose">×</button>
     </div>
-    <button id="sheetClose">×</button>
-  </div>
-  <textarea id="descInput" maxlength="100" placeholder="Опис..."></textarea>
-  <div id="descCounter">0 / 100</div>
-  <button id="saveBtn">Зберегти</button>
-</div>
 
-<div id="settingsSheet">
-  <div id="settingsHead">
-    <div id="settingsTitle">⚙️ Налаштування</div>
-    <button id="settingsClose">×</button>
-  </div>
-  <div id="settingsBody">
-    <div class="settings-group">
-      <div class="settings-label">🏙️ Місто</div>
-      <div class="city-select-wrap"><select id="citySelect"></select></div>
-    </div>
-    <div class="settings-group">
-      <div class="settings-label">🌓 Тема карти</div>
-      <div class="filter-item" id="themeToggleRow">
-        <div class="filter-item-left"><span id="themeIcon">☀️</span><span id="themeLabel">Денна тема</span></div>
-        <div class="filter-toggle" id="themeToggle"></div>
+    <div class="picker-grid">
+      <div class="picker-item active" data-type="safe">
+        <img src="icons/safe.png" alt="Безпечно" />
+        <span>Безпечно</span>
       </div>
-    </div>
-    <div class="settings-group">
-      <div class="settings-label">⏱️ Фільтр за часом</div>
-      <div class="time-slider-container">
-        <input type="range" id="timeSlider" class="time-slider" min="15" max="1440" step="15" value="1440">
-        <div class="time-slider-value"><span>🕒 15 хв</span><span class="time-value" id="timeValue">24 год</span><span>📅 24 год</span></div>
+
+      <div class="picker-item" data-type="block">
+        <img src="icons/block.png" alt="Блокпост" />
+        <span>Блокпост</span>
       </div>
-    </div>
-    <div class="settings-group">
-      <div class="settings-label">👁️ Фільтр типів міток</div>
-      <div class="filter-group" id="filterGroup">
-        <div class="filter-item" data-filter-type="safe"><div class="filter-item-left"><img src="icons/safe.png" alt=""><span>Безпечно</span></div><div class="filter-toggle" id="filterSafe"></div></div>
-        <div class="filter-item" data-filter-type="block"><div class="filter-item-left"><img src="icons/block.png" alt=""><span>Блокпост</span></div><div class="filter-toggle" id="filterBlock"></div></div>
-        <div class="filter-item" data-filter-type="danger2"><div class="filter-item-left"><img src="icons/danger2.png" alt=""><span>Злодій</span></div><div class="filter-toggle" id="filterDanger2"></div></div>
-        <div class="filter-item" data-filter-type="trash"><div class="filter-item-left"><img src="icons/trash.png" alt=""><span>Сміття</span></div><div class="filter-toggle" id="filterTrash"></div></div>
-        <div class="filter-item" data-filter-type="question"><div class="filter-item-left"><img src="icons/question.png" alt=""><span>Питання</span></div><div class="filter-toggle" id="filterQuestion"></div></div>
-        <div class="filter-item" data-filter-type="poop"><div class="filter-item-left"><img src="icons/kaka.png" alt=""><span>Лайно</span></div><div class="filter-toggle" id="filterPoop"></div></div>
+
+      <div class="picker-item" data-type="danger2">
+        <img src="icons/danger2.png" alt="Злодій" />
+        <span>Злодій</span>
+      </div>
+
+      <div class="picker-item" data-type="trash">
+        <img src="icons/trash.png" alt="Сміття" />
+        <span>Сміття</span>
+      </div>
+
+      <div class="picker-item" data-type="question">
+        <img src="icons/question.png" alt="Питання" />
+        <span>Питання</span>
+      </div>
+
+      <div class="picker-item" data-type="poop">
+        <img src="icons/kaka.png" alt="Лайно" />
+        <span>Лайно</span>
       </div>
     </div>
   </div>
-  <button id="saveSettingsBtn">Зберегти</button>
-</div>
 
-<div id="successModalBackdrop" class="success-modal-backdrop">
-  <div class="success-modal">
-    <div class="success-modal-text">Мітку успішно додано.<br>Вона з’явиться на мапі протягом 5 хвилин</div>
-    <button id="successModalClose" class="success-modal-btn">Закрити</button>
+  <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_DESC_SHEET
+       Вікно додавання опису
+       ========================================================= -->
+  <div id="descSheet">
+    <div id="sheetHead">
+      <div id="sheetLeft">
+        <img id="sheetIcon" src="icons/safe.png" alt="" />
+        <div id="sheetTitle">Безпечно</div>
+      </div>
+      <button id="sheetClose">×</button>
+    </div>
+
+    <textarea id="descInput" maxlength="100" placeholder="Опис..."></textarea>
+    <div id="descCounter">0 / 100</div>
+    <button id="saveBtn">Зберегти</button>
   </div>
-</div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_SETTINGS_SHEET
+       Вікно налаштувань
+       ========================================================= -->
+  <div id="settingsSheet">
+    <div id="settingsHead">
+      <div id="settingsTitle">⚙️ Налаштування</div>
+      <button id="settingsClose">×</button>
+    </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    onSnapshot,
-    doc,
-    updateDoc,
-    query,
-    orderBy
-  } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+    <div id="settingsBody">
+      <div class="settings-group">
+        <div class="settings-label">🏙️ Місто</div>
+        <div class="city-select-wrap">
+          <select id="citySelect"></select>
+        </div>
+      </div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAX_n3xk2Jy-WqEw887Vo2k9wiw4K5tPk8",
-    authDomain: "qwertyuio-a06d6.firebaseapp.com",
-    projectId: "qwertyuio-a06d6",
-    storageBucket: "qwertyuio-a06d6.firebasestorage.app",
-    messagingSenderId: "614323966066",
-    appId: "1:614323966066:web:4bd788db83dd759940b2eb",
-    measurementId: "G-P1FWYRC2PL"
-  };
+      <div class="settings-group">
+        <div class="settings-label">🌓 Тема мапи</div>
+        <div class="filter-item" id="themeToggleRow">
+          <div class="filter-item-left">
+            <span id="themeIcon">☀️</span>
+            <span id="themeLabel">Денна тема</span>
+          </div>
+          <div class="filter-toggle" id="themeToggle"></div>
+        </div>
+      </div>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+      <div class="settings-group">
+        <div class="settings-label">⏱️ Фільтр за часом</div>
+        <div class="time-slider-container">
+          <input type="range" id="timeSlider" class="time-slider" min="15" max="1440" step="15" value="1440" />
+          <div class="time-slider-value">
+            <span>🕒 15 хв</span>
+            <span class="time-value" id="timeValue">24 год</span>
+            <span>📅 24 год</span>
+          </div>
+        </div>
+      </div>
 
-  const SETTINGS_KEY = 'radar_settings';
-  const LIFE = 24 * 60 * 60 * 1000;
-  const VOTES_KEY = 'radar_votes';
-  const TILE_CACHE_NAME = 'radar-tile-cache-v5';
-  const GROUP_RADIUS_METERS = 165;
-  const SAFE_MIN_COUNT = 3;
-  const QUESTION_MIN_COUNT = 4;
-  const DANGER_MIN_COUNT = 3;
+      <div class="settings-group">
+        <div class="settings-label">👁️ Фільтр типів міток</div>
+        <div class="filter-group" id="filterGroup">
+          <div class="filter-item" data-filter-type="safe">
+            <div class="filter-item-left">
+              <img src="icons/safe.png" alt="" />
+              <span>Безпечно</span>
+            </div>
+            <div class="filter-toggle" id="filterSafe"></div>
+          </div>
 
-  const labelMap = {
-    safe: 'Безпечно',
-    block: 'Блокпост',
-    danger2: 'Злодій',
-    trash: 'Сміття',
-    question: 'Питання',
-    poop: 'Лайно'
-  };
+          <div class="filter-item" data-filter-type="block">
+            <div class="filter-item-left">
+              <img src="icons/block.png" alt="" />
+              <span>Блокпост</span>
+            </div>
+            <div class="filter-toggle" id="filterBlock"></div>
+          </div>
 
-  const cityMap = {
-    kyiv: { name: 'Київ', lat: 50.4501, lng: 30.5234, radiusKm: 16 },
-    vinnytsia: { name: 'Вінниця', lat: 49.2331, lng: 28.4682, radiusKm: 12 },
-    lutsk: { name: 'Луцьк', lat: 50.7472, lng: 25.3254, radiusKm: 11 },
-    dnipro: { name: 'Дніпро', lat: 48.4647, lng: 35.0462, radiusKm: 16 },
-    zhytomyr: { name: 'Житомир', lat: 50.2547, lng: 28.6587, radiusKm: 11 },
-    uzhhorod: { name: 'Ужгород', lat: 48.6208, lng: 22.2879, radiusKm: 10 },
-    zaporizhzhia: { name: 'Запоріжжя', lat: 47.8388, lng: 35.1396, radiusKm: 15 },
-    ivano_frankivsk: { name: 'Івано-Франківськ', lat: 48.9226, lng: 24.7111, radiusKm: 11 },
-    kropyvnytskyi: { name: 'Кропивницький', lat: 48.5079, lng: 32.2623, radiusKm: 11 },
-    lviv: { name: 'Львів', lat: 49.8397, lng: 24.0297, radiusKm: 14 },
-    mykolaiv: { name: 'Миколаїв', lat: 46.9750, lng: 31.9946, radiusKm: 13 },
-    odesa: { name: 'Одеса', lat: 46.4825, lng: 30.7233, radiusKm: 18 },
-    poltava: { name: 'Полтава', lat: 49.5883, lng: 34.5514, radiusKm: 12 },
-    rivne: { name: 'Рівне', lat: 50.6199, lng: 26.2516, radiusKm: 10 },
-    sumy: { name: 'Суми', lat: 50.9077, lng: 34.7981, radiusKm: 11 },
-    ternopil: { name: 'Тернопіль', lat: 49.5535, lng: 25.5948, radiusKm: 10 },
-    kharkiv: { name: 'Харків', lat: 49.9935, lng: 36.2304, radiusKm: 18 },
-    kherson: { name: 'Херсон', lat: 46.6354, lng: 32.6169, radiusKm: 12 },
-    khmelnytskyi: { name: 'Хмельницький', lat: 49.4229, lng: 26.9871, radiusKm: 11 },
-    cherkasy: { name: 'Черкаси', lat: 49.4444, lng: 32.0598, radiusKm: 11 },
-    chernivtsi: { name: 'Чернівці', lat: 48.2921, lng: 25.9358, radiusKm: 10 },
-    chernihiv: { name: 'Чернігів', lat: 51.4982, lng: 31.2893, radiusKm: 11 }
-  };
+          <div class="filter-item" data-filter-type="danger2">
+            <div class="filter-item-left">
+              <img src="icons/danger2.png" alt="" />
+              <span>Злодій</span>
+            </div>
+            <div class="filter-toggle" id="filterDanger2"></div>
+          </div>
 
-  const mapThemes = {
-    day: { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '&copy; OpenStreetMap contributors' },
-    night: { url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', attribution: '&copy; OpenStreetMap contributors &copy; CARTO' }
-  };
+          <div class="filter-item" data-filter-type="trash">
+            <div class="filter-item-left">
+              <img src="icons/trash.png" alt="" />
+              <span>Сміття</span>
+            </div>
+            <div class="filter-toggle" id="filterTrash"></div>
+          </div>
 
-  const defaultCityKey = 'kyiv';
-  const defaultCity = cityMap[defaultCityKey];
+          <div class="filter-item" data-filter-type="question">
+            <div class="filter-item-left">
+              <img src="icons/question.png" alt="" />
+              <span>Питання</span>
+            </div>
+            <div class="filter-toggle" id="filterQuestion"></div>
+          </div>
 
-  const CachedTileLayer = L.TileLayer.extend({
-    createTile(coords, done) {
-      const tile = document.createElement('img');
-      L.DomEvent.on(tile, 'load', L.bind(this._tileOnLoad, this, done, tile));
-      L.DomEvent.on(tile, 'error', L.bind(this._tileOnError, this, done, tile));
-      if (this.options.crossOrigin || this.options.crossOrigin === '') {
-        tile.crossOrigin = this.options.crossOrigin === true ? '' : this.options.crossOrigin;
+          <div class="filter-item" data-filter-type="poop">
+            <div class="filter-item-left">
+              <img src="icons/kaka.png" alt="" />
+              <span>Лайно</span>
+            </div>
+            <div class="filter-toggle" id="filterPoop"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button id="saveSettingsBtn">Зберегти</button>
+  </div>
+
+  <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_SUCCESS_MODAL
+       Вікно успішного додавання
+       ========================================================= -->
+  <div id="successModalBackdrop" class="success-modal-backdrop">
+    <div class="success-modal">
+      <div class="success-modal-text">
+        Мітку успішно додано.<br />
+        Вона з’явиться на мапі протягом 5 хвилин
+      </div>
+      <button id="successModalClose" class="success-modal-btn">Закрити</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script type="module">
+    /* =========================================================
+       BLOCK: FIREBASE_IMPORTS
+       Імпорти Firebase
+       ========================================================= */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      onSnapshot,
+      doc,
+      updateDoc,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    /* =========================================================
+       BLOCK: APP_CONFIG
+       Глобальні константи застосунку
+       ========================================================= */
+    const APP_CONFIG = {
+      SETTINGS_KEY: "radar_settings",
+      VOTES_KEY: "radar_votes",
+      TILE_CACHE_NAME: "radar-tile-cache-v5",
+      LIFE_MS: 24 * 60 * 60 * 1000,
+      GROUP_RADIUS_METERS: 165,
+      SAFE_MIN_COUNT: 3,
+      QUESTION_MIN_COUNT: 4,
+      DANGER_MIN_COUNT: 3,
+      DEFAULT_CITY_KEY: "kyiv",
+      DEFAULT_THEME: "day",
+      MOBILE_BREAKPOINT: 600,
+      POPUP_RESTORE_DELAY_MS: 20,
+      COMMENT_RENDER_DELAY_MS: 160,
+      COMMENT_INPUT_ATTACH_DELAY_MS: 20
+    };
+
+    /* =========================================================
+       BLOCK: APP_LABELS
+       Усі тексти застосунку
+       ========================================================= */
+    const APP_LABELS = {
+      markerTypes: {
+        safe: "Безпечно",
+        block: "Блокпост",
+        danger2: "Злодій",
+        trash: "Сміття",
+        question: "Питання",
+        poop: "Лайно"
+      },
+      errors: {
+        noGeolocation: "Геолокація не підтримується",
+        geolocationFailed: "Не вдалося отримати місцезнаходження",
+        mapTouchRequired: "Торкнись мапи",
+        descRequired: "Опис обов’язковий",
+        max100: "Максимум 100 символів",
+        commentRequired: "Коментар обовʼязковий"
+      },
+      popup: {
+        descTitle: "Опис",
+        commentsTitle: "Коментарі",
+        noComments: "Немає коментарів"
       }
-      tile.alt = '';
-      tile.setAttribute('role', 'presentation');
-      const url = this.getTileUrl(coords);
-      const fallbackToNormal = () => { tile.src = url; };
-      if (!('caches' in window) || !url.startsWith('http')) {
-        fallbackToNormal();
+    };
+
+    /* =========================================================
+       BLOCK: CITY_CONFIG
+       Міста та координати
+       ========================================================= */
+    const CITY_CONFIG = {
+      kyiv: { name: "Київ", lat: 50.4501, lng: 30.5234, radiusKm: 16 },
+      vinnytsia: { name: "Вінниця", lat: 49.2331, lng: 28.4682, radiusKm: 12 },
+      lutsk: { name: "Луцьк", lat: 50.7472, lng: 25.3254, radiusKm: 11 },
+      dnipro: { name: "Дніпро", lat: 48.4647, lng: 35.0462, radiusKm: 16 },
+      zhytomyr: { name: "Житомир", lat: 50.2547, lng: 28.6587, radiusKm: 11 },
+      uzhhorod: { name: "Ужгород", lat: 48.6208, lng: 22.2879, radiusKm: 10 },
+      zaporizhzhia: { name: "Запоріжжя", lat: 47.8388, lng: 35.1396, radiusKm: 15 },
+      ivano_frankivsk: { name: "Івано-Франківськ", lat: 48.9226, lng: 24.7111, radiusKm: 11 },
+      kropyvnytskyi: { name: "Кропивницький", lat: 48.5079, lng: 32.2623, radiusKm: 11 },
+      lviv: { name: "Львів", lat: 49.8397, lng: 24.0297, radiusKm: 14 },
+      mykolaiv: { name: "Миколаїв", lat: 46.975, lng: 31.9946, radiusKm: 13 },
+      odesa: { name: "Одеса", lat: 46.4825, lng: 30.7233, radiusKm: 18 },
+      poltava: { name: "Полтава", lat: 49.5883, lng: 34.5514, radiusKm: 12 },
+      rivne: { name: "Рівне", lat: 50.6199, lng: 26.2516, radiusKm: 10 },
+      sumy: { name: "Суми", lat: 50.9077, lng: 34.7981, radiusKm: 11 },
+      ternopil: { name: "Тернопіль", lat: 49.5535, lng: 25.5948, radiusKm: 10 },
+      kharkiv: { name: "Харків", lat: 49.9935, lng: 36.2304, radiusKm: 18 },
+      kherson: { name: "Херсон", lat: 46.6354, lng: 32.6169, radiusKm: 12 },
+      khmelnytskyi: { name: "Хмельницький", lat: 49.4229, lng: 26.9871, radiusKm: 11 },
+      cherkasy: { name: "Черкаси", lat: 49.4444, lng: 32.0598, radiusKm: 11 },
+      chernivtsi: { name: "Чернівці", lat: 48.2921, lng: 25.9358, radiusKm: 10 },
+      chernihiv: { name: "Чернігів", lat: 51.4982, lng: 31.2893, radiusKm: 11 }
+    };
+
+    /* =========================================================
+       BLOCK: MAP_THEME_CONFIG
+       Теми мапи
+       ========================================================= */
+    const MAP_THEME_CONFIG = {
+      day: {
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attribution: "&copy; OpenStreetMap contributors"
+      },
+      night: {
+        url: "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png",
+        attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
+      }
+    };
+
+    /* =========================================================
+       BLOCK: FIREBASE_CONFIG
+       Firebase-конфігурація
+       ========================================================= */
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyAX_n3xk2Jy-WqEw887Vo2k9wiw4K5tPk8",
+      authDomain: "qwertyuio-a06d6.firebaseapp.com",
+      projectId: "qwertyuio-a06d6",
+      storageBucket: "qwertyuio-a06d6.firebasestorage.app",
+      messagingSenderId: "614323966066",
+      appId: "1:614323966066:web:4bd788db83dd759940b2eb",
+      measurementId: "G-P1FWYRC2PL"
+    };
+
+    /* =========================================================
+       BLOCK: STATE_CONTAINER
+       Увесь стан застосунку
+       ========================================================= */
+    const APP_STATE = {
+      settings: null,
+      addMode: false,
+      selectedLatLng: null,
+      tempMarker: null,
+      currentType: "safe",
+      points: [],
+      currentOpenPointId: null,
+      userLocationMarker: null,
+      userLocationCircle: null,
+      renderQueued: false,
+      mapReady: false,
+      suspendRenderWhileTyping: false,
+      suppressPopupRestoreUntil: 0,
+      currentTileLayer: null,
+      markerRegistry: new Map()
+    };
+
+    /* =========================================================
+       BLOCK: DOM_REFERENCES
+       Усі посилання на DOM
+       ========================================================= */
+    const DOM = {
+      map: document.getElementById("map"),
+      fabBar: document.getElementById("fabBar"),
+      geoBtn: document.getElementById("geoBtn"),
+      settingsBtn: document.getElementById("settingsBtn"),
+      addBtn: document.getElementById("addBtn"),
+
+      pickerBar: document.getElementById("pickerBar"),
+      pickerClose: document.getElementById("pickerClose"),
+
+      descSheet: document.getElementById("descSheet"),
+      sheetClose: document.getElementById("sheetClose"),
+      descInput: document.getElementById("descInput"),
+      descCounter: document.getElementById("descCounter"),
+      saveBtn: document.getElementById("saveBtn"),
+      sheetIcon: document.getElementById("sheetIcon"),
+      sheetTitle: document.getElementById("sheetTitle"),
+
+      settingsSheet: document.getElementById("settingsSheet"),
+      settingsBody: document.getElementById("settingsBody"),
+      settingsClose: document.getElementById("settingsClose"),
+      saveSettingsBtn: document.getElementById("saveSettingsBtn"),
+      citySelect: document.getElementById("citySelect"),
+      timeSlider: document.getElementById("timeSlider"),
+      timeValue: document.getElementById("timeValue"),
+      themeToggle: document.getElementById("themeToggle"),
+      themeToggleRow: document.getElementById("themeToggleRow"),
+      themeLabel: document.getElementById("themeLabel"),
+      themeIcon: document.getElementById("themeIcon"),
+
+      successModalBackdrop: document.getElementById("successModalBackdrop"),
+      successModalClose: document.getElementById("successModalClose")
+    };
+
+    /* =========================================================
+       BLOCK: APP_HELPERS
+       Допоміжні перевірки layout
+       ========================================================= */
+    const LayoutHelpers = {
+      isMobile() {
+        return window.innerWidth <= APP_CONFIG.MOBILE_BREAKPOINT;
+      },
+      isDesktop() {
+        return window.innerWidth > APP_CONFIG.MOBILE_BREAKPOINT;
+      }
+    };
+
+    /* =========================================================
+       BLOCK: HTML_UTILS
+       HTML-утиліти
+       ========================================================= */
+    const HtmlUtils = {
+      escapeHtml(text) {
+        return String(text || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+    };
+
+    /* =========================================================
+       BLOCK: TIME_UTILS
+       Утиліти часу
+       ========================================================= */
+    const TimeUtils = {
+      formatDateTime(time) {
+        return new Date(time).toLocaleString("uk-UA", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      },
+      formatTime(time) {
+        return new Date(time).toLocaleTimeString("uk-UA", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      },
+      clampMinutes(value) {
+        return Math.min(1440, Math.max(15, Number(value) || 15));
+      },
+      formatMinutesText(minutes) {
+        const m = this.clampMinutes(minutes);
+        const h = Math.floor(m / 60);
+        const min = m % 60;
+        if (h === 0) return `${min} хв`;
+        if (min === 0) return `${h} год`;
+        return `${h} год ${min} хв`;
+      },
+      timeLeftText(createdAt) {
+        const left = createdAt + APP_CONFIG.LIFE_MS - Date.now();
+        if (left <= 0) return "Зникла";
+        const h = Math.floor(left / (1000 * 60 * 60));
+        const m = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
+        return `зникне через ${h}:${String(m).padStart(2, "0")} год`;
+      }
+    };
+
+    /* =========================================================
+       BLOCK: GEO_UTILS
+       Гео-утиліти
+       ========================================================= */
+    const GeoUtils = {
+      distanceMeters(lat1, lng1, lat2, lng2) {
+        const R = 6371000;
+        const toRad = d => d * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLng = toRad(lng2 - lng1);
+
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(toRad(lat1)) *
+            Math.cos(toRad(lat2)) *
+            Math.sin(dLng / 2) ** 2;
+
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      },
+      kmToBounds(lat, lng, radiusKm) {
+        const latDelta = radiusKm / 111;
+        const lngDelta = radiusKm / (111 * Math.cos(lat * Math.PI / 180));
+        return L.latLngBounds(
+          [lat - latDelta, lng - lngDelta],
+          [lat + latDelta, lng + lngDelta]
+        );
+      }
+    };
+
+    /* =========================================================
+       BLOCK: LOCAL_STORAGE_ENGINE
+       Робота з localStorage
+       ========================================================= */
+    const LocalStorageEngine = {
+      loadSettings() {
+        const defaults = {
+          mapTheme: APP_CONFIG.DEFAULT_THEME,
+          timeFilterMinutes: 1440,
+          selectedCity: APP_CONFIG.DEFAULT_CITY_KEY,
+          filters: {
+            safe: true,
+            block: true,
+            danger2: true,
+            trash: true,
+            question: true,
+            poop: true
+          }
+        };
+
+        try {
+          const saved = localStorage.getItem(APP_CONFIG.SETTINGS_KEY);
+          if (!saved) return defaults;
+
+          const parsed = JSON.parse(saved);
+
+          let timeFilterMinutes = 1440;
+          if (typeof parsed.timeFilterMinutes === "number") {
+            timeFilterMinutes = parsed.timeFilterMinutes;
+          } else if (typeof parsed.timeFilterHours === "number") {
+            timeFilterMinutes = Math.round(parsed.timeFilterHours * 60);
+          }
+
+          const selectedCity = CITY_CONFIG[parsed.selectedCity]
+            ? parsed.selectedCity
+            : APP_CONFIG.DEFAULT_CITY_KEY;
+
+          return {
+            ...defaults,
+            ...parsed,
+            mapTheme: parsed.mapTheme || APP_CONFIG.DEFAULT_THEME,
+            timeFilterMinutes,
+            selectedCity,
+            filters: {
+              ...defaults.filters,
+              ...(parsed.filters || {})
+            }
+          };
+        } catch {
+          return defaults;
+        }
+      },
+
+      saveSettings(settings) {
+        localStorage.setItem(APP_CONFIG.SETTINGS_KEY, JSON.stringify(settings));
+      },
+
+      loadVotes() {
+        try {
+          return JSON.parse(localStorage.getItem(APP_CONFIG.VOTES_KEY) || "{}");
+        } catch {
+          return {};
+        }
+      },
+
+      saveVotes(votes) {
+        localStorage.setItem(APP_CONFIG.VOTES_KEY, JSON.stringify(votes));
+      },
+
+      hasVoted(id) {
+        return !!this.loadVotes()[id];
+      },
+
+      setVoted(id, type) {
+        const votes = this.loadVotes();
+        votes[id] = type;
+        this.saveVotes(votes);
+      }
+    };
+
+    /* =========================================================
+       BLOCK: FIREBASE_BOOTSTRAP
+       Ініціалізація Firebase
+       ========================================================= */
+    const firebaseApp = initializeApp(FIREBASE_CONFIG);
+    const db = getFirestore(firebaseApp);
+
+    /* =========================================================
+       BLOCK: MAP_TILE_CACHE_ENGINE
+       Кешування тайлів
+       ========================================================= */
+    const CachedTileLayer = L.TileLayer.extend({
+      createTile(coords, done) {
+        const tile = document.createElement("img");
+
+        L.DomEvent.on(tile, "load", L.bind(this._tileOnLoad, this, done, tile));
+        L.DomEvent.on(tile, "error", L.bind(this._tileOnError, this, done, tile));
+
+        if (this.options.crossOrigin || this.options.crossOrigin === "") {
+          tile.crossOrigin = this.options.crossOrigin === true ? "" : this.options.crossOrigin;
+        }
+
+        tile.alt = "";
+        tile.setAttribute("role", "presentation");
+
+        const url = this.getTileUrl(coords);
+        const fallback = () => {
+          tile.src = url;
+        };
+
+        if (!("caches" in window) || !url.startsWith("http")) {
+          fallback();
+          return tile;
+        }
+
+        caches
+          .open(APP_CONFIG.TILE_CACHE_NAME)
+          .then(async cache => {
+            const cached = await cache.match(url, {
+              ignoreVary: true,
+              ignoreSearch: false
+            });
+
+            if (cached) {
+              const blob = await cached.blob();
+              const objectUrl = URL.createObjectURL(blob);
+              tile.onload = () => {
+                URL.revokeObjectURL(objectUrl);
+                done(null, tile);
+              };
+              tile.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                fallback();
+              };
+              tile.src = objectUrl;
+              return;
+            }
+
+            try {
+              const resp = await fetch(url, { mode: "cors", cache: "force-cache" });
+              if (resp && resp.ok) {
+                cache.put(url, resp.clone()).catch(() => {});
+                const blob = await resp.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                tile.onload = () => {
+                  URL.revokeObjectURL(objectUrl);
+                  done(null, tile);
+                };
+                tile.onerror = () => {
+                  URL.revokeObjectURL(objectUrl);
+                  fallback();
+                };
+                tile.src = objectUrl;
+                return;
+              }
+            } catch {}
+
+            fallback();
+          })
+          .catch(() => fallback());
+
         return tile;
       }
-      caches.open(TILE_CACHE_NAME).then(async (cache) => {
-        const cached = await cache.match(url, { ignoreVary: true, ignoreSearch: false });
-        if (cached) {
-          const blob = await cached.blob();
-          const objectUrl = URL.createObjectURL(blob);
-          tile.onload = () => { URL.revokeObjectURL(objectUrl); done(null, tile); };
-          tile.onerror = () => { URL.revokeObjectURL(objectUrl); fallbackToNormal(); };
-          tile.src = objectUrl;
+    });
+
+    /* =========================================================
+       BLOCK: MAP_BOOTSTRAP
+       Створення мапи
+       ========================================================= */
+    const MAP_INSTANCE = L.map("map", {
+      preferCanvas: true,
+      zoomControl: true,
+      zoomAnimation: true,
+      fadeAnimation: false,
+      markerZoomAnimation: false,
+      inertia: true,
+      wheelDebounceTime: 40,
+      updateWhenIdle: true
+    }).setView(
+      [CITY_CONFIG[APP_CONFIG.DEFAULT_CITY_KEY].lat, CITY_CONFIG[APP_CONFIG.DEFAULT_CITY_KEY].lng],
+      12
+    );
+
+    const GROUP_CIRCLE_LAYER = L.layerGroup().addTo(MAP_INSTANCE);
+
+    /* =========================================================
+       BLOCK: MAP_THEME_ENGINE
+       Перемикання тем мапи
+       ========================================================= */
+    const MapThemeEngine = {
+      createLayer(theme) {
+        return new CachedTileLayer(MAP_THEME_CONFIG[theme].url, {
+          attribution: MAP_THEME_CONFIG[theme].attribution,
+          updateWhenIdle: true,
+          updateWhenZooming: false,
+          keepBuffer: 8,
+          tileSize: 256,
+          crossOrigin: "anonymous"
+        });
+      },
+
+      apply(theme) {
+        if (APP_STATE.currentTileLayer) {
+          MAP_INSTANCE.removeLayer(APP_STATE.currentTileLayer);
+        }
+        APP_STATE.currentTileLayer = this.createLayer(theme);
+        APP_STATE.currentTileLayer.addTo(MAP_INSTANCE);
+      }
+    };
+
+    /* =========================================================
+       BLOCK: MAP_CITY_ENGINE
+       Центрування по місту
+       ========================================================= */
+    const MapCityEngine = {
+      flyToCity(cityKey, animate = true) {
+        const city = CITY_CONFIG[cityKey] || CITY_CONFIG[APP_CONFIG.DEFAULT_CITY_KEY];
+        const bounds = GeoUtils.kmToBounds(city.lat, city.lng, city.radiusKm || 12);
+
+        MAP_INSTANCE.fitBounds(bounds, {
+          paddingTopLeft: [20, 20],
+          paddingBottomRight: [20, 20],
+          animate,
+          duration: animate ? 0.55 : 0
+        });
+
+        this.prewarmCityTiles(bounds);
+      },
+
+      prewarmCityTiles(bounds) {
+        if (!("caches" in window)) return;
+        const zooms = [11, 12, 13];
+        const theme = APP_STATE.settings.mapTheme;
+
+        caches.open(APP_CONFIG.TILE_CACHE_NAME).then(async cache => {
+          for (const z of zooms) {
+            const urls = this.latLngBoundsToTileUrls(bounds, z, theme).slice(0, 120);
+            for (const url of urls) {
+              try {
+                if (!(await cache.match(url))) {
+                  fetch(url, { mode: "cors", cache: "force-cache" })
+                    .then(r => {
+                      if (r && r.ok) cache.put(url, r.clone()).catch(() => {});
+                    })
+                    .catch(() => {});
+                }
+              } catch {}
+            }
+          }
+        }).catch(() => {});
+      },
+
+      latLngBoundsToTileUrls(bounds, zoom, theme) {
+        const layer = MapThemeEngine.createLayer(theme);
+
+        const lngToTileX = (lng, z) =>
+          Math.floor(((lng + 180) / 360) * Math.pow(2, z));
+
+        const latToTileY = (lat, z) => {
+          const rad = lat * Math.PI / 180;
+          return Math.floor(
+            ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) *
+              Math.pow(2, z)
+          );
+        };
+
+        const nw = bounds.getNorthWest();
+        const se = bounds.getSouthEast();
+
+        const minX = lngToTileX(nw.lng, zoom);
+        const maxX = lngToTileX(se.lng, zoom);
+        const minY = latToTileY(nw.lat, zoom);
+        const maxY = latToTileY(se.lat, zoom);
+
+        const urls = [];
+        for (let x = minX; x <= maxX; x++) {
+          for (let y = minY; y <= maxY; y++) {
+            urls.push(layer.getTileUrl({ x, y, z: zoom }));
+          }
+        }
+
+        return urls;
+      }
+    };
+
+    /* =========================================================
+       BLOCK: UI_STATE_HELPERS
+       Перевірки стану UI
+       ========================================================= */
+    const UIStateHelpers = {
+      isTypingInEditableField() {
+        const el = document.activeElement;
+        if (!el) return false;
+        const tag = (el.tagName || "").toLowerCase();
+        return tag === "input" || tag === "textarea" || tag === "select" || el.isContentEditable;
+      },
+
+      shouldSkipRenderNow() {
+        return APP_STATE.suspendRenderWhileTyping || this.isTypingInEditableField();
+      }
+    };
+
+    /* =========================================================
+       BLOCK: MARKER_ICON_FACTORY
+       Іконки міток
+       ========================================================= */
+    const MarkerIconFactory = {
+      getIconPath(type) {
+        if (type === "question") return "icons/question.png";
+        if (type === "poop") return "icons/kaka.png";
+        return `icons/${type}.png`;
+      },
+
+      getIcon(type, zoom) {
+        let size;
+        if (zoom < 12) size = 18;
+        else if (zoom < 14) size = 22;
+        else if (zoom < 16) size = 28;
+        else if (zoom < 18) size = 34;
+        else size = 40;
+
+        return L.divIcon({
+          className: "",
+          html: `<img src="${this.getIconPath(type)}" class="pin-img" style="width:100%;height:100%;">`,
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size - 4],
+          popupAnchor: [0, -(size - 12)]
+        });
+      }
+    };
+
+    /* =========================================================
+       BLOCK: WINDOW_PICKER_BAR
+       Вікно вибору типу
+       ========================================================= */
+    const PickerWindow = {
+      show() {
+        DOM.pickerBar.style.display = "block";
+      },
+      hide() {
+        DOM.pickerBar.style.display = "none";
+      },
+      updateActive() {
+        document.querySelectorAll(".picker-item").forEach(el => el.classList.remove("active"));
+        document.querySelector(`.picker-item[data-type="${APP_STATE.currentType}"]`)?.classList.add("active");
+
+        DOM.sheetIcon.src = MarkerIconFactory.getIconPath(APP_STATE.currentType);
+        DOM.sheetTitle.textContent = APP_LABELS.markerTypes[APP_STATE.currentType] || APP_STATE.currentType;
+
+        if (APP_STATE.tempMarker && APP_STATE.selectedLatLng) {
+          APP_STATE.tempMarker.setIcon(MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()));
+        }
+      }
+    };
+
+    /* =========================================================
+       BLOCK: WINDOW_DESC_SHEET
+       Вікно опису мітки
+       ========================================================= */
+    const DescWindow = {
+      show() {
+        DOM.descSheet.style.display = "block";
+      },
+      hide() {
+        DOM.descSheet.style.display = "none";
+      },
+      reset() {
+        DOM.descInput.value = "";
+        DOM.descCounter.textContent = "0 / 100";
+      }
+    };
+
+    /* =========================================================
+       BLOCK: WINDOW_SETTINGS_SHEET
+       Вікно налаштувань
+       ========================================================= */
+    const SettingsWindow = {
+      show() {
+        document.body.classList.add("settings-open");
+        DOM.settingsSheet.style.display = "flex";
+        DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
+        this.updateLayout();
+      },
+
+      hide() {
+        DOM.settingsSheet.style.display = "none";
+        document.body.classList.remove("settings-open");
+      },
+
+      updateLayout() {
+        const sheet = DOM.settingsSheet;
+        if (sheet.style.display === "none") return;
+
+        if (LayoutHelpers.isDesktop()) {
+          sheet.style.left = "auto";
+          sheet.style.right = "10px";
+          sheet.style.top = "68px";
+          sheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
+          sheet.style.width = "320px";
+        } else {
+          sheet.style.left = "10px";
+          sheet.style.right = "10px";
+          sheet.style.top = "56px";
+          sheet.style.bottom = "58px";
+          sheet.style.width = "auto";
+        }
+
+        const head = document.getElementById("settingsHead");
+        const save = DOM.saveSettingsBtn;
+        const body = DOM.settingsBody;
+
+        if (head && save && body) {
+          const totalHeight = sheet.clientHeight;
+          const reserved = head.offsetHeight + save.offsetHeight + 20;
+          body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
+        }
+      }
+    };
+
+    /* =========================================================
+       BLOCK: WINDOW_SUCCESS_MODAL
+       Вікно успішного додавання
+       ========================================================= */
+    const SuccessModalWindow = {
+      show() {
+        DOM.successModalBackdrop.style.display = "flex";
+      },
+      hide() {
+        DOM.successModalBackdrop.style.display = "none";
+      }
+    };
+
+    /* =========================================================
+       BLOCK: SETTINGS_UI_ENGINE
+       Заповнення UI налаштувань
+       ========================================================= */
+    const SettingsUIEngine = {
+      populateCitySelect() {
+        const entries = Object.entries(CITY_CONFIG).sort((a, b) =>
+          a[1].name.localeCompare(b[1].name, "uk")
+        );
+
+        DOM.citySelect.innerHTML = entries
+          .map(([key, city]) => `<option value="${key}">${city.name}</option>`)
+          .join("");
+
+        DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
+      },
+
+      updateTimeDisplay(minutes) {
+        DOM.timeValue.textContent = TimeUtils.formatMinutesText(minutes);
+      },
+
+      updateFilterUI() {
+        const ids = {
+          safe: "filterSafe",
+          block: "filterBlock",
+          danger2: "filterDanger2",
+          trash: "filterTrash",
+          question: "filterQuestion",
+          poop: "filterPoop"
+        };
+
+        for (const [type, id] of Object.entries(ids)) {
+          const toggle = document.getElementById(id);
+          if (toggle) {
+            toggle.classList.toggle("active", !!APP_STATE.settings.filters[type]);
+          }
+        }
+      },
+
+      updateThemeUI() {
+        const isNight = APP_STATE.settings.mapTheme === "night";
+        DOM.themeToggle.classList.toggle("active", isNight);
+        DOM.themeLabel.textContent = isNight ? "Нічна тема" : "Денна тема";
+        DOM.themeIcon.textContent = isNight ? "🌙" : "☀️";
+      }
+    };
+
+    /* =========================================================
+       BLOCK: SETTINGS_BEHAVIOR_ENGINE
+       Поведінка налаштувань
+       ========================================================= */
+    const SettingsBehaviorEngine = {
+      initFilterToggles() {
+        document.querySelectorAll(".filter-item[data-filter-type]").forEach(item => {
+          const type = item.dataset.filterType;
+          const toggle = item.querySelector(".filter-toggle");
+
+          if (toggle) {
+            toggle.addEventListener("click", e => {
+              e.stopPropagation();
+              APP_STATE.settings.filters[type] = !APP_STATE.settings.filters[type];
+              SettingsUIEngine.updateFilterUI();
+              MarkerRenderEngine.queueRender();
+            });
+          }
+
+          item.addEventListener("click", e => {
+            if (e.target !== toggle) {
+              APP_STATE.settings.filters[type] = !APP_STATE.settings.filters[type];
+              SettingsUIEngine.updateFilterUI();
+              MarkerRenderEngine.queueRender();
+            }
+          });
+        });
+      },
+
+      initThemeToggle() {
+        DOM.themeToggle.addEventListener("click", e => {
+          e.stopPropagation();
+          this.toggleTheme();
+        });
+
+        DOM.themeToggleRow.addEventListener("click", () => {
+          this.toggleTheme();
+        });
+      },
+
+      toggleTheme() {
+        APP_STATE.settings.mapTheme =
+          APP_STATE.settings.mapTheme === "night" ? "day" : "night";
+        SettingsUIEngine.updateThemeUI();
+      }
+    };
+
+    /* =========================================================
+       BLOCK: MARKER_FILTER_ENGINE
+       Фільтрація міток
+       ========================================================= */
+    const MarkerFilterEngine = {
+      getVisiblePoints() {
+        const now = Date.now();
+        const timeLimit = TimeUtils.clampMinutes(APP_STATE.settings.timeFilterMinutes) * 60 * 1000;
+
+        return APP_STATE.points.filter(point => {
+          return (
+            APP_STATE.settings.filters[point.type] &&
+            now - point.time <= timeLimit
+          );
+        });
+      }
+    };
+
+    /* =========================================================
+       BLOCK: POPUP_RENDERER
+       Генерація HTML popup
+       ========================================================= */
+    const PopupRenderer = {
+      render(point, index) {
+        const commentsHtml = (point.comments || [])
+          .map(
+            c => `
+            <div class="comment-item">
+              <div class="comment-text">${HtmlUtils.escapeHtml(c.text)}</div>
+              <div class="comment-time">${TimeUtils.formatTime(c.time)}</div>
+            </div>
+          `
+          )
+          .join("");
+
+        const voted = LocalStorageEngine.hasVoted(point.id);
+
+        return `
+          <div class="radar-popup">
+            <div class="popup-head">
+              <div class="popup-head-left">
+                <img src="${MarkerIconFactory.getIconPath(point.type)}" class="popup-icon">
+                <div class="popup-meta">
+                  <div class="popup-title-row">
+                    <div class="popup-title">${HtmlUtils.escapeHtml(APP_LABELS.markerTypes[point.type] || point.type)}</div>
+                    <div class="popup-life">${TimeUtils.timeLeftText(point.time)}</div>
+                  </div>
+                  <div class="popup-time">${TimeUtils.formatDateTime(point.time)}</div>
+                </div>
+              </div>
+              <button class="popup-close" onclick="window.closePopup()">×</button>
+            </div>
+
+            <div class="popup-comments-title">${APP_LABELS.popup.descTitle}</div>
+            <div class="popup-desc">${HtmlUtils.escapeHtml(point.desc || "")}</div>
+
+            <div class="popup-comments-title">${APP_LABELS.popup.commentsTitle}</div>
+            <div class="popup-comments">
+              ${
+                commentsHtml ||
+                `<div class="comment-item"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
+              }
+            </div>
+
+            <div class="reaction-row">
+              <button class="reaction-btn like ${voted ? "disabled" : ""}" onclick="window.vote(${index}, 'like')">👍 ${point.likes || 0}</button>
+              <button class="reaction-btn dislike ${voted ? "disabled" : ""}" onclick="window.vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
+            </div>
+
+            <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
+            <div class="popup-counter" id="commentCounter_${index}">0 / 100</div>
+            <button class="popup-btn" onclick="window.addComment(${index})">Додати коментар</button>
+          </div>
+        `;
+      }
+    };
+
+    /* =========================================================
+       BLOCK: POPUP_POSITION_ENGINE
+       Логіка розміщення popup
+       ========================================================= */
+    const PopupPositionEngine = {
+      bindMarkerPopup(marker, point, index) {
+        marker.bindPopup(PopupRenderer.render(point, index), {
+          autoPan: false,
+          keepInView: false,
+          closeButton: false,
+          offset: [0, -4],
+          className: "radar-popup-wrap"
+        });
+
+        marker.off("popupopen");
+        marker.off("popupclose");
+
+        marker.on("popupopen", () => {
+          APP_STATE.currentOpenPointId = point.id;
+          setTimeout(() => {
+            PopupCommentFeature.attachCounter(index);
+          }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
+        });
+
+        marker.on("popupclose", () => {
+          if (APP_STATE.currentOpenPointId === point.id) {
+            APP_STATE.currentOpenPointId = null;
+          }
+        });
+      }
+    };
+
+    /* =========================================================
+       BLOCK: POPUP_RESTORE_MANAGER
+       Логіка повторного відкриття popup
+       ========================================================= */
+    const PopupRestoreManager = {
+      restoreIfNeeded() {
+        if (!APP_STATE.currentOpenPointId) return;
+        if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
+
+        const entry = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
+        if (!entry) return;
+        if (entry.marker.isPopupOpen()) return;
+
+        setTimeout(() => {
+          const reopen = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
+          if (!reopen) return;
+          if (reopen.marker.isPopupOpen()) return;
+          if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
+          reopen.marker.openPopup();
+        }, APP_CONFIG.POPUP_RESTORE_DELAY_MS);
+      }
+    };
+
+    /* =========================================================
+       BLOCK: POPUP_COMMENT_FEATURE
+       Коментарі
+       ========================================================= */
+    const PopupCommentFeature = {
+      attachCounter(index) {
+        const input = document.getElementById(`commentInput_${index}`);
+        const counter = document.getElementById(`commentCounter_${index}`);
+        if (!input || !counter) return;
+
+        input.oninput = () => {
+          counter.textContent = `${input.value.length} / 100`;
+        };
+
+        input.onfocus = () => {
+          APP_STATE.suspendRenderWhileTyping = true;
+        };
+
+        input.onblur = () => {
+          setTimeout(() => {
+            APP_STATE.suspendRenderWhileTyping = false;
+          }, 150);
+        };
+
+        counter.textContent = `${input.value.length} / 100`;
+      },
+
+      async add(index) {
+        const input = document.getElementById(`commentInput_${index}`);
+        if (!input) return;
+
+        const text = input.value.trim();
+        if (!text) return alert(APP_LABELS.errors.commentRequired);
+        if (text.length > 100) return alert(APP_LABELS.errors.max100);
+
+        const item = APP_STATE.points[index];
+        if (!item?.id) return;
+
+        APP_STATE.suspendRenderWhileTyping = true;
+        APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+
+        const ref = doc(db, "points", item.id);
+        await updateDoc(ref, {
+          comments: [...(item.comments || []), { text, time: Date.now() }]
+        });
+
+        input.blur();
+
+        setTimeout(() => {
+          APP_STATE.suspendRenderWhileTyping = false;
+          MarkerRenderEngine.queueRender(true);
+        }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
+      }
+    };
+
+    /* =========================================================
+       BLOCK: POPUP_REACTION_FEATURE
+       Лайк / дизлайк
+       ========================================================= */
+    const PopupReactionFeature = {
+      async vote(index, type) {
+        const item = APP_STATE.points[index];
+        if (!item?.id || LocalStorageEngine.hasVoted(item.id)) return;
+
+        APP_STATE.suppressPopupRestoreUntil = Date.now() + 900;
+
+        const ref = doc(db, "points", item.id);
+
+        if (type === "like") {
+          await updateDoc(ref, { likes: (item.likes || 0) + 1 });
+        } else {
+          await updateDoc(ref, { dislikes: (item.dislikes || 0) + 1 });
+        }
+
+        LocalStorageEngine.setVoted(item.id, type);
+        setTimeout(() => MarkerRenderEngine.queueRender(true), 60);
+      }
+    };
+
+    /* =========================================================
+       BLOCK: MARKER_REGISTRY
+       Реєстр міток
+       ========================================================= */
+    const MarkerRegistry = {
+      getVisualHash(point) {
+        return JSON.stringify({
+          lat: point.lat,
+          lng: point.lng,
+          type: point.type,
+          desc: point.desc || "",
+          time: point.time,
+          comments: point.comments || [],
+          likes: point.likes || 0,
+          dislikes: point.dislikes || 0
+        });
+      },
+
+      remove(id) {
+        const entry = APP_STATE.markerRegistry.get(id);
+        if (entry) {
+          if (entry.marker) {
+            MAP_INSTANCE.removeLayer(entry.marker);
+          }
+          APP_STATE.markerRegistry.delete(id);
+        }
+
+        if (APP_STATE.currentOpenPointId === id) {
+          APP_STATE.currentOpenPointId = null;
+        }
+      }
+    };
+
+    /* =========================================================
+       BLOCK: MARKER_CREATE_ENGINE
+       Створення marker
+       ========================================================= */
+    const MarkerCreateEngine = {
+      create(point, index, zoom) {
+        const marker = L.marker([point.lat, point.lng], {
+          icon: MarkerIconFactory.getIcon(point.type, zoom),
+          keyboard: false
+        }).addTo(MAP_INSTANCE);
+
+        marker.pointId = point.id;
+        PopupPositionEngine.bindMarkerPopup(marker, point, index);
+
+        APP_STATE.markerRegistry.set(point.id, {
+          marker,
+          hash: MarkerRegistry.getVisualHash(point),
+          lat: point.lat,
+          lng: point.lng,
+          iconKey: `${point.type}_${zoom}`
+        });
+      }
+    };
+
+    /* =========================================================
+       BLOCK: MARKER_UPDATE_ENGINE
+       Оновлення marker
+       ========================================================= */
+    const MarkerUpdateEngine = {
+      update(entry, point, index, zoom) {
+        const newHash = MarkerRegistry.getVisualHash(point);
+        const newIconKey = `${point.type}_${zoom}`;
+
+        if (entry.iconKey !== newIconKey) {
+          entry.marker.setIcon(MarkerIconFactory.getIcon(point.type, zoom));
+          entry.iconKey = newIconKey;
+        }
+
+        if (entry.lat !== point.lat || entry.lng !== point.lng) {
+          entry.marker.setLatLng([point.lat, point.lng]);
+          entry.lat = point.lat;
+          entry.lng = point.lng;
+        }
+
+        if (entry.hash !== newHash) {
+          const popup = entry.marker.getPopup();
+          if (popup) {
+            popup.setContent(PopupRenderer.render(point, index));
+          } else {
+            PopupPositionEngine.bindMarkerPopup(entry.marker, point, index);
+          }
+          entry.hash = newHash;
+        }
+      }
+    };
+
+    /* =========================================================
+       BLOCK: MARKER_GROUP_ENGINE
+       Групування marker-ів у кола
+       ========================================================= */
+    const MarkerGroupEngine = {
+      buildColoredGroups(points) {
+        const groups = {
+          safe: [],
+          question: [],
+          danger: []
+        };
+
+        const visited = new Map();
+
+        for (let i = 0; i < points.length; i++) {
+          if (visited.has(points[i].id)) continue;
+
+          let groupType = null;
+          if (points[i].type === "safe") groupType = "safe";
+          else if (points[i].type === "question") groupType = "question";
+          else groupType = "danger";
+
+          const queue = [points[i]];
+          const component = [];
+          visited.set(points[i].id, groupType);
+
+          while (queue.length) {
+            const current = queue.shift();
+            component.push(current);
+
+            for (let j = 0; j < points.length; j++) {
+              const candidate = points[j];
+              if (visited.has(candidate.id)) continue;
+
+              let candidateType = null;
+              if (candidate.type === "safe") candidateType = "safe";
+              else if (candidate.type === "question") candidateType = "question";
+              else candidateType = "danger";
+
+              if (candidateType !== groupType) continue;
+
+              if (
+                GeoUtils.distanceMeters(
+                  current.lat,
+                  current.lng,
+                  candidate.lat,
+                  candidate.lng
+                ) <= APP_CONFIG.GROUP_RADIUS_METERS
+              ) {
+                visited.set(candidate.id, groupType);
+                queue.push(candidate);
+              }
+            }
+          }
+
+          if (groupType === "safe" && component.length >= APP_CONFIG.SAFE_MIN_COUNT) {
+            const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
+            const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
+            groups.safe.push({ lat: avgLat, lng: avgLng, color: "#34c759" });
+          } else if (
+            groupType === "question" &&
+            component.length >= APP_CONFIG.QUESTION_MIN_COUNT
+          ) {
+            const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
+            const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
+            groups.question.push({ lat: avgLat, lng: avgLng, color: "#ffcc00" });
+          } else if (
+            groupType === "danger" &&
+            component.length >= APP_CONFIG.DANGER_MIN_COUNT
+          ) {
+            const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
+            const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
+            groups.danger.push({ lat: avgLat, lng: avgLng, color: "#ff3b30" });
+          }
+        }
+
+        return groups;
+      },
+
+      render(points) {
+        GROUP_CIRCLE_LAYER.clearLayers();
+        const groups = this.buildColoredGroups(points);
+
+        for (const group of groups.safe) {
+          L.circle([group.lat, group.lng], {
+            radius: APP_CONFIG.GROUP_RADIUS_METERS,
+            color: group.color,
+            weight: 2.5,
+            opacity: 0.9,
+            fillColor: group.color,
+            fillOpacity: 0.2,
+            interactive: false
+          }).addTo(GROUP_CIRCLE_LAYER);
+        }
+
+        for (const group of groups.question) {
+          L.circle([group.lat, group.lng], {
+            radius: APP_CONFIG.GROUP_RADIUS_METERS,
+            color: group.color,
+            weight: 2.5,
+            opacity: 0.9,
+            fillColor: group.color,
+            fillOpacity: 0.2,
+            interactive: false
+          }).addTo(GROUP_CIRCLE_LAYER);
+        }
+
+        for (const group of groups.danger) {
+          L.circle([group.lat, group.lng], {
+            radius: APP_CONFIG.GROUP_RADIUS_METERS,
+            color: group.color,
+            weight: 2.5,
+            opacity: 0.9,
+            fillColor: group.color,
+            fillOpacity: 0.2,
+            interactive: false
+          }).addTo(GROUP_CIRCLE_LAYER);
+        }
+      }
+    };
+
+    /* =========================================================
+       BLOCK: MARKER_RENDER_ENGINE
+       Головний рендер marker-ів
+       ========================================================= */
+    const MarkerRenderEngine = {
+      queueRender(force = false) {
+        if (!force && UIStateHelpers.shouldSkipRenderNow()) return;
+        if (APP_STATE.renderQueued) return;
+
+        APP_STATE.renderQueued = true;
+        requestAnimationFrame(() => {
+          APP_STATE.renderQueued = false;
+          if (!force && UIStateHelpers.shouldSkipRenderNow()) return;
+          this.render(force);
+        });
+      },
+
+      render(force = false) {
+        if (!APP_STATE.mapReady) return;
+        if (!force && UIStateHelpers.shouldSkipRenderNow()) return;
+
+        const zoom = MAP_INSTANCE.getZoom();
+        const visiblePoints = MarkerFilterEngine.getVisiblePoints();
+        const visibleIds = new Set(visiblePoints.map(p => p.id));
+
+        for (const [id] of APP_STATE.markerRegistry) {
+          if (!visibleIds.has(id)) {
+            MarkerRegistry.remove(id);
+          }
+        }
+
+        visiblePoints.forEach((point, index) => {
+          const existing = APP_STATE.markerRegistry.get(point.id);
+          if (!existing) {
+            MarkerCreateEngine.create(point, index, zoom);
+          } else {
+            MarkerUpdateEngine.update(existing, point, index, zoom);
+          }
+        });
+
+        MarkerGroupEngine.render(visiblePoints);
+        PopupRestoreManager.restoreIfNeeded();
+      }
+    };
+
+    /* =========================================================
+       BLOCK: USER_LOCATION_ENGINE
+       Місцезнаходження користувача
+       ========================================================= */
+    const UserLocationEngine = {
+      show(lat, lng, accuracy = 0) {
+        if (APP_STATE.userLocationMarker) {
+          MAP_INSTANCE.removeLayer(APP_STATE.userLocationMarker);
+        }
+
+        if (APP_STATE.userLocationCircle) {
+          MAP_INSTANCE.removeLayer(APP_STATE.userLocationCircle);
+        }
+
+        const userIcon = L.divIcon({
+          className: "",
+          html: `<div style="width:16px;height:16px;border-radius:50%;background:#0a84ff;border:3px solid #fff;box-shadow:0 0 0 5px rgba(10,132,255,0.22);"></div>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8]
+        });
+
+        APP_STATE.userLocationMarker = L.marker([lat, lng], {
+          icon: userIcon,
+          zIndexOffset: 2000
+        }).addTo(MAP_INSTANCE);
+
+        if (accuracy > 0) {
+          APP_STATE.userLocationCircle = L.circle([lat, lng], {
+            radius: accuracy,
+            color: "#0a84ff",
+            weight: 1.5,
+            opacity: 0.7,
+            fillColor: "#0a84ff",
+            fillOpacity: 0.12
+          }).addTo(MAP_INSTANCE);
+        }
+
+        DOM.geoBtn.classList.add("active");
+      }
+    };
+
+    /* =========================================================
+       BLOCK: GEOLOCATION_ENGINE
+       Геолокація
+       ========================================================= */
+    const GeolocationEngine = {
+      locateUser() {
+        if (!navigator.geolocation) {
+          alert(APP_LABELS.errors.noGeolocation);
           return;
         }
-        try {
-          const resp = await fetch(url, { mode: 'cors', cache: 'force-cache' });
-          if (resp && resp.ok) {
-            cache.put(url, resp.clone()).catch(() => {});
-            const blob = await resp.blob();
-            const objectUrl = URL.createObjectURL(blob);
-            tile.onload = () => { URL.revokeObjectURL(objectUrl); done(null, tile); };
-            tile.onerror = () => { URL.revokeObjectURL(objectUrl); fallbackToNormal(); };
-            tile.src = objectUrl;
-            return;
+
+        DOM.geoBtn.classList.add("loading");
+
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            UserLocationEngine.show(
+              pos.coords.latitude,
+              pos.coords.longitude,
+              pos.coords.accuracy || 0
+            );
+
+            MAP_INSTANCE.flyTo(
+              [pos.coords.latitude, pos.coords.longitude],
+              Math.max(MAP_INSTANCE.getZoom(), 16),
+              { animate: true, duration: 0.6 }
+            );
+
+            DOM.geoBtn.classList.remove("loading");
+          },
+          () => {
+            DOM.geoBtn.classList.remove("loading");
+            alert(APP_LABELS.errors.geolocationFailed);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 30000
           }
-        } catch (e) {}
-        fallbackToNormal();
-      }).catch(() => { fallbackToNormal(); });
-      return tile;
-    }
-  });
-
-  const map = L.map('map', {
-    preferCanvas: true,
-    zoomControl: true,
-    zoomAnimation: true,
-    fadeAnimation: false,
-    markerZoomAnimation: false,
-    inertia: true,
-    wheelDebounceTime: 40,
-    updateWhenIdle: true
-  }).setView([defaultCity.lat, defaultCity.lng], 12);
-
-  let currentTileLayer = null;
-  let settings = loadSettings();
-  let addMode = false;
-  let selected = null;
-  let temp = null;
-  let currentType = 'safe';
-  let data = [];
-  let currentOpenPointId = null;
-  let userLocationMarker = null;
-  let userLocationCircle = null;
-  let renderQueued = false;
-  let mapReady = false;
-  let suspendRenderWhileTyping = false;
-  let suppressPopupRestoreUntil = 0;
-
-  const markerRegistry = new Map();
-  const groupCircleLayer = L.layerGroup().addTo(map);
-
-  function getIconPath(type) {
-    if (type === 'question') return 'icons/question.png';
-    if (type === 'poop') return 'icons/kaka.png';
-    return `icons/${type}.png`;
-  }
-
-  function loadSettings() {
-    const defaultSettings = {
-      mapTheme: 'day',
-      timeFilterMinutes: 1440,
-      selectedCity: defaultCityKey,
-      filters: { safe: true, block: true, danger2: true, trash: true, question: true, poop: true }
+        );
+      }
     };
-    try {
-      const saved = localStorage.getItem(SETTINGS_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        let timeFilterMinutes = 1440;
-        if (typeof parsed.timeFilterMinutes === 'number') timeFilterMinutes = parsed.timeFilterMinutes;
-        else if (typeof parsed.timeFilterHours === 'number') timeFilterMinutes = Math.round(parsed.timeFilterHours * 60);
-        const selectedCity = cityMap[parsed.selectedCity] ? parsed.selectedCity : defaultCityKey;
-        return { ...defaultSettings, ...parsed, mapTheme: parsed.mapTheme || 'day', timeFilterMinutes, selectedCity, filters: { ...defaultSettings.filters, ...(parsed.filters || {}) } };
+
+    /* =========================================================
+       BLOCK: CREATE_MARKER_FLOW
+       Процес додавання мітки
+       ========================================================= */
+    const CreateMarkerFlow = {
+      openCreateMode() {
+        APP_STATE.addMode = true;
+
+        SettingsWindow.hide();
+        PickerWindow.show();
+        DescWindow.hide();
+      },
+
+      closeCreateMode() {
+        APP_STATE.addMode = false;
+        PickerWindow.hide();
+        DescWindow.hide();
+
+        APP_STATE.selectedLatLng = null;
+        DescWindow.reset();
+
+        document.body.classList.remove("settings-open");
+
+        if (APP_STATE.tempMarker) {
+          MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+          APP_STATE.tempMarker = null;
+        }
+      },
+
+      selectMapPoint(latlng) {
+        APP_STATE.selectedLatLng = latlng;
+
+        if (APP_STATE.tempMarker) {
+          MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+        }
+
+        APP_STATE.tempMarker = L.marker(latlng, {
+          icon: MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()),
+          keyboard: false
+        }).addTo(MAP_INSTANCE);
+
+        PickerWindow.updateActive();
+        PickerWindow.hide();
+        DescWindow.show();
+      },
+
+      async saveMarker() {
+        const desc = DOM.descInput.value.trim();
+
+        if (!APP_STATE.selectedLatLng) {
+          alert(APP_LABELS.errors.mapTouchRequired);
+          return;
+        }
+
+        if (!desc) {
+          alert(APP_LABELS.errors.descRequired);
+          return;
+        }
+
+        if (desc.length > 100) {
+          alert(APP_LABELS.errors.max100);
+          return;
+        }
+
+        APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+        APP_STATE.currentOpenPointId = null;
+        MAP_INSTANCE.closePopup();
+
+        await addDoc(collection(db, "points"), {
+          lat: APP_STATE.selectedLatLng.lat,
+          lng: APP_STATE.selectedLatLng.lng,
+          type: APP_STATE.currentType,
+          desc,
+          time: Date.now(),
+          comments: [],
+          likes: 0,
+          dislikes: 0
+        });
+
+        this.closeCreateMode();
+        SuccessModalWindow.show();
+
+        setTimeout(() => {
+          MarkerRenderEngine.queueRender(true);
+        }, 80);
       }
-    } catch (e) {}
-    return defaultSettings;
-  }
+    };
 
-  function saveSettings(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
-  function loadVotes() { try { return JSON.parse(localStorage.getItem(VOTES_KEY) || '{}'); } catch(e) { return {}; } }
-  function saveVotes(v) { localStorage.setItem(VOTES_KEY, JSON.stringify(v)); }
-  function hasVoted(id) { return !!loadVotes()[id]; }
-  function setVoted(id, type) { const v = loadVotes(); v[id] = type; saveVotes(v); }
+    /* =========================================================
+       BLOCK: APP_UI_HELPERS
+       Допоміжні UI-функції
+       ========================================================= */
+    const AppUIHelpers = {
+      safeInvalidateMap(force = false) {
+        if (!force && UIStateHelpers.shouldSkipRenderNow()) return;
 
-  function createCachedTileLayer(theme) {
-    return new CachedTileLayer(mapThemes[theme].url, { attribution: mapThemes[theme].attribution, updateWhenIdle: true, updateWhenZooming: false, keepBuffer: 8, tileSize: 256, crossOrigin: 'anonymous' });
-  }
+        setTimeout(() => {
+          if (!force && UIStateHelpers.shouldSkipRenderNow()) return;
+          MAP_INSTANCE.invalidateSize(false);
+          MarkerRenderEngine.queueRender(force);
+        }, 50);
+      }
+    };
 
-  function applyMapTheme(theme) {
-    if (currentTileLayer) map.removeLayer(currentTileLayer);
-    currentTileLayer = createCachedTileLayer(theme);
-    currentTileLayer.addTo(map);
-  }
+    /* =========================================================
+       BLOCK: FAB_ADD_BUTTON
+       Кнопка додавання
+       ========================================================= */
+    const FabAddButton = {
+      init() {
+        DOM.addBtn.addEventListener("click", () => {
+          CreateMarkerFlow.openCreateMode();
+        });
+      }
+    };
 
-  function kmToBounds(lat, lng, radiusKm) {
-    const latDelta = radiusKm / 111;
-    const lngDelta = radiusKm / (111 * Math.cos(lat * Math.PI / 180));
-    return L.latLngBounds([lat - latDelta, lng - lngDelta], [lat + latDelta, lng + lngDelta]);
-  }
+    /* =========================================================
+       BLOCK: FAB_SETTINGS_BUTTON
+       Кнопка налаштувань
+       ========================================================= */
+    const FabSettingsButton = {
+      init() {
+        DOM.settingsBtn.addEventListener("click", () => {
+          PickerWindow.hide();
+          DescWindow.hide();
+          SettingsWindow.show();
+        });
+      }
+    };
 
-  function flyToCity(cityKey, animate = true) {
-    const city = cityMap[cityKey] || defaultCity;
-    const bounds = kmToBounds(city.lat, city.lng, city.radiusKm || 12);
-    map.fitBounds(bounds, { paddingTopLeft: [20, 20], paddingBottomRight: [20, 20], animate, duration: animate ? 0.55 : 0 });
-    prewarmCityTiles(bounds);
-  }
+    /* =========================================================
+       BLOCK: FAB_GEO_BUTTON
+       Кнопка геолокації
+       ========================================================= */
+    const FabGeoButton = {
+      init() {
+        DOM.geoBtn.addEventListener("click", () => {
+          GeolocationEngine.locateUser();
+        });
+      }
+    };
 
-  function populateCitySelect() {
-    const citySelect = document.getElementById('citySelect');
-    const entries = Object.entries(cityMap).sort((a, b) => a[1].name.localeCompare(b[1].name, 'uk'));
-    citySelect.innerHTML = entries.map(([key, city]) => `<option value="${key}">${city.name}</option>`).join('');
-    citySelect.value = settings.selectedCity || defaultCityKey;
-  }
+    /* =========================================================
+       BLOCK: WINDOW_PICKER_BAR_EVENTS
+       Події picker-вікна
+       ========================================================= */
+    const PickerWindowEvents = {
+      init() {
+        DOM.pickerClose.addEventListener("click", () => {
+          CreateMarkerFlow.closeCreateMode();
+        });
 
-  function clampMinutes(v) { return Math.min(1440, Math.max(15, Number(v) || 15)); }
-  function formatMinutesText(m) { m = clampMinutes(m); const h = Math.floor(m / 60), min = m % 60; if (h === 0) return `${min} хв`; if (min === 0) return `${h} год`; return `${h} год ${min} хв`; }
-  function updateTimeDisplay(m) { document.getElementById('timeValue').textContent = formatMinutesText(m); }
-  function updateFilterUI() {
-    const ids = { safe: 'filterSafe', block: 'filterBlock', danger2: 'filterDanger2', trash: 'filterTrash', question: 'filterQuestion', poop: 'filterPoop' };
-    for (const [type, id] of Object.entries(ids)) { const toggle = document.getElementById(id); if (toggle) toggle.classList.toggle('active', !!settings.filters[type]); }
-  }
-  function updateThemeUI() {
-    const isNight = settings.mapTheme === 'night';
-    document.getElementById('themeToggle').classList.toggle('active', isNight);
-    document.getElementById('themeLabel').textContent = isNight ? 'Нічна тема' : 'Денна тема';
-    document.getElementById('themeIcon').textContent = isNight ? '🌙' : '☀️';
-  }
+        document.querySelectorAll(".picker-item").forEach(el => {
+          el.addEventListener("click", () => {
+            APP_STATE.currentType = el.dataset.type;
+            PickerWindow.updateActive();
+          });
+        });
+      }
+    };
 
-  function initFilterToggles() {
-    document.querySelectorAll('.filter-item[data-filter-type]').forEach(item => {
-      const type = item.dataset.filterType;
-      const toggle = item.querySelector('.filter-toggle');
-      if (toggle) toggle.addEventListener('click', (e) => { e.stopPropagation(); settings.filters[type] = !settings.filters[type]; updateFilterUI(); queueRender(); });
-      item.addEventListener('click', (e) => { if (e.target !== toggle) { settings.filters[type] = !settings.filters[type]; updateFilterUI(); queueRender(); } });
-    });
-  }
+    /* =========================================================
+       BLOCK: WINDOW_DESC_SHEET_EVENTS
+       Події вікна опису
+       ========================================================= */
+    const DescWindowEvents = {
+      init() {
+        DOM.sheetClose.addEventListener("click", () => {
+          CreateMarkerFlow.closeCreateMode();
+        });
 
-  function initThemeToggle() {
-    const themeToggle = document.getElementById('themeToggle');
-    const themeToggleRow = document.getElementById('themeToggleRow');
-    themeToggle.addEventListener('click', (e) => { e.stopPropagation(); settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night'; updateThemeUI(); });
-    themeToggleRow.addEventListener('click', () => { settings.mapTheme = settings.mapTheme === 'night' ? 'day' : 'night'; updateThemeUI(); });
-  }
+        DOM.descInput.addEventListener("input", () => {
+          DOM.descCounter.textContent = `${DOM.descInput.value.length} / 100`;
+        });
 
-  function getIcon(type, zoom) {
-    let size;
-    if (zoom < 12) size = 18;
-    else if (zoom < 14) size = 22;
-    else if (zoom < 16) size = 28;
-    else if (zoom < 18) size = 34;
-    else size = 40;
-    return L.divIcon({ className: '', html: `<img src="${getIconPath(type)}" class="pin-img" style="width:100%;height:100%;">`, iconSize: [size, size], iconAnchor: [size / 2, size - 4], popupAnchor: [0, -(size - 12)] });
-  }
+        DOM.saveBtn.addEventListener("click", async () => {
+          await CreateMarkerFlow.saveMarker();
+        });
+      }
+    };
 
-  function formatDateTime(t) { return new Date(t).toLocaleString('uk-UA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); }
-  function formatTime(t) { return new Date(t).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }); }
-  function escapeHtml(t) { return String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
-  function timeLeftText(createdAt) { const left = (createdAt + LIFE) - Date.now(); if (left <= 0) return 'Зникла'; const h = Math.floor(left / (1000 * 60 * 60)), m = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60)); return `зникне через ${h}:${String(m).padStart(2, '0')} год`; }
-  function distanceMeters(lat1, lng1, lat2, lng2) { const R = 6371000, toRad = d => d * Math.PI / 180, dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1), a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2; return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); }
+    /* =========================================================
+       BLOCK: WINDOW_SETTINGS_SHEET_EVENTS
+       Події вікна налаштувань
+       ========================================================= */
+    const SettingsWindowEvents = {
+      init() {
+        DOM.settingsClose.addEventListener("click", () => {
+          SettingsWindow.hide();
+        });
 
-  function popupHtml(point, index) {
-    const commentsHtml = (point.comments || []).map(c => `<div class="comment-item"><div class="comment-text">${escapeHtml(c.text)}</div><div class="comment-time">${formatTime(c.time)}</div></div>`).join('');
-    const voted = hasVoted(point.id);
-    return `
-      <div class="radar-popup">
-        <div class="popup-head">
-          <div class="popup-head-left">
-            <img src="${getIconPath(point.type)}" class="popup-icon">
-            <div class="popup-meta">
-              <div class="popup-title-row"><div class="popup-title">${escapeHtml(labelMap[point.type] || point.type)}</div><div class="popup-life">${timeLeftText(point.time)}</div></div>
-              <div class="popup-time">${formatDateTime(point.time)}</div>
-            </div>
-          </div>
-          <button class="popup-close" onclick="window.closePopup()">×</button>
-        </div>
-        <div class="popup-comments-title">Опис</div>
-        <div class="popup-desc">${escapeHtml(point.desc || '')}</div>
-        <div class="popup-comments-title">Коментарі</div>
-        <div class="popup-comments">${commentsHtml || '<div class="comment-item"><div class="comment-text">Немає коментарів</div></div>'}</div>
-        <div class="reaction-row">
-          <button class="reaction-btn like ${voted ? 'disabled' : ''}" onclick="window.vote(${index}, 'like')">👍 ${point.likes || 0}</button>
-          <button class="reaction-btn dislike ${voted ? 'disabled' : ''}" onclick="window.vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
-        </div>
-        <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
-        <div class="popup-counter" id="commentCounter_${index}">0 / 100</div>
-        <button class="popup-btn" onclick="window.addComment(${index})">Додати коментар</button>
-      </div>
-    `;
-  }
+        DOM.timeSlider.addEventListener("input", e => {
+          SettingsUIEngine.updateTimeDisplay(parseInt(e.target.value, 10));
+        });
 
-  function isTypingInEditableField() {
-    const el = document.activeElement;
-    if (!el) return false;
-    const tag = (el.tagName || '').toLowerCase();
-    return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
-  }
+        DOM.saveSettingsBtn.addEventListener("click", () => {
+          APP_STATE.settings.timeFilterMinutes = TimeUtils.clampMinutes(
+            parseInt(DOM.timeSlider.value, 10)
+          );
 
-  function shouldSkipRenderNow() { return suspendRenderWhileTyping || isTypingInEditableField(); }
+          APP_STATE.settings.selectedCity = CITY_CONFIG[DOM.citySelect.value]
+            ? DOM.citySelect.value
+            : APP_CONFIG.DEFAULT_CITY_KEY;
 
-  function getVisiblePoints() {
-    const now = Date.now();
-    const timeLimit = clampMinutes(settings.timeFilterMinutes) * 60 * 1000;
-    return data.filter(p => settings.filters[p.type] && (now - p.time <= timeLimit));
-  }
+          LocalStorageEngine.saveSettings(APP_STATE.settings);
+          MapThemeEngine.apply(APP_STATE.settings.mapTheme);
 
-  function getPointVisualHash(point) {
-    return JSON.stringify({ lat: point.lat, lng: point.lng, type: point.type, desc: point.desc || '', time: point.time, comments: point.comments || [], likes: point.likes || 0, dislikes: point.dislikes || 0 });
-  }
+          SettingsWindow.hide();
+          MapCityEngine.flyToCity(APP_STATE.settings.selectedCity, true);
+          AppUIHelpers.safeInvalidateMap(true);
+        });
+      }
+    };
 
-  function buildColoredGroupCircles(points) {
-    const groups = { safe: [], question: [], danger: [] };
-    const visited = new Map();
+    /* =========================================================
+       BLOCK: WINDOW_SUCCESS_MODAL_EVENTS
+       Події success modal
+       ========================================================= */
+    const SuccessModalEvents = {
+      init() {
+        DOM.successModalClose.addEventListener("click", () => {
+          SuccessModalWindow.hide();
+        });
 
-    for (let i = 0; i < points.length; i++) {
-      if (visited.has(points[i].id)) continue;
-
-      let groupType = null;
-      if (points[i].type === 'safe') groupType = 'safe';
-      else if (points[i].type === 'question') groupType = 'question';
-      else groupType = 'danger';
-
-      const queue = [points[i]];
-      const component = [];
-      visited.set(points[i].id, groupType);
-
-      while (queue.length) {
-        const current = queue.shift();
-        component.push(current);
-
-        for (let j = 0; j < points.length; j++) {
-          const candidate = points[j];
-          if (visited.has(candidate.id)) continue;
-
-          let candType = null;
-          if (candidate.type === 'safe') candType = 'safe';
-          else if (candidate.type === 'question') candType = 'question';
-          else candType = 'danger';
-
-          if (candType !== groupType) continue;
-
-          if (distanceMeters(current.lat, current.lng, candidate.lat, candidate.lng) <= GROUP_RADIUS_METERS) {
-            visited.set(candidate.id, groupType);
-            queue.push(candidate);
+        DOM.successModalBackdrop.addEventListener("click", e => {
+          if (e.target === DOM.successModalBackdrop) {
+            SuccessModalWindow.hide();
           }
-        }
+        });
       }
+    };
 
-      if (groupType === 'safe' && component.length >= SAFE_MIN_COUNT) {
-        const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
-        const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
-        groups.safe.push({ lat: avgLat, lng: avgLng, count: component.length, color: '#34c759' });
-      } else if (groupType === 'question' && component.length >= QUESTION_MIN_COUNT) {
-        const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
-        const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
-        groups.question.push({ lat: avgLat, lng: avgLng, count: component.length, color: '#ffcc00' });
-      } else if (groupType === 'danger' && component.length >= DANGER_MIN_COUNT) {
-        const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
-        const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
-        groups.danger.push({ lat: avgLat, lng: avgLng, count: component.length, color: '#ff3b30' });
+    /* =========================================================
+       BLOCK: FIREBASE_POINTS_REPOSITORY
+       Підписка на points
+       ========================================================= */
+    const FirebasePointsRepository = {
+      subscribe() {
+        const pointsQuery = query(
+          collection(db, "points"),
+          orderBy("time", "desc")
+        );
+
+        onSnapshot(pointsQuery, snapshot => {
+          const fresh = [];
+          const now = Date.now();
+
+          snapshot.forEach(docSnap => {
+            const point = { id: docSnap.id, ...docSnap.data() };
+            if (now - point.time < APP_CONFIG.LIFE_MS) {
+              fresh.push(point);
+            }
+          });
+
+          APP_STATE.points = fresh;
+          MarkerRenderEngine.queueRender();
+        });
       }
-    }
-    return groups;
-  }
+    };
 
-  function attachPopupInputCounter(index) {
-    const input = document.getElementById(`commentInput_${index}`);
-    const counter = document.getElementById(`commentCounter_${index}`);
-    if (!input || !counter) return;
-    input.oninput = () => { counter.textContent = `${input.value.length} / 100`; };
-    input.onfocus = () => { suspendRenderWhileTyping = true; };
-    input.onblur = () => { setTimeout(() => { suspendRenderWhileTyping = false; }, 150); };
-    counter.textContent = `${input.value.length} / 100`;
-  }
+    /* =========================================================
+       BLOCK: TELEGRAM_MINIAPP_ENGINE
+       Поведінка в Telegram Mini App
+       ========================================================= */
+    const TelegramMiniAppEngine = {
+      init() {
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
 
-  function bindMarkerPopup(marker, point, index) {
-    marker.bindPopup(popupHtml(point, index), { autoPan: false, keepInView: false, closeButton: false, offset: [0, -4], className: 'radar-popup-wrap' });
-    marker.off('popupopen');
-    marker.off('popupclose');
-    marker.on('popupopen', () => { currentOpenPointId = point.id; setTimeout(() => attachPopupInputCounter(index), 20); });
-    marker.on('popupclose', () => { if (currentOpenPointId === point.id) currentOpenPointId = null; });
-  }
+        try {
+          tg.ready();
+          tg.expand();
 
-  function updateExistingMarker(entry, point, index, zoom) {
-    const newHash = getPointVisualHash(point);
-    const newIconKey = `${point.type}_${zoom}`;
-    if (entry.iconKey !== newIconKey) { entry.marker.setIcon(getIcon(point.type, zoom)); entry.iconKey = newIconKey; }
-    if (entry.lat !== point.lat || entry.lng !== point.lng) { entry.marker.setLatLng([point.lat, point.lng]); entry.lat = point.lat; entry.lng = point.lng; }
-    if (entry.hash !== newHash) {
-      const popup = entry.marker.getPopup();
-      if (popup) popup.setContent(popupHtml(point, index));
-      else bindMarkerPopup(entry.marker, point, index);
-      entry.hash = newHash;
-    }
-  }
-
-  function removeMarkerEntry(id) {
-    const entry = markerRegistry.get(id);
-    if (entry) { if (entry.marker) map.removeLayer(entry.marker); markerRegistry.delete(id); }
-    if (currentOpenPointId === id) currentOpenPointId = null;
-  }
-
-  function queueRender(force = false) {
-    if (!force && shouldSkipRenderNow()) return;
-    if (renderQueued) return;
-    renderQueued = true;
-    requestAnimationFrame(() => { renderQueued = false; if (!force && shouldSkipRenderNow()) return; render(force); });
-  }
-
-  function render(force = false) {
-    if (!mapReady) return;
-    if (!force && shouldSkipRenderNow()) return;
-    const zoom = map.getZoom();
-    const visiblePoints = getVisiblePoints();
-    const visibleIds = new Set(visiblePoints.map(p => p.id));
-
-    for (const [id] of markerRegistry) if (!visibleIds.has(id)) removeMarkerEntry(id);
-
-    visiblePoints.forEach((point, index) => {
-      const existing = markerRegistry.get(point.id);
-      if (!existing) {
-        const marker = L.marker([point.lat, point.lng], { icon: getIcon(point.type, zoom), keyboard: false }).addTo(map);
-        marker.pointId = point.id;
-        bindMarkerPopup(marker, point, index);
-        markerRegistry.set(point.id, { marker, hash: getPointVisualHash(point), lat: point.lat, lng: point.lng, iconKey: `${point.type}_${zoom}` });
-      } else {
-        updateExistingMarker(existing, point, index, zoom);
+          setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 50);
+          setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 250);
+          setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 600);
+        } catch {}
       }
-    });
+    };
 
-    groupCircleLayer.clearLayers();
-    const coloredGroups = buildColoredGroupCircles(visiblePoints);
-    coloredGroups.safe.forEach(g => { L.circle([g.lat, g.lng], { radius: GROUP_RADIUS_METERS, color: g.color, weight: 2.5, opacity: 0.9, fillColor: g.color, fillOpacity: 0.2, interactive: false }).addTo(groupCircleLayer); });
-    coloredGroups.question.forEach(g => { L.circle([g.lat, g.lng], { radius: GROUP_RADIUS_METERS, color: g.color, weight: 2.5, opacity: 0.9, fillColor: g.color, fillOpacity: 0.2, interactive: false }).addTo(groupCircleLayer); });
-    coloredGroups.danger.forEach(g => { L.circle([g.lat, g.lng], { radius: GROUP_RADIUS_METERS, color: g.color, weight: 2.5, opacity: 0.9, fillColor: g.color, fillOpacity: 0.2, interactive: false }).addTo(groupCircleLayer); });
+    /* =========================================================
+       BLOCK: MAP_EVENT_BINDINGS
+       Події мапи та вікна
+       ========================================================= */
+    const MapEventBindings = {
+      init() {
+        MAP_INSTANCE.on("click", e => {
+          if (!APP_STATE.addMode) return;
+          CreateMarkerFlow.selectMapPoint(e.latlng);
+        });
 
-    if (currentOpenPointId && Date.now() > suppressPopupRestoreUntil) {
-      const entry = markerRegistry.get(currentOpenPointId);
-      if (entry && !entry.marker.isPopupOpen()) {
-        setTimeout(() => { const reopen = markerRegistry.get(currentOpenPointId); if (reopen && !reopen.marker.isPopupOpen() && Date.now() > suppressPopupRestoreUntil) reopen.marker.openPopup(); }, 20);
+        MAP_INSTANCE.on("zoomend", () => {
+          MarkerRenderEngine.queueRender(true);
+        });
+
+        window.addEventListener("resize", () => {
+          if (!UIStateHelpers.shouldSkipRenderNow()) {
+            if (DOM.settingsSheet.style.display !== "none") {
+              SettingsWindow.updateLayout();
+            }
+            AppUIHelpers.safeInvalidateMap();
+          }
+        });
+
+        window.addEventListener("orientationchange", () => {
+          setTimeout(() => {
+            AppUIHelpers.safeInvalidateMap(true);
+            if (DOM.settingsSheet.style.display !== "none") {
+              SettingsWindow.updateLayout();
+            }
+          }, 250);
+        });
+
+        MAP_INSTANCE.whenReady(() => {
+          APP_STATE.mapReady = true;
+          MapCityEngine.flyToCity(APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY, false);
+          AppUIHelpers.safeInvalidateMap(true);
+          MarkerRenderEngine.queueRender(true);
+        });
       }
+    };
+
+    /* =========================================================
+       BLOCK: WINDOW_GLOBAL_ACTIONS
+       Глобальні дії для popup
+       ========================================================= */
+    window.closePopup = function () {
+      MAP_INSTANCE.closePopup();
+    };
+
+    window.vote = async function (index, type) {
+      await PopupReactionFeature.vote(index, type);
+    };
+
+    window.addComment = async function (index) {
+      await PopupCommentFeature.add(index);
+    };
+
+    /* =========================================================
+       BLOCK: APP_INIT
+       Послідовний запуск застосунку
+       ========================================================= */
+    function initApp() {
+      APP_STATE.settings = LocalStorageEngine.loadSettings();
+
+      MapThemeEngine.apply(APP_STATE.settings.mapTheme);
+
+      DOM.timeSlider.value = TimeUtils.clampMinutes(APP_STATE.settings.timeFilterMinutes);
+      SettingsUIEngine.updateTimeDisplay(APP_STATE.settings.timeFilterMinutes);
+      SettingsUIEngine.populateCitySelect();
+      SettingsUIEngine.updateFilterUI();
+      SettingsUIEngine.updateThemeUI();
+
+      PickerWindow.updateActive();
+      SettingsBehaviorEngine.initFilterToggles();
+      SettingsBehaviorEngine.initThemeToggle();
+
+      FabAddButton.init();
+      FabSettingsButton.init();
+      FabGeoButton.init();
+
+      PickerWindowEvents.init();
+      DescWindowEvents.init();
+      SettingsWindowEvents.init();
+      SuccessModalEvents.init();
+
+      MapEventBindings.init();
+      FirebasePointsRepository.subscribe();
+      TelegramMiniAppEngine.init();
+
+      setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 200);
+      setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 800);
     }
-  }
 
-  function updatePickerActive() {
-    document.querySelectorAll('.picker-item').forEach(x => x.classList.remove('active'));
-    document.querySelector(`.picker-item[data-type="${currentType}"]`)?.classList.add('active');
-    document.getElementById('sheetIcon').src = getIconPath(currentType);
-    document.getElementById('sheetTitle').textContent = labelMap[currentType] || currentType;
-    if (temp && selected) temp.setIcon(getIcon(currentType, map.getZoom()));
-  }
-
-  function showPickerBar() { document.getElementById('pickerBar').style.display = 'block'; }
-  function showDescSheet() { document.getElementById('descSheet').style.display = 'block'; }
-
-  function updateSettingsSheetLayout() {
-    const sheet = document.getElementById('settingsSheet');
-    if (sheet.style.display === 'none') return;
-    if (window.innerWidth > 600) {
-      sheet.style.left = 'auto';
-      sheet.style.right = '10px';
-      sheet.style.top = '68px';
-      sheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
-      sheet.style.width = '320px';
-    } else {
-      sheet.style.left = '10px';
-      sheet.style.right = '10px';
-      sheet.style.top = '56px';
-      sheet.style.bottom = '58px';
-      sheet.style.width = 'auto';
-    }
-    const head = document.getElementById('settingsHead'), save = document.getElementById('saveSettingsBtn'), body = document.getElementById('settingsBody');
-    if (head && save && body) {
-      const totalHeight = sheet.clientHeight;
-      const reserved = head.offsetHeight + save.offsetHeight + 20;
-      body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
-    }
-  }
-
-  function showSettingsSheet() { document.body.classList.add('settings-open'); document.getElementById('settingsSheet').style.display = 'flex'; document.getElementById('citySelect').value = settings.selectedCity || defaultCityKey; updateSettingsSheetLayout(); }
-  function showSuccessModal() { document.getElementById('successModalBackdrop').style.display = 'flex'; }
-  function hideSuccessModal() { document.getElementById('successModalBackdrop').style.display = 'none'; }
-
-  function showUserLocation(lat, lng, accuracy = 0) {
-    if (userLocationMarker) map.removeLayer(userLocationMarker);
-    if (userLocationCircle) map.removeLayer(userLocationCircle);
-    const userIcon = L.divIcon({ className: '', html: `<div style="width:16px;height:16px;border-radius:50%;background:#0a84ff;border:3px solid #fff;box-shadow:0 0 0 5px rgba(10,132,255,0.22);"></div>`, iconSize: [16, 16], iconAnchor: [8, 8] });
-    userLocationMarker = L.marker([lat, lng], { icon: userIcon, zIndexOffset: 2000 }).addTo(map);
-    if (accuracy > 0) userLocationCircle = L.circle([lat, lng], { radius: accuracy, color: '#0a84ff', weight: 1.5, opacity: 0.7, fillColor: '#0a84ff', fillOpacity: 0.12 }).addTo(map);
-    document.getElementById('geoBtn').classList.add('active');
-  }
-
-  function locateUser() {
-    const btn = document.getElementById('geoBtn');
-    if (!navigator.geolocation) return alert('Геолокація не підтримується');
-    btn.classList.add('loading');
-    navigator.geolocation.getCurrentPosition(
-      (pos) => { showUserLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy || 0); map.flyTo([pos.coords.latitude, pos.coords.longitude], Math.max(map.getZoom(), 16), { animate: true, duration: 0.6 }); btn.classList.remove('loading'); },
-      () => { btn.classList.remove('loading'); alert('Не вдалося отримати місцезнаходження'); },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
-    );
-  }
-
-  function closeCreateMode() {
-    addMode = false;
-    document.getElementById('pickerBar').style.display = 'none';
-    document.getElementById('descSheet').style.display = 'none';
-    selected = null;
-    document.getElementById('descInput').value = '';
-    document.getElementById('descCounter').textContent = '0 / 100';
-    document.body.classList.remove('settings-open');
-    if (temp) { map.removeLayer(temp); temp = null; }
-  }
-
-  function safeInvalidateMap(force = false) {
-    if (!force && shouldSkipRenderNow()) return;
-    setTimeout(() => { if (!force && shouldSkipRenderNow()) return; map.invalidateSize(false); queueRender(force); }, 50);
-  }
-
-  function latLngBoundsToTileUrls(bounds, zoom, theme) {
-    const tl = createCachedTileLayer(theme);
-    const lngToTileX = (lng, z) => Math.floor(((lng + 180) / 360) * Math.pow(2, z));
-    const latToTileY = (lat, z) => { const rad = lat * Math.PI / 180; return Math.floor(((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * Math.pow(2, z)); };
-    const nw = bounds.getNorthWest(), se = bounds.getSouthEast();
-    const minX = lngToTileX(nw.lng, zoom), maxX = lngToTileX(se.lng, zoom), minY = latToTileY(nw.lat, zoom), maxY = latToTileY(se.lat, zoom);
-    const urls = [];
-    for (let x = minX; x <= maxX; x++) for (let y = minY; y <= maxY; y++) urls.push(tl.getTileUrl({ x, y, z: zoom }));
-    return urls;
-  }
-
-  function prewarmCityTiles(bounds) {
-    if (!('caches' in window)) return;
-    const zooms = [11, 12, 13], theme = settings.mapTheme;
-    caches.open(TILE_CACHE_NAME).then(async cache => {
-      for (const z of zooms) {
-        for (const url of latLngBoundsToTileUrls(bounds, z, theme).slice(0, 120)) {
-          try { if (!(await cache.match(url))) fetch(url, { mode: 'cors', cache: 'force-cache' }).then(r => { if (r && r.ok) cache.put(url, r.clone()).catch(() => {}); }).catch(() => {}); } catch(e) {}
-        }
-      }
-    }).catch(() => {});
-  }
-
-  window.closePopup = function() { map.closePopup(); };
-  window.vote = async function(index, type) {
-    const item = data[index];
-    if (!item?.id || hasVoted(item.id)) return;
-    suppressPopupRestoreUntil = Date.now() + 900;
-    const ref = doc(db, "points", item.id);
-    if (type === 'like') await updateDoc(ref, { likes: (item.likes || 0) + 1 });
-    else await updateDoc(ref, { dislikes: (item.dislikes || 0) + 1 });
-    setVoted(item.id, type);
-    setTimeout(() => queueRender(true), 60);
-  };
-  window.addComment = async function(index) {
-    const input = document.getElementById(`commentInput_${index}`);
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return alert('Коментар обовʼязковий');
-    if (text.length > 100) return alert('Максимум 100 символів');
-    const item = data[index];
-    if (!item?.id) return;
-    suspendRenderWhileTyping = true;
-    suppressPopupRestoreUntil = Date.now() + 1200;
-    const ref = doc(db, "points", item.id);
-    await updateDoc(ref, { comments: [...(item.comments || []), { text, time: Date.now() }] });
-    input.blur();
-    setTimeout(() => { suspendRenderWhileTyping = false; queueRender(true); }, 160);
-  };
-
-  applyMapTheme(settings.mapTheme);
-
-  const addBtn = document.getElementById('addBtn');
-  const settingsBtn = document.getElementById('settingsBtn');
-  const geoBtn = document.getElementById('geoBtn');
-  const pickerClose = document.getElementById('pickerClose');
-  const sheetClose = document.getElementById('sheetClose');
-  const settingsClose = document.getElementById('settingsClose');
-  const successModalClose = document.getElementById('successModalClose');
-  const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-  const descInput = document.getElementById('descInput');
-  const saveBtn = document.getElementById('saveBtn');
-  const timeSlider = document.getElementById('timeSlider');
-  const citySelect = document.getElementById('citySelect');
-  const successModalBackdrop = document.getElementById('successModalBackdrop');
-
-  timeSlider.value = clampMinutes(settings.timeFilterMinutes);
-  updateTimeDisplay(clampMinutes(settings.timeFilterMinutes));
-  timeSlider.addEventListener('input', (e) => updateTimeDisplay(parseInt(e.target.value, 10)));
-  descInput.addEventListener('input', () => { document.getElementById('descCounter').textContent = `${descInput.value.length} / 100`; });
-  document.querySelectorAll('.picker-item').forEach(el => { el.addEventListener('click', () => { currentType = el.dataset.type; updatePickerActive(); }); });
-
-  addBtn.addEventListener('click', () => {
-    addMode = true;
-    document.getElementById('settingsSheet').style.display = 'none';
-    document.body.classList.remove('settings-open');
-    document.getElementById('pickerBar').style.display = 'none';
-    document.getElementById('descSheet').style.display = 'none';
-    showPickerBar();
-  });
-
-  settingsBtn.addEventListener('click', () => {
-    document.getElementById('pickerBar').style.display = 'none';
-    document.getElementById('descSheet').style.display = 'none';
-    showSettingsSheet();
-  });
-
-  geoBtn.addEventListener('click', locateUser);
-  pickerClose.addEventListener('click', closeCreateMode);
-  sheetClose.addEventListener('click', closeCreateMode);
-  settingsClose.addEventListener('click', () => { document.getElementById('settingsSheet').style.display = 'none'; document.body.classList.remove('settings-open'); });
-  successModalClose.addEventListener('click', hideSuccessModal);
-  successModalBackdrop.addEventListener('click', (e) => { if (e.target === successModalBackdrop) hideSuccessModal(); });
-
-  saveSettingsBtn.addEventListener('click', () => {
-    settings.timeFilterMinutes = clampMinutes(parseInt(timeSlider.value, 10));
-    settings.selectedCity = cityMap[citySelect.value] ? citySelect.value : defaultCityKey;
-    saveSettings(settings);
-    applyMapTheme(settings.mapTheme);
-    document.getElementById('settingsSheet').style.display = 'none';
-    document.body.classList.remove('settings-open');
-    flyToCity(settings.selectedCity, true);
-    safeInvalidateMap(true);
-  });
-
-  map.on('click', e => {
-    if (!addMode) return;
-    selected = e.latlng;
-    if (temp) map.removeLayer(temp);
-    temp = L.marker(selected, { icon: getIcon(currentType, map.getZoom()), keyboard: false }).addTo(map);
-    updatePickerActive();
-    document.getElementById('pickerBar').style.display = 'none';
-    showDescSheet();
-  });
-
-  saveBtn.addEventListener('click', async () => {
-    const desc = descInput.value.trim();
-    if (!selected) return alert('Торкнись мапи');
-    if (!desc) return alert("Опис обов’язковий");
-    if (desc.length > 100) return alert('Максимум 100 символів');
-    suppressPopupRestoreUntil = Date.now() + 1200;
-    currentOpenPointId = null;
-    map.closePopup();
-    await addDoc(collection(db, "points"), { lat: selected.lat, lng: selected.lng, type: currentType, desc, time: Date.now(), comments: [], likes: 0, dislikes: 0 });
-    closeCreateMode();
-    showSuccessModal();
-    setTimeout(() => queueRender(true), 80);
-  });
-
-  map.on('zoomend', () => queueRender(true));
-  window.addEventListener('resize', () => { if (!shouldSkipRenderNow()) { if (document.getElementById('settingsSheet').style.display !== 'none') updateSettingsSheetLayout(); safeInvalidateMap(); } });
-  window.addEventListener('orientationchange', () => { setTimeout(() => { safeInvalidateMap(true); if (document.getElementById('settingsSheet').style.display !== 'none') updateSettingsSheetLayout(); }, 250); });
-
-  const pointsQuery = query(collection(db, "points"), orderBy("time", "desc"));
-  onSnapshot(pointsQuery, (snapshot) => {
-    const fresh = [], now = Date.now();
-    snapshot.forEach(doc => { const point = { id: doc.id, ...doc.data() }; if (now - point.time < LIFE) fresh.push(point); });
-    data = fresh;
-    queueRender();
-  });
-
-  function initTelegramMiniAppFixes() {
-    const tg = window.Telegram?.WebApp;
-    if (!tg) return;
-    try { tg.ready(); tg.expand(); setTimeout(() => safeInvalidateMap(true), 50); setTimeout(() => safeInvalidateMap(true), 250); setTimeout(() => safeInvalidateMap(true), 600); } catch(e) {}
-  }
-
-  populateCitySelect();
-  updateFilterUI();
-  updateThemeUI();
-  initFilterToggles();
-  initThemeToggle();
-  updatePickerActive();
-
-  map.whenReady(() => {
-    mapReady = true;
-    flyToCity(settings.selectedCity || defaultCityKey, false);
-    safeInvalidateMap(true);
-    queueRender(true);
-  });
-
-  initTelegramMiniAppFixes();
-  setTimeout(() => safeInvalidateMap(true), 200);
-  setTimeout(() => safeInvalidateMap(true), 800);
-</script>
-
+    initApp();
+  </script>
 </body>
 </html>
