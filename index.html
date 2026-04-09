@@ -80,16 +80,16 @@
        BLOCK: CSS_FAB_BUTTONS
        Плаваючі кнопки
        ========================================================= */
-#fabBar {
-  position: fixed;
-  right: 10px;
-  bottom: var(--fab-bottom);
-  display: flex;
-  align-items: center;
-  gap: var(--fab-gap);
-  z-index: 1000;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
+    #fabBar {
+      position: fixed;
+      right: 10px;
+      bottom: var(--fab-bottom);
+      display: flex;
+      align-items: center;
+      gap: var(--fab-gap);
+      z-index: 1000;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
 
     body.settings-open #fabBar {
       opacity: 0;
@@ -157,117 +157,116 @@
       color: #fff;
     }
 
-/* =========================================================
-   BLOCK: CSS_SHARED_WINDOWS
-   Спільні стилі вікон
-   ========================================================= */
-#pickerBar,
-#descSheet {
-  position: fixed;
-  z-index: 1001;
-  display: none;
-  background: rgba(28, 28, 30, 0.96);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-radius: 22px;
-  padding: 12px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
+    /* =========================================================
+       BLOCK: CSS_SHARED_WINDOWS
+       Спільні стилі вікон
+       ========================================================= */
+    #pickerBar,
+    #descSheet {
+      position: fixed;
+      z-index: 1001;
+      display: none;
+      background: rgba(28, 28, 30, 0.96);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 22px;
+      padding: 12px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
 
-/* =========================================================
-   BLOCK: CSS_LAYOUT_MOBILE
-   Мобільна адаптація
-   ========================================================= */
-@media (max-width: 600px) {
-  #pickerBar {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    transform: none !important;
-    z-index: 1105 !important;
+    /* =========================================================
+       BLOCK: CSS_LAYOUT_MOBILE
+       Мобільна адаптація
+       ========================================================= */
+    @media (max-width: 600px) {
+      #pickerBar {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        transform: none !important;
+        z-index: 1105 !important;
+        border-top-left-radius: 22px !important;
+        border-top-right-radius: 22px !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
+      }
 
-    border-top-left-radius: 22px !important;
-    border-top-right-radius: 22px !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+      #descSheet {
+        position: fixed !important;
+        left: 10px !important;
+        right: 10px !important;
+        top: auto !important;
+        bottom: 0 !important;
+        width: auto !important;
+        transform: none !important;
+        z-index: 1105 !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+      }
 
-    padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
-  }
+      #pickerBar .picker-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px !important;
+      }
 
-  #descSheet {
-    position: fixed !important;
-    left: 10px !important;
-    right: 10px !important;
-    top: auto !important;
-    bottom: 0 !important;
-    width: auto !important;
-    transform: none !important;
-    z-index: 1105 !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-  }
+      #pickerBar .picker-item {
+        border-radius: 12px !important;
+        padding: 5px 3px !important;
+      }
 
-  #pickerBar .picker-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 6px !important;
-  }
+      #pickerBar .picker-item img {
+        width: 28px !important;
+        height: 28px !important;
+        margin: 0 auto 3px !important;
+      }
 
-  #pickerBar .picker-item {
-    border-radius: 12px !important;
-    padding: 5px 3px !important;
-  }
+      #pickerBar .picker-item span {
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+      }
 
-  #pickerBar .picker-item img {
-    width: 28px !important;
-    height: 28px !important;
-    margin: 0 auto 3px !important;
-  }
+      #pickerTop {
+        margin-bottom: 6px !important;
+      }
 
-  #pickerBar .picker-item span {
-    font-size: 10px !important;
-    line-height: 1.1 !important;
-  }
+      #pickerHint {
+        font-size: 11px !important;
+      }
 
-  #pickerTop {
-    margin-bottom: 6px !important;
-  }
+      #pickerClose {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 17px !important;
+      }
+    }
 
-  #pickerHint {
-    font-size: 11px !important;
-  }
+    /* =========================================================
+       BLOCK: CSS_LAYOUT_DESKTOP
+       Десктопна адаптація
+       ========================================================= */
+    @media (min-width: 601px) {
+      #pickerBar,
+      #descSheet {
+        position: fixed !important;
+        right: 10px !important;
+        left: auto !important;
+        top: auto !important;
+        bottom: 10px !important;
+        transform: none !important;
+        width: 300px !important;
+        max-width: calc(100vw - 20px) !important;
+        z-index: 1105 !important;
+      }
+    }
 
-  #pickerClose {
-    width: 24px !important;
-    height: 24px !important;
-    font-size: 17px !important;
-  }
-}
-
-/* =========================================================
-   BLOCK: CSS_LAYOUT_DESKTOP
-   Десктопна адаптація
-   ========================================================= */
-@media (min-width: 601px) {
-  #pickerBar,
-  #descSheet {
-    position: fixed !important;
-    right: 10px !important;
-    left: auto !important;
-    top: auto !important;
-    bottom: 10px !important;
-    transform: none !important;
-    width: 300px !important;
-    max-width: calc(100vw - 20px) !important;
-    z-index: 1105 !important;
-  }
-}
     /* =========================================================
        BLOCK: CSS_SETTINGS_WINDOW
        Вікно налаштувань
@@ -652,270 +651,322 @@
       font-size: 14px;
     }
 
-/* =========================================================
-   BLOCK: CSS_MARKER_POPUP
-   Popup мітки
-   ========================================================= */
-.leaflet-popup-pane {
-  z-index: 1200 !important;
-}
+    /* =========================================================
+       BLOCK: CSS_MARKER_POPUP
+       Popup мітки
+       ========================================================= */
+    .leaflet-popup-pane {
+      z-index: 1200 !important;
+    }
 
-.leaflet-popup-pane .leaflet-popup {
-  position: fixed !important;
-  left: 50vw !important;
-  top: 50dvh !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: translate(-50%, -50%) !important;
-  margin: 0 !important;
-  z-index: 1200 !important;
-  width: min(340px, calc(100vw - 24px)) !important;
-  max-width: calc(100vw - 24px) !important;
-}
+    .leaflet-popup-pane .leaflet-popup {
+      position: fixed !important;
+      left: 50vw !important;
+      top: 50dvh !important;
+      right: auto !important;
+      bottom: auto !important;
+      transform: translate(-50%, -50%) !important;
+      margin: 0 !important;
+      z-index: 1200 !important;
+      width: min(340px, calc(100vw - 24px)) !important;
+      max-width: calc(100vw - 24px) !important;
+    }
 
-.leaflet-popup-content-wrapper {
-  border-radius: 24px;
-  padding: 0;
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
-  background: rgba(28, 28, 30, 0.96);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  color: #fff;
-  width: 100% !important;
-  overflow: hidden;
-}
+    .leaflet-popup-content-wrapper {
+      border-radius: 24px;
+      padding: 0;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
+      background: rgba(28, 28, 30, 0.96);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      color: #fff;
+      width: 100% !important;
+      overflow: hidden;
+    }
 
-.leaflet-popup-content {
-  margin: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  max-height: min(78dvh, 680px) !important;
-  overflow: hidden !important;
-}
+    .leaflet-popup-content {
+      margin: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      max-height: min(78dvh, 680px) !important;
+      overflow: hidden !important;
+    }
 
-.leaflet-popup-tip,
-.leaflet-popup-close-button {
-  display: none !important;
-}
+    .leaflet-popup-tip,
+    .leaflet-popup-close-button {
+      display: none !important;
+    }
 
-.radar-popup {
-  padding: 14px;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  height: min(78dvh, 680px);
-}
+    .radar-popup {
+      padding: 14px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      height: min(78dvh, 680px);
+    }
 
-.popup-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 12px;
-  flex: 0 0 auto;
-}
+    .popup-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex: 0 0 auto;
+    }
 
-.popup-head-left {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  min-width: 0;
-  flex: 1;
-}
+    .popup-head-left {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      min-width: 0;
+      flex: 1;
+    }
 
-.popup-icon {
-  width: 44px;
-  height: 44px;
-  object-fit: contain;
-  flex: 0 0 auto;
-}
+    .popup-icon {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
 
-.popup-meta {
-  min-width: 0;
-  flex: 1;
-}
+    .popup-meta {
+      min-width: 0;
+      flex: 1;
+    }
 
-.popup-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 4px;
-}
+    .popup-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
 
-.popup-title {
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.15;
-  color: #fff;
-  margin-bottom: 0;
-}
+    .popup-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: #fff;
+      margin-bottom: 0;
+    }
 
-.popup-life {
-  font-size: 11px;
-  color: #8be28b;
-  white-space: nowrap;
-  font-weight: 800;
-}
+    .popup-life {
+      font-size: 11px;
+      color: #8be28b;
+      white-space: nowrap;
+      font-weight: 800;
+    }
 
-.popup-time {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.74);
-  white-space: nowrap;
-  margin-bottom: 3px;
-}
+    .popup-time {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.74);
+      white-space: nowrap;
+      margin-bottom: 3px;
+    }
 
-.popup-close {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-  flex: 0 0 auto;
-}
+    .popup-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
 
-.popup-desc {
-  font-size: 15px;
-  line-height: 1.4;
-  color: #fff;
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin-bottom: 12px;
-  flex: 0 0 auto;
-}
+    .popup-desc {
+      font-size: 15px;
+      line-height: 1.4;
+      color: #fff;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 12px;
+      flex: 0 0 auto;
+    }
 
-.popup-comments-title {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.72);
-  margin-bottom: 8px;
-  font-weight: 600;
-  flex: 0 0 auto;
-}
+    .popup-comments-title {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.72);
+      margin-bottom: 8px;
+      font-weight: 600;
+      flex: 0 0 auto;
+    }
 
-.popup-comments {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  margin-bottom: 12px;
-  padding-right: 2px;
-}
+    .popup-comments {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin-bottom: 12px;
+      padding-right: 2px;
+    }
 
-.popup-comments::-webkit-scrollbar {
-  width: 6px;
-}
+    .popup-comments::-webkit-scrollbar {
+      width: 6px;
+    }
 
-.popup-comments::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-}
+    .popup-comments::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 10px;
+    }
 
-.comment-item {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 11px 12px;
-  margin-bottom: 8px;
-}
+    .comment-item {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 11px 12px;
+      margin-bottom: 8px;
+    }
 
-.comment-text {
-  font-size: 14px;
-  line-height: 1.35;
-  color: #fff;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
+    .comment-text {
+      font-size: 14px;
+      line-height: 1.35;
+      color: #fff;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
 
-.comment-time {
-  margin-top: 6px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.58);
-}
+    .comment-time {
+      margin-top: 6px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.58);
+    }
 
-.reaction-row {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-  margin-bottom: 10px;
-  flex: 0 0 auto;
-}
+    .reaction-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+      flex: 0 0 auto;
+    }
 
-.reaction-btn {
-  border: none;
-  border-radius: 10px;
-  padding: 5px 9px;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: inherit;
-  font-weight: 600;
-  font-size: 13px;
-}
+    .reaction-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 5px 9px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 13px;
+    }
 
-.reaction-btn.like {
-  background: rgba(10, 132, 255, 0.14);
-  border: 1px solid rgba(10, 132, 255, 0.22);
-}
+    .reaction-btn.like {
+      background: rgba(10, 132, 255, 0.14);
+      border: 1px solid rgba(10, 132, 255, 0.22);
+    }
 
-.reaction-btn.dislike {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
+    .reaction-btn.dislike {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
 
-.reaction-btn.disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  pointer-events: none;
-}
+    .reaction-btn.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
 
-.popup-input {
-  width: 100%;
-  border: none;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  border-radius: 14px;
-  padding: 13px 14px;
-  outline: none;
-  font-family: inherit;
-  flex: 0 0 auto;
-}
+    .popup-input {
+      width: 100%;
+      border: none;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-radius: 14px;
+      padding: 13px 14px;
+      outline: none;
+      font-family: inherit;
+      flex: 0 0 auto;
+    }
 
-@media (max-width: 600px) {
-  .leaflet-popup-pane .leaflet-popup {
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    transform: none !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    margin: 0 !important;
-  }
+    @media (max-width: 600px) {
+      .leaflet-popup-pane .leaflet-popup {
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        transform: none !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+      }
 
-  .leaflet-popup-content-wrapper {
-    border-top-left-radius: 22px !important;
-    border-top-right-radius: 22px !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-  }
+      .leaflet-popup-content-wrapper {
+        border-top-left-radius: 22px !important;
+        border-top-right-radius: 22px !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+      }
 
-  .leaflet-popup-content {
-    max-height: 82dvh !important;
-    height: 82dvh !important;
-  }
+      .leaflet-popup-content {
+        max-height: 82dvh !important;
+        height: 82dvh !important;
+      }
 
-  .radar-popup {
-    height: 82dvh !important;
-    padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
-  }
-}
+      .radar-popup {
+        height: 82dvh !important;
+        padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
+      }
+    }
+
+    /* =========================================================
+       BLOCK: CSS_MOBILE_MARKER_POPUP
+       Мобільний popup мітки
+       ========================================================= */
+    .mobile-marker-popup-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 1300;
+      display: none;
+      align-items: flex-end;
+      justify-content: stretch;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .mobile-marker-popup-sheet {
+      width: 100vw;
+      max-width: 100vw;
+      transform: translateY(100%);
+      transition: transform 0.22s ease;
+    }
+
+    .mobile-marker-popup-backdrop.show {
+      display: flex;
+    }
+
+    .mobile-marker-popup-backdrop.show .mobile-marker-popup-sheet {
+      transform: translateY(0);
+    }
+
+    #mobileMarkerPopupContent {
+      width: 100vw;
+    }
+
+    @media (max-width: 600px) {
+      #mobileMarkerPopupContent .radar-popup {
+        height: 82dvh !important;
+        padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
+        background: rgba(28, 28, 30, 0.96);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+        border-top-left-radius: 22px;
+        border-top-right-radius: 22px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.22);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+    }
 
     /* =========================================================
        BLOCK: CSS_SUCCESS_MODAL
@@ -1049,7 +1100,6 @@
         <path d="M11 2h2v2.06A8.002 8.002 0 0 1 19.94 11H22v2h-2.06A8.002 8.002 0 0 1 13 19.94V22h-2v-2.06A8.002 8.002 0 0 1 4.06 13H2v-2h2.06A8.002 8.002 0 0 1 11 4.06V2zm1 4a6 6 0 1 0 0 12a6 6 0 0 0 0-12zm0 3.2a2.8 2.8 0 1 1 0 5.6a2.8 2.8 0 0 1 0-5.6z"/>
       </svg>
     </button>
-
     <button id="settingsBtn" aria-label="Налаштування" title="Налаштування">⚙️</button>
     <button id="addBtn" aria-label="Додати мітку" title="Додати мітку">+</button>
   </div>
@@ -1214,6 +1264,16 @@
   </div>
 
   <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_MOBILE_MARKER_POPUP
+       Мобільний popup мітки
+       ========================================================= -->
+  <div id="mobileMarkerPopupBackdrop" class="mobile-marker-popup-backdrop">
+    <div id="mobileMarkerPopupSheet" class="mobile-marker-popup-sheet">
+      <div id="mobileMarkerPopupContent"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================
        BLOCK: HTML_STRUCTURE_SUCCESS_MODAL
        Вікно успішного додавання
        ========================================================= -->
@@ -1267,42 +1327,38 @@
       COMMENT_INPUT_ATTACH_DELAY_MS: 20
     };
 
-   /* =========================================================
-   BLOCK: APP_LABELS
-   Усі тексти застосунку
-   ========================================================= */
-const APP_LABELS = {
-  markerTypes: {
-    safe: "Безпечно",
-    block: "Блокпост",
-    danger2: "Злодій",
-    trash: "Сміття",
-    question: "Питання",
-    poop: "Лайно"
-  },
+    /* =========================================================
+       BLOCK: APP_LABELS
+       Усі тексти застосунку
+       ========================================================= */
+    const APP_LABELS = {
+      markerTypes: {
+        safe: "Безпечно",
+        block: "Блокпост",
+        danger2: "Злодій",
+        trash: "Сміття",
+        question: "Питання",
+        poop: "Лайно"
+      },
 
-  errors: {
-    noGeolocation: "Геолокація не підтримується",
-    geolocationFailed: "Не вдалося отримати місцезнаходження",
-    mapTouchRequired: "Торкнись мапи",
-    descRequired: "Опис обов’язковий",
+      errors: {
+        noGeolocation: "Геолокація не підтримується",
+        geolocationFailed: "Не вдалося отримати місцезнаходження",
+        mapTouchRequired: "Торкнись мапи",
+        descRequired: "Опис обов’язковий",
+        min10: "Мінімум 10 символів",
+        max100: "Максимум 100 символів",
+        commentRequired: "Коментар обовʼязковий"
+      },
 
-    // 🔥 НОВЕ
-    min10: "Мінімум 10 символів",
-    max100: "Максимум 100 символів",
-    commentRequired: "Коментар обовʼязковий"
-  },
-
-  popup: {
-    descTitle: "Опис",
-    commentsTitle: "Коментарі",
-    noComments: "Немає коментарів",
-
-    // 🔥 НОВЕ (можеш використати потім)
-    writeComment: "Написати коментар...",
-    addComment: "Додати коментар"
-  }
-};
+      popup: {
+        descTitle: "Опис",
+        commentsTitle: "Коментарі",
+        noComments: "Немає коментарів",
+        writeComment: "Написати коментар...",
+        addComment: "Додати коментар"
+      }
+    };
 
     /* =========================================================
        BLOCK: CITY_CONFIG
@@ -1374,6 +1430,7 @@ const APP_LABELS = {
       currentType: "safe",
       points: [],
       currentOpenPointId: null,
+      mobileOpenPointId: null,
       userLocationMarker: null,
       userLocationCircle: null,
       renderQueued: false,
@@ -1419,7 +1476,11 @@ const APP_LABELS = {
       themeIcon: document.getElementById("themeIcon"),
 
       successModalBackdrop: document.getElementById("successModalBackdrop"),
-      successModalClose: document.getElementById("successModalClose")
+      successModalClose: document.getElementById("successModalClose"),
+
+      mobileMarkerPopupBackdrop: document.getElementById("mobileMarkerPopupBackdrop"),
+      mobileMarkerPopupSheet: document.getElementById("mobileMarkerPopupSheet"),
+      mobileMarkerPopupContent: document.getElementById("mobileMarkerPopupContent")
     };
 
     /* =========================================================
@@ -1952,6 +2013,79 @@ const APP_LABELS = {
     };
 
     /* =========================================================
+       BLOCK: MOBILE_MARKER_POPUP_ENGINE
+       Мобільний popup мітки
+       ========================================================= */
+    const MobileMarkerPopupEngine = {
+      isOpen() {
+        return DOM.mobileMarkerPopupBackdrop.classList.contains("show");
+      },
+
+      open(point) {
+        APP_STATE.mobileOpenPointId = point.id;
+        APP_STATE.currentOpenPointId = point.id;
+
+        DOM.mobileMarkerPopupContent.innerHTML = PopupRenderer.render(point);
+        DOM.mobileMarkerPopupBackdrop.classList.add("show");
+
+        setTimeout(() => {
+          PopupCommentFeature.attachCounter(point.id);
+          PopupCommentFeature.scrollCommentsToTop(point.id);
+        }, 30);
+      },
+
+      close() {
+        DOM.mobileMarkerPopupBackdrop.classList.remove("show");
+        DOM.mobileMarkerPopupContent.innerHTML = "";
+        APP_STATE.mobileOpenPointId = null;
+        APP_STATE.currentOpenPointId = null;
+      },
+
+      refreshIfOpen() {
+        if (!LayoutHelpers.isMobile()) return;
+        if (!APP_STATE.mobileOpenPointId) return;
+
+        const point = APP_STATE.points.find(p => p.id === APP_STATE.mobileOpenPointId);
+        if (!point) {
+          this.close();
+          return;
+        }
+
+        const activeElement = document.activeElement;
+        const wasTyping =
+          activeElement &&
+          (((activeElement.tagName || "").toLowerCase() === "input") ||
+            ((activeElement.tagName || "").toLowerCase() === "textarea"));
+
+        const previousValue = wasTyping ? activeElement.value : "";
+
+        DOM.mobileMarkerPopupContent.innerHTML = PopupRenderer.render(point);
+
+        setTimeout(() => {
+          PopupCommentFeature.attachCounter(point.id);
+          PopupCommentFeature.scrollCommentsToTop(point.id);
+
+          if (wasTyping) {
+            const input = document.getElementById(`commentInput_${point.id}`);
+            if (input) {
+              input.value = previousValue;
+              input.focus();
+              input.dispatchEvent(new Event("input"));
+            }
+          }
+        }, 30);
+      },
+
+      init() {
+        DOM.mobileMarkerPopupBackdrop.addEventListener("click", e => {
+          if (e.target === DOM.mobileMarkerPopupBackdrop) {
+            this.close();
+          }
+        });
+      }
+    };
+
+    /* =========================================================
        BLOCK: SETTINGS_UI_ENGINE
        Заповнення UI налаштувань
        ========================================================= */
@@ -2063,239 +2197,236 @@ const APP_LABELS = {
       }
     };
 
-/* =========================================================
-   BLOCK: POPUP_RENDERER
-   Генерація HTML popup
-   ========================================================= */
-const PopupRenderer = {
-  render(point) {
-    const commentsSorted = [...(point.comments || [])].sort((a, b) => b.time - a.time);
+    /* =========================================================
+       BLOCK: POPUP_RENDERER
+       Генерація HTML popup
+       ========================================================= */
+    const PopupRenderer = {
+      render(point) {
+        const commentsSorted = [...(point.comments || [])].sort((a, b) => b.time - a.time);
 
-    const commentsHtml = commentsSorted
-      .map(
-        c => `
-          <div class="comment-item">
-            <div class="comment-text">${HtmlUtils.escapeHtml(c.text)}</div>
-            <div class="comment-time">${TimeUtils.formatTime(c.time)}</div>
-          </div>
-        `
-      )
-      .join("");
-
-    const voted = LocalStorageEngine.hasVoted(point.id);
-
-    return `
-      <div class="radar-popup">
-        <div class="popup-head">
-          <div class="popup-head-left">
-            <img src="${MarkerIconFactory.getIconPath(point.type)}" class="popup-icon">
-            <div class="popup-meta">
-              <div class="popup-title-row">
-                <div class="popup-title">${HtmlUtils.escapeHtml(APP_LABELS.markerTypes[point.type] || point.type)}</div>
-                <div class="popup-life">${TimeUtils.timeLeftText(point.time)}</div>
+        const commentsHtml = commentsSorted
+          .map(
+            c => `
+              <div class="comment-item">
+                <div class="comment-text">${HtmlUtils.escapeHtml(c.text)}</div>
+                <div class="comment-time">${TimeUtils.formatTime(c.time)}</div>
               </div>
-              <div class="popup-time">${TimeUtils.formatDateTime(point.time)}</div>
+            `
+          )
+          .join("");
+
+        const voted = LocalStorageEngine.hasVoted(point.id);
+
+        return `
+          <div class="radar-popup">
+            <div class="popup-head">
+              <div class="popup-head-left">
+                <img src="${MarkerIconFactory.getIconPath(point.type)}" class="popup-icon">
+                <div class="popup-meta">
+                  <div class="popup-title-row">
+                    <div class="popup-title">${HtmlUtils.escapeHtml(APP_LABELS.markerTypes[point.type] || point.type)}</div>
+                    <div class="popup-life">${TimeUtils.timeLeftText(point.time)}</div>
+                  </div>
+                  <div class="popup-time">${TimeUtils.formatDateTime(point.time)}</div>
+                </div>
+              </div>
+              <button class="popup-close" onclick="window.closePopup()">×</button>
             </div>
+
+            <div class="popup-comments-title">${APP_LABELS.popup.descTitle}</div>
+            <div class="popup-desc">${HtmlUtils.escapeHtml(point.desc || "")}</div>
+
+            <div class="popup-comments-title">${APP_LABELS.popup.commentsTitle}</div>
+            <div class="popup-comments" id="popupComments_${point.id}">
+              ${
+                commentsHtml ||
+                `<div class="comment-item"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
+              }
+            </div>
+
+            <div class="reaction-row">
+              <button class="reaction-btn like ${voted ? "disabled" : ""}" onclick="window.vote('${point.id}', 'like')">👍 ${point.likes || 0}</button>
+              <button class="reaction-btn dislike ${voted ? "disabled" : ""}" onclick="window.vote('${point.id}', 'dislike')">👎 ${point.dislikes || 0}</button>
+            </div>
+
+            <input id="commentInput_${point.id}" class="popup-input" maxlength="100" placeholder="${APP_LABELS.popup.writeComment}">
+            <div class="popup-counter" id="commentCounter_${point.id}">0 / 100</div>
+            <button class="popup-btn" onclick="window.addComment('${point.id}')">${APP_LABELS.popup.addComment}</button>
           </div>
-          <button class="popup-close" onclick="window.closePopup()">×</button>
-        </div>
+        `;
+      }
+    };
 
-        <div class="popup-comments-title">${APP_LABELS.popup.descTitle}</div>
-        <div class="popup-desc">${HtmlUtils.escapeHtml(point.desc || "")}</div>
+    /* =========================================================
+       BLOCK: POPUP_POSITION_ENGINE
+       Логіка розміщення popup
+       ========================================================= */
+    const PopupPositionEngine = {
+      bindMarkerPopup(marker, point) {
+        marker.unbindPopup();
 
-        <div class="popup-comments-title">${APP_LABELS.popup.commentsTitle}</div>
-        <div class="popup-comments" id="popupComments_${point.id}">
-          ${
-            commentsHtml ||
-            `<div class="comment-item"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
+        marker.off("click");
+        marker.off("touchstart");
+        marker.off("touchend");
+        marker.off("popupopen");
+        marker.off("popupclose");
+
+        if (LayoutHelpers.isMobile()) {
+          const openMobilePopup = () => {
+            APP_STATE.suppressPopupRestoreUntil = Date.now() + 500;
+            MobileMarkerPopupEngine.open(point);
+          };
+
+          marker.on("click", openMobilePopup);
+
+          marker.on("touchend", e => {
+            if (e?.originalEvent?.cancelable) {
+              e.originalEvent.preventDefault();
+            }
+            openMobilePopup();
+          });
+
+          return;
+        }
+
+        marker.bindPopup(PopupRenderer.render(point), {
+          autoPan: false,
+          keepInView: false,
+          closeButton: false,
+          offset: [0, 0],
+          className: "radar-popup-wrap"
+        });
+
+        marker.on("popupopen", () => {
+          APP_STATE.currentOpenPointId = point.id;
+          setTimeout(() => {
+            PopupCommentFeature.attachCounter(point.id);
+            PopupCommentFeature.scrollCommentsToTop(point.id);
+          }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
+        });
+
+        marker.on("popupclose", () => {
+          if (APP_STATE.currentOpenPointId === point.id) {
+            APP_STATE.currentOpenPointId = null;
           }
-        </div>
-
-        <div class="reaction-row">
-          <button class="reaction-btn like ${voted ? "disabled" : ""}" onclick="window.vote('${point.id}', 'like')">👍 ${point.likes || 0}</button>
-          <button class="reaction-btn dislike ${voted ? "disabled" : ""}" onclick="window.vote('${point.id}', 'dislike')">👎 ${point.dislikes || 0}</button>
-        </div>
-
-        <input id="commentInput_${point.id}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
-        <div class="popup-counter" id="commentCounter_${point.id}">0 / 100</div>
-        <button class="popup-btn" onclick="window.addComment('${point.id}')">Додати коментар</button>
-      </div>
-    `;
-  }
-};
-
-/* =========================================================
-   BLOCK: POPUP_POSITION_ENGINE
-   Логіка розміщення popup
-   ========================================================= */
-const PopupPositionEngine = {
-  bindMarkerPopup(marker, point) {
-    marker.unbindPopup();
-
-    marker.bindPopup(PopupRenderer.render(point), {
-      autoPan: false,
-      keepInView: false,
-      closeButton: false,
-      offset: [0, 0],
-      className: "radar-popup-wrap"
-    });
-
-    marker.off("click");
-    marker.off("touchstart");
-    marker.off("touchend");
-    marker.off("popupopen");
-    marker.off("popupclose");
-
-    const openPopupSafely = () => {
-      APP_STATE.currentOpenPointId = point.id;
-      APP_STATE.suppressPopupRestoreUntil = Date.now() + 500;
-
-      MAP_INSTANCE.closePopup();
-
-      setTimeout(() => {
-        try {
-          marker.openPopup();
-        } catch (e) {}
-      }, 30);
-    };
-
-    marker.on("click", openPopupSafely);
-
-    marker.on("touchstart", () => {
-      APP_STATE.currentOpenPointId = point.id;
-    });
-
-    marker.on("touchend", e => {
-      if (e?.originalEvent?.cancelable) {
-        e.originalEvent.preventDefault();
+        });
       }
-      openPopupSafely();
-    });
+    };
 
-    marker.on("popupopen", () => {
-      APP_STATE.currentOpenPointId = point.id;
+    /* =========================================================
+       BLOCK: POPUP_RESTORE_MANAGER
+       Логіка повторного відкриття popup
+       ========================================================= */
+    const PopupRestoreManager = {
+      restoreIfNeeded() {
+        if (LayoutHelpers.isMobile()) return;
+        if (!APP_STATE.currentOpenPointId) return;
+        if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
 
-      setTimeout(() => {
-        PopupCommentFeature.attachCounter(point.id);
-        PopupCommentFeature.scrollCommentsToTop(point.id);
-      }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
-    });
+        const entry = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
+        if (!entry) return;
+        if (entry.marker.isPopupOpen()) return;
 
-    marker.on("popupclose", () => {
-      if (APP_STATE.currentOpenPointId === point.id) {
-        APP_STATE.currentOpenPointId = null;
+        setTimeout(() => {
+          const reopen = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
+          if (!reopen) return;
+          if (reopen.marker.isPopupOpen()) return;
+          if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
+          if (LayoutHelpers.isMobile()) return;
+
+          reopen.marker.openPopup();
+        }, APP_CONFIG.POPUP_RESTORE_DELAY_MS);
       }
-    });
-  }
-};
-
- /* =========================================================
-   BLOCK: POPUP_RESTORE_MANAGER
-   Логіка повторного відкриття popup
-   ========================================================= */
-const PopupRestoreManager = {
-  restoreIfNeeded() {
-    if (!APP_STATE.currentOpenPointId) return;
-    if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
-    if (LayoutHelpers.isMobile()) return;
-
-    const entry = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
-    if (!entry) return;
-    if (entry.marker.isPopupOpen()) return;
-
-    setTimeout(() => {
-      const reopen = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
-      if (!reopen) return;
-      if (reopen.marker.isPopupOpen()) return;
-      if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
-      if (LayoutHelpers.isMobile()) return;
-
-      reopen.marker.openPopup();
-    }, APP_CONFIG.POPUP_RESTORE_DELAY_MS);
-  }
-};
-
- /* =========================================================
-   BLOCK: POPUP_COMMENT_FEATURE
-   Коментарі
-   ========================================================= */
-const PopupCommentFeature = {
-  getPointById(pointId) {
-    return APP_STATE.points.find(p => p.id === pointId);
-  },
-
-  attachCounter(pointId) {
-    const input = document.getElementById(`commentInput_${pointId}`);
-    const counter = document.getElementById(`commentCounter_${pointId}`);
-    if (!input || !counter) return;
-
-    const updateCounter = () => {
-      counter.textContent = `${input.value.length} / 100`;
     };
 
-    input.oninput = updateCounter;
+    /* =========================================================
+       BLOCK: POPUP_COMMENT_FEATURE
+       Коментарі
+       ========================================================= */
+    const PopupCommentFeature = {
+      getPointById(pointId) {
+        return APP_STATE.points.find(p => p.id === pointId);
+      },
 
-    input.onfocus = () => {
-      APP_STATE.suspendRenderWhileTyping = true;
+      attachCounter(pointId) {
+        const input = document.getElementById(`commentInput_${pointId}`);
+        const counter = document.getElementById(`commentCounter_${pointId}`);
+        if (!input || !counter) return;
+
+        const updateCounter = () => {
+          counter.textContent = `${input.value.length} / 100`;
+        };
+
+        input.oninput = updateCounter;
+
+        input.onfocus = () => {
+          APP_STATE.suspendRenderWhileTyping = true;
+        };
+
+        input.onblur = () => {
+          setTimeout(() => {
+            APP_STATE.suspendRenderWhileTyping = false;
+          }, 150);
+        };
+
+        updateCounter();
+      },
+
+      scrollCommentsToTop(pointId) {
+        const commentsBox = document.getElementById(`popupComments_${pointId}`);
+        if (!commentsBox) return;
+        commentsBox.scrollTop = 0;
+      },
+
+      async add(pointId) {
+        const input = document.getElementById(`commentInput_${pointId}`);
+        if (!input) return;
+
+        const text = input.value.trim();
+
+        if (text.length < 10) {
+          alert(APP_LABELS.errors.min10);
+          return;
+        }
+
+        if (text.length > 100) {
+          alert(APP_LABELS.errors.max100);
+          return;
+        }
+
+        const item = this.getPointById(pointId);
+        if (!item?.id) return;
+
+        APP_STATE.suspendRenderWhileTyping = true;
+        APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+
+        const ref = doc(db, "points", item.id);
+        await updateDoc(ref, {
+          comments: [...(item.comments || []), { text, time: Date.now() }]
+        });
+
+        input.value = "";
+        this.attachCounter(pointId);
+
+        setTimeout(() => {
+          APP_STATE.suspendRenderWhileTyping = false;
+          MarkerRenderEngine.queueRender(true);
+        }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
+      }
     };
-
-    input.onblur = () => {
-      setTimeout(() => {
-        APP_STATE.suspendRenderWhileTyping = false;
-      }, 150);
-    };
-
-    updateCounter();
-  },
-
-  scrollCommentsToTop(pointId) {
-    const commentsBox = document.getElementById(`popupComments_${pointId}`);
-    if (!commentsBox) return;
-    commentsBox.scrollTop = 0;
-  },
-
-  async add(pointId) {
-    const input = document.getElementById(`commentInput_${pointId}`);
-    if (!input) return;
-
-    const text = input.value.trim();
-    if (text.length < 10) {
-      alert("Мінімум 10 символів");
-      return;
-    }
-    if (text.length > 100) {
-      alert("Максимум 100 символів");
-      return;
-    }
-
-    const item = this.getPointById(pointId);
-    if (!item?.id) return;
-
-    APP_STATE.suspendRenderWhileTyping = true;
-    APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
-
-    const ref = doc(db, "points", item.id);
-    await updateDoc(ref, {
-      comments: [...(item.comments || []), { text, time: Date.now() }]
-    });
-
-    input.value = "";
-    this.attachCounter(pointId);
-
-    setTimeout(() => {
-      APP_STATE.suspendRenderWhileTyping = false;
-      MarkerRenderEngine.queueRender(true);
-    }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
-  }
-};
 
     /* =========================================================
        BLOCK: POPUP_REACTION_FEATURE
        Лайк / дизлайк
        ========================================================= */
     const PopupReactionFeature = {
-      async vote(index, type) {
-        const item = APP_STATE.points[index];
+      getPointById(pointId) {
+        return APP_STATE.points.find(p => p.id === pointId);
+      },
+
+      async vote(pointId, type) {
+        const item = this.getPointById(pointId);
         if (!item?.id || LocalStorageEngine.hasVoted(item.id)) return;
 
         APP_STATE.suppressPopupRestoreUntil = Date.now() + 900;
@@ -2343,64 +2474,68 @@ const PopupCommentFeature = {
         if (APP_STATE.currentOpenPointId === id) {
           APP_STATE.currentOpenPointId = null;
         }
+
+        if (APP_STATE.mobileOpenPointId === id) {
+          MobileMarkerPopupEngine.close();
+        }
       }
     };
 
- /* =========================================================
-   BLOCK: MARKER_CREATE_ENGINE
-   Створення marker
-   ========================================================= */
-const MarkerCreateEngine = {
-  create(point, index, zoom) {
-    const marker = L.marker([point.lat, point.lng], {
-      icon: MarkerIconFactory.getIcon(point.type, zoom),
-      keyboard: false
-    }).addTo(MAP_INSTANCE);
+    /* =========================================================
+       BLOCK: MARKER_CREATE_ENGINE
+       Створення marker
+       ========================================================= */
+    const MarkerCreateEngine = {
+      create(point, index, zoom) {
+        const marker = L.marker([point.lat, point.lng], {
+          icon: MarkerIconFactory.getIcon(point.type, zoom),
+          keyboard: false
+        }).addTo(MAP_INSTANCE);
 
-    marker.pointId = point.id;
-    PopupPositionEngine.bindMarkerPopup(marker, point);
+        marker.pointId = point.id;
+        PopupPositionEngine.bindMarkerPopup(marker, point);
 
-    APP_STATE.markerRegistry.set(point.id, {
-      marker,
-      hash: MarkerRegistry.getVisualHash(point),
-      lat: point.lat,
-      lng: point.lng,
-      iconKey: `${point.type}_${zoom}`
-    });
-  }
-};
-
-  /* =========================================================
-   BLOCK: MARKER_UPDATE_ENGINE
-   Оновлення marker
-   ========================================================= */
-const MarkerUpdateEngine = {
-  update(entry, point, index, zoom) {
-    const newHash = MarkerRegistry.getVisualHash(point);
-    const newIconKey = `${point.type}_${zoom}`;
-
-    if (entry.iconKey !== newIconKey) {
-      entry.marker.setIcon(MarkerIconFactory.getIcon(point.type, zoom));
-      entry.iconKey = newIconKey;
-    }
-
-    if (entry.lat !== point.lat || entry.lng !== point.lng) {
-      entry.marker.setLatLng([point.lat, point.lng]);
-      entry.lat = point.lat;
-      entry.lng = point.lng;
-    }
-
-    if (entry.hash !== newHash) {
-      const popup = entry.marker.getPopup();
-      if (popup) {
-        popup.setContent(PopupRenderer.render(point));
-      } else {
-        PopupPositionEngine.bindMarkerPopup(entry.marker, point);
+        APP_STATE.markerRegistry.set(point.id, {
+          marker,
+          hash: MarkerRegistry.getVisualHash(point),
+          lat: point.lat,
+          lng: point.lng,
+          iconKey: `${point.type}_${zoom}`
+        });
       }
-      entry.hash = newHash;
-    }
-  }
-};
+    };
+
+    /* =========================================================
+       BLOCK: MARKER_UPDATE_ENGINE
+       Оновлення marker
+       ========================================================= */
+    const MarkerUpdateEngine = {
+      update(entry, point, index, zoom) {
+        const newHash = MarkerRegistry.getVisualHash(point);
+        const newIconKey = `${point.type}_${zoom}`;
+
+        if (entry.iconKey !== newIconKey) {
+          entry.marker.setIcon(MarkerIconFactory.getIcon(point.type, zoom));
+          entry.iconKey = newIconKey;
+        }
+
+        if (entry.lat !== point.lat || entry.lng !== point.lng) {
+          entry.marker.setLatLng([point.lat, point.lng]);
+          entry.lat = point.lat;
+          entry.lng = point.lng;
+        }
+
+        if (entry.hash !== newHash) {
+          const popup = entry.marker.getPopup();
+          if (popup) {
+            popup.setContent(PopupRenderer.render(point));
+          } else {
+            PopupPositionEngine.bindMarkerPopup(entry.marker, point);
+          }
+          entry.hash = newHash;
+        }
+      }
+    };
 
     /* =========================================================
        BLOCK: MARKER_GROUP_ENGINE
@@ -2565,6 +2700,7 @@ const MarkerUpdateEngine = {
 
         MarkerGroupEngine.render(visiblePoints);
         PopupRestoreManager.restoreIfNeeded();
+        MobileMarkerPopupEngine.refreshIfOpen();
       }
     };
 
@@ -2658,7 +2794,6 @@ const MarkerUpdateEngine = {
     const CreateMarkerFlow = {
       openCreateMode() {
         APP_STATE.addMode = true;
-
         SettingsWindow.hide();
         PickerWindow.show();
         DescWindow.hide();
@@ -2973,21 +3108,25 @@ const MarkerUpdateEngine = {
       }
     };
 
- /* =========================================================
-   BLOCK: WINDOW_GLOBAL_ACTIONS
-   Глобальні дії для popup
-   ========================================================= */
-window.closePopup = function () {
-  MAP_INSTANCE.closePopup();
-};
+    /* =========================================================
+       BLOCK: WINDOW_GLOBAL_ACTIONS
+       Глобальні дії для popup
+       ========================================================= */
+    window.closePopup = function () {
+      if (LayoutHelpers.isMobile()) {
+        MobileMarkerPopupEngine.close();
+        return;
+      }
+      MAP_INSTANCE.closePopup();
+    };
 
-window.vote = async function (pointId, type) {
-  await PopupReactionFeature.vote(pointId, type);
-};
+    window.vote = async function (pointId, type) {
+      await PopupReactionFeature.vote(pointId, type);
+    };
 
-window.addComment = async function (pointId) {
-  await PopupCommentFeature.add(pointId);
-};
+    window.addComment = async function (pointId) {
+      await PopupCommentFeature.add(pointId);
+    };
 
     /* =========================================================
        BLOCK: APP_INIT
@@ -3020,6 +3159,7 @@ window.addComment = async function (pointId) {
       MapEventBindings.init();
       FirebasePointsRepository.subscribe();
       TelegramMiniAppEngine.init();
+      MobileMarkerPopupEngine.init();
 
       setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 200);
       setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 800);
