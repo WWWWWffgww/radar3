@@ -684,198 +684,231 @@
       font-size: 14px;
     }
 
-    /* =========================================================
-       BLOCK: CSS_MARKER_POPUP
-       Popup мітки
-       ========================================================= */
-    .leaflet-popup-content-wrapper {
-      border-radius: 24px;
-      padding: 0;
-      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
-      background: rgba(28, 28, 30, 0.96);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      color: #fff;
-    }
+   /* =========================================================
+   BLOCK: CSS_MARKER_POPUP
+   Popup мітки
+   ========================================================= */
+.leaflet-popup-pane {
+  z-index: 1200 !important;
+}
 
-    .leaflet-popup-content {
-      margin: 0 !important;
-      width: min(340px, calc(100vw - 24px)) !important;
-      max-width: calc(100vw - 24px) !important;
-    }
+.leaflet-popup-pane .leaflet-popup {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+  z-index: 1200 !important;
+  width: min(340px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+}
 
-    .leaflet-popup-tip,
-    .leaflet-popup-close-button {
-      display: none;
-    }
+.leaflet-popup-content-wrapper {
+  border-radius: 24px;
+  padding: 0;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
+  background: rgba(28, 28, 30, 0.96);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  color: #fff;
+  width: 100% !important;
+  overflow: hidden;
+}
 
-    .radar-popup {
-      padding: 14px;
-      color: #fff;
-    }
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: min(78vh, 680px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
 
-    .popup-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
+.leaflet-popup-tip,
+.leaflet-popup-close-button {
+  display: none;
+}
 
-    .popup-head-left {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      min-width: 0;
-      flex: 1;
-    }
+.radar-popup {
+  padding: 14px;
+  color: #fff;
+}
 
-    .popup-icon {
-      width: 44px;
-      height: 44px;
-      object-fit: contain;
-      flex: 0 0 auto;
-    }
+.popup-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
 
-    .popup-meta {
-      min-width: 0;
-      flex: 1;
-    }
+.popup-head-left {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1;
+}
 
-    .popup-title-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 4px;
-    }
+.popup-icon {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
 
-    .popup-title {
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1.15;
-      color: #fff;
-      margin-bottom: 0;
-    }
+.popup-meta {
+  min-width: 0;
+  flex: 1;
+}
 
-    .popup-life {
-      font-size: 11px;
-      color: #8be28b;
-      white-space: nowrap;
-      font-weight: 800;
-    }
+.popup-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
 
-    .popup-time {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.74);
-      white-space: nowrap;
-      margin-bottom: 3px;
-    }
+.popup-title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #fff;
+  margin-bottom: 0;
+}
 
-    .popup-close {
-      width: 32px;
-      height: 32px;
-      border: none;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.14);
-      color: #fff;
-      font-size: 22px;
-      line-height: 1;
-      cursor: pointer;
-      flex: 0 0 auto;
-    }
+.popup-life {
+  font-size: 11px;
+  color: #8be28b;
+  white-space: nowrap;
+  font-weight: 800;
+}
 
-    .popup-desc {
-      font-size: 15px;
-      line-height: 1.4;
-      color: #fff;
-      white-space: pre-wrap;
-      word-break: break-word;
-      margin-bottom: 12px;
-    }
+.popup-time {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.74);
+  white-space: nowrap;
+  margin-bottom: 3px;
+}
 
-    .popup-comments-title {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.72);
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
+.popup-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
 
-    .popup-comments {
-      max-height: 160px;
-      overflow-y: auto;
-      margin-bottom: 12px;
-    }
+.popup-desc {
+  font-size: 15px;
+  line-height: 1.4;
+  color: #fff;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 12px;
+}
 
-    .comment-item {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 11px 12px;
-      margin-bottom: 8px;
-    }
+.popup-comments-title {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
 
-    .comment-text {
-      font-size: 14px;
-      line-height: 1.35;
-      color: #fff;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
+.popup-comments {
+  max-height: 160px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
 
-    .comment-time {
-      margin-top: 6px;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.58);
-    }
+.comment-item {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 11px 12px;
+  margin-bottom: 8px;
+}
 
-    .reaction-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 6px;
-      margin-bottom: 10px;
-    }
+.comment-text {
+  font-size: 14px;
+  line-height: 1.35;
+  color: #fff;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 
-    .reaction-btn {
-      border: none;
-      border-radius: 10px;
-      padding: 5px 9px;
-      cursor: pointer;
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 13px;
-    }
+.comment-time {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.58);
+}
 
-    .reaction-btn.like {
-      background: rgba(10, 132, 255, 0.14);
-      border: 1px solid rgba(10, 132, 255, 0.22);
-    }
+.reaction-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  margin-bottom: 10px;
+}
 
-    .reaction-btn.dislike {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
+.reaction-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 5px 9px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+}
 
-    .reaction-btn.disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
+.reaction-btn.like {
+  background: rgba(10, 132, 255, 0.14);
+  border: 1px solid rgba(10, 132, 255, 0.22);
+}
 
-    .popup-input {
-      width: 100%;
-      border: none;
-      background: rgba(255, 255, 255, 0.14);
-      color: #fff;
-      border-radius: 14px;
-      padding: 13px 14px;
-      outline: none;
-      font-family: inherit;
-    }
+.reaction-btn.dislike {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.reaction-btn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.popup-input {
+  width: 100%;
+  border: none;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-radius: 14px;
+  padding: 13px 14px;
+  outline: none;
+  font-family: inherit;
+}
+
+@media (max-width: 600px) {
+  .leaflet-popup-pane .leaflet-popup {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+  }
+
+  .leaflet-popup-content {
+    max-height: 72vh !important;
+  }
+}
 
     /* =========================================================
        BLOCK: CSS_SUCCESS_MODAL
@@ -2073,37 +2106,49 @@
       }
     };
 
-    /* =========================================================
-       BLOCK: POPUP_POSITION_ENGINE
-       Логіка розміщення popup
-       ========================================================= */
-    const PopupPositionEngine = {
-      bindMarkerPopup(marker, point, index) {
-        marker.bindPopup(PopupRenderer.render(point, index), {
-          autoPan: false,
-          keepInView: false,
-          closeButton: false,
-          offset: [0, -4],
-          className: "radar-popup-wrap"
-        });
+/* =========================================================
+   BLOCK: POPUP_POSITION_ENGINE
+   Логіка розміщення popup
+   ========================================================= */
+const PopupPositionEngine = {
+  bindMarkerPopup(marker, point, index) {
+    marker.unbindPopup();
 
-        marker.off("popupopen");
-        marker.off("popupclose");
+    marker.bindPopup(PopupRenderer.render(point, index), {
+      autoPan: false,
+      keepInView: false,
+      closeButton: false,
+      offset: [0, 0],
+      className: "radar-popup-wrap"
+    });
 
-        marker.on("popupopen", () => {
-          APP_STATE.currentOpenPointId = point.id;
-          setTimeout(() => {
-            PopupCommentFeature.attachCounter(index);
-          }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
-        });
+    marker.off("click");
+    marker.off("popupopen");
+    marker.off("popupclose");
 
-        marker.on("popupclose", () => {
-          if (APP_STATE.currentOpenPointId === point.id) {
-            APP_STATE.currentOpenPointId = null;
-          }
-        });
+    marker.on("click", () => {
+      APP_STATE.currentOpenPointId = point.id;
+      APP_STATE.suppressPopupRestoreUntil = Date.now() + 250;
+      MAP_INSTANCE.closePopup();
+      setTimeout(() => {
+        marker.openPopup();
+      }, 10);
+    });
+
+    marker.on("popupopen", () => {
+      APP_STATE.currentOpenPointId = point.id;
+      setTimeout(() => {
+        PopupCommentFeature.attachCounter(index);
+      }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
+    });
+
+    marker.on("popupclose", () => {
+      if (APP_STATE.currentOpenPointId === point.id) {
+        APP_STATE.currentOpenPointId = null;
       }
-    };
+    });
+  }
+};
 
     /* =========================================================
        BLOCK: POPUP_RESTORE_MANAGER
