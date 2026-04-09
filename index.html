@@ -176,77 +176,88 @@
       color: #fff;
     }
 
-    /* =========================================================
-       BLOCK: CSS_LAYOUT_MOBILE
-       Мобільна адаптація
-       ========================================================= */
-    @media (max-width: 600px) {
-      #pickerBar {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        top: auto !important;
-        bottom: 0 !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
-        transform: none !important;
-        z-index: 1105 !important;
-        border-top-left-radius: 22px !important;
-        border-top-right-radius: 22px !important;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-        padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
-      }
+/* =========================================================
+   BLOCK: CSS_LAYOUT_MOBILE
+   Мобільна адаптація
+   ========================================================= */
+@media (max-width: 600px) {
+  #pickerBar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    transform: none !important;
+    z-index: 1105 !important;
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
+  }
 
-      #descSheet {
-        position: fixed !important;
-        left: 10px !important;
-        right: 10px !important;
-        top: auto !important;
-        bottom: 0 !important;
-        width: auto !important;
-        transform: none !important;
-        z-index: 1105 !important;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-      }
+  #descSheet {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    z-index: 1105 !important;
 
-      #pickerBar .picker-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 6px !important;
-      }
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
 
-      #pickerBar .picker-item {
-        border-radius: 12px !important;
-        padding: 5px 3px !important;
-      }
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
 
-      #pickerBar .picker-item img {
-        width: 28px !important;
-        height: 28px !important;
-        margin: 0 auto 3px !important;
-      }
+    transform: translateY(100%);
+    transition: transform 0.22s ease;
+  }
 
-      #pickerBar .picker-item span {
-        font-size: 10px !important;
-        line-height: 1.1 !important;
-      }
+  #descSheet.show-mobile {
+    transform: translateY(0);
+  }
 
-      #pickerTop {
-        margin-bottom: 6px !important;
-      }
+  #pickerBar .picker-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+  }
 
-      #pickerHint {
-        font-size: 11px !important;
-      }
+  #pickerBar .picker-item {
+    border-radius: 12px !important;
+    padding: 5px 3px !important;
+  }
 
-      #pickerClose {
-        width: 24px !important;
-        height: 24px !important;
-        font-size: 17px !important;
-      }
-    }
+  #pickerBar .picker-item img {
+    width: 28px !important;
+    height: 28px !important;
+    margin: 0 auto 3px !important;
+  }
+
+  #pickerBar .picker-item span {
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+  }
+
+  #pickerTop {
+    margin-bottom: 6px !important;
+  }
+
+  #pickerHint {
+    font-size: 11px !important;
+  }
+
+  #pickerClose {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 17px !important;
+  }
+}
 
     /* =========================================================
        BLOCK: CSS_LAYOUT_DESKTOP
@@ -1985,22 +1996,38 @@ const MarkerIconFactory = {
       }
     };
 
-    /* =========================================================
-       BLOCK: WINDOW_DESC_SHEET
-       Вікно опису мітки
-       ========================================================= */
-    const DescWindow = {
-      show() {
-        DOM.descSheet.style.display = "block";
-      },
-      hide() {
+/* =========================================================
+   BLOCK: WINDOW_DESC_SHEET
+   Вікно опису мітки
+   ========================================================= */
+const DescWindow = {
+  show() {
+    DOM.descSheet.style.display = "block";
+
+    if (LayoutHelpers.isMobile()) {
+      requestAnimationFrame(() => {
+        DOM.descSheet.classList.add("show-mobile");
+      });
+    }
+  },
+
+  hide() {
+    if (LayoutHelpers.isMobile()) {
+      DOM.descSheet.classList.remove("show-mobile");
+      setTimeout(() => {
         DOM.descSheet.style.display = "none";
-      },
-      reset() {
-        DOM.descInput.value = "";
-        DOM.descCounter.textContent = "0 / 100";
-      }
-    };
+      }, 220);
+      return;
+    }
+
+    DOM.descSheet.style.display = "none";
+  },
+
+  reset() {
+    DOM.descInput.value = "";
+    DOM.descCounter.textContent = "0 / 100";
+  }
+};
 
    /* =========================================================
    BLOCK: WINDOW_SETTINGS_SHEET
@@ -2856,92 +2883,93 @@ const SettingsWindow = {
       }
     };
 
-    /* =========================================================
-       BLOCK: CREATE_MARKER_FLOW
-       Процес додавання мітки
-       ========================================================= */
-    const CreateMarkerFlow = {
-      openCreateMode() {
-        APP_STATE.addMode = true;
-        SettingsWindow.hide();
-        PickerWindow.show();
-        DescWindow.hide();
-      },
+   /* =========================================================
+   BLOCK: CREATE_MARKER_FLOW
+   Процес додавання мітки
+   ========================================================= */
+const CreateMarkerFlow = {
+  openCreateMode() {
+    APP_STATE.addMode = true;
 
-      closeCreateMode() {
-        APP_STATE.addMode = false;
-        PickerWindow.hide();
-        DescWindow.hide();
+    SettingsWindow.hide();
+    PickerWindow.show();
+    DescWindow.hide();
+  },
 
-        APP_STATE.selectedLatLng = null;
-        DescWindow.reset();
+  closeCreateMode() {
+    APP_STATE.addMode = false;
+    PickerWindow.hide();
+    DescWindow.hide();
 
-        document.body.classList.remove("settings-open");
+    APP_STATE.selectedLatLng = null;
+    DescWindow.reset();
 
-        if (APP_STATE.tempMarker) {
-          MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
-          APP_STATE.tempMarker = null;
-        }
-      },
+    document.body.classList.remove("settings-open");
 
-      selectMapPoint(latlng) {
-        APP_STATE.selectedLatLng = latlng;
+    if (APP_STATE.tempMarker) {
+      MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+      APP_STATE.tempMarker = null;
+    }
+  },
 
-        if (APP_STATE.tempMarker) {
-          MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
-        }
+  selectMapPoint(latlng) {
+    APP_STATE.selectedLatLng = latlng;
 
-        APP_STATE.tempMarker = L.marker(latlng, {
-          icon: MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()),
-          keyboard: false
-        }).addTo(MAP_INSTANCE);
+    if (APP_STATE.tempMarker) {
+      MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+    }
 
-        PickerWindow.updateActive();
-        PickerWindow.hide();
-        DescWindow.show();
-      },
+    APP_STATE.tempMarker = L.marker(latlng, {
+      icon: MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()),
+      keyboard: false
+    }).addTo(MAP_INSTANCE);
 
-      async saveMarker() {
-        const desc = DOM.descInput.value.trim();
+    PickerWindow.updateActive();
+    PickerWindow.hide();
+    DescWindow.show();
+  },
 
-        if (!APP_STATE.selectedLatLng) {
-          alert(APP_LABELS.errors.mapTouchRequired);
-          return;
-        }
+  async saveMarker() {
+    const desc = DOM.descInput.value.trim();
 
-        if (!desc) {
-          alert(APP_LABELS.errors.descRequired);
-          return;
-        }
+    if (!APP_STATE.selectedLatLng) {
+      alert(APP_LABELS.errors.mapTouchRequired);
+      return;
+    }
 
-        if (desc.length > 100) {
-          alert(APP_LABELS.errors.max100);
-          return;
-        }
+    if (!desc) {
+      alert(APP_LABELS.errors.descRequired);
+      return;
+    }
 
-        APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
-        APP_STATE.currentOpenPointId = null;
-        MAP_INSTANCE.closePopup();
+    if (desc.length > 100) {
+      alert(APP_LABELS.errors.max100);
+      return;
+    }
 
-        await addDoc(collection(db, "points"), {
-          lat: APP_STATE.selectedLatLng.lat,
-          lng: APP_STATE.selectedLatLng.lng,
-          type: APP_STATE.currentType,
-          desc,
-          time: Date.now(),
-          comments: [],
-          likes: 0,
-          dislikes: 0
-        });
+    APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+    APP_STATE.currentOpenPointId = null;
+    MAP_INSTANCE.closePopup();
 
-        this.closeCreateMode();
-        SuccessModalWindow.show();
+    await addDoc(collection(db, "points"), {
+      lat: APP_STATE.selectedLatLng.lat,
+      lng: APP_STATE.selectedLatLng.lng,
+      type: APP_STATE.currentType,
+      desc,
+      time: Date.now(),
+      comments: [],
+      likes: 0,
+      dislikes: 0
+    });
 
-        setTimeout(() => {
-          MarkerRenderEngine.queueRender(true);
-        }, 80);
-      }
-    };
+    this.closeCreateMode();
+    SuccessModalWindow.show();
+
+    setTimeout(() => {
+      MarkerRenderEngine.queueRender(true);
+    }, 80);
+  }
+};
 
     /* =========================================================
        BLOCK: APP_UI_HELPERS
@@ -3016,25 +3044,28 @@ const SettingsWindow = {
       }
     };
 
-    /* =========================================================
-       BLOCK: WINDOW_DESC_SHEET_EVENTS
-       Події вікна опису
-       ========================================================= */
-    const DescWindowEvents = {
-      init() {
-        DOM.sheetClose.addEventListener("click", () => {
-          CreateMarkerFlow.closeCreateMode();
-        });
+/* =========================================================
+   BLOCK: WINDOW_DESC_SHEET_EVENTS
+   Події вікна опису
+   ========================================================= */
+const DescWindowEvents = {
+  init() {
+    DOM.sheetClose.addEventListener("click", () => {
+      DescWindow.hide();
+      setTimeout(() => {
+        CreateMarkerFlow.closeCreateMode();
+      }, LayoutHelpers.isMobile() ? 220 : 0);
+    });
 
-        DOM.descInput.addEventListener("input", () => {
-          DOM.descCounter.textContent = `${DOM.descInput.value.length} / 100`;
-        });
+    DOM.descInput.addEventListener("input", () => {
+      DOM.descCounter.textContent = `${DOM.descInput.value.length} / 100`;
+    });
 
-        DOM.saveBtn.addEventListener("click", async () => {
-          await CreateMarkerFlow.saveMarker();
-        });
-      }
-    };
+    DOM.saveBtn.addEventListener("click", async () => {
+      await CreateMarkerFlow.saveMarker();
+    });
+  }
+};
 
 /* =========================================================
    BLOCK: WINDOW_SETTINGS_SHEET_EVENTS
