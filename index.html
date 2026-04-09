@@ -690,8 +690,7 @@
   width: 100% !important;
   max-width: 100% !important;
   max-height: min(78dvh, 680px) !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
+  overflow: hidden !important;
 }
 
 .leaflet-popup-tip,
@@ -702,6 +701,10 @@
 .radar-popup {
   padding: 14px;
   color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: min(78dvh, 680px);
 }
 
 .popup-head {
@@ -710,6 +713,7 @@
   align-items: flex-start;
   gap: 10px;
   margin-bottom: 12px;
+  flex: 0 0 auto;
 }
 
 .popup-head-left {
@@ -782,6 +786,7 @@
   white-space: pre-wrap;
   word-break: break-word;
   margin-bottom: 12px;
+  flex: 0 0 auto;
 }
 
 .popup-comments-title {
@@ -789,12 +794,25 @@
   color: rgba(255, 255, 255, 0.72);
   margin-bottom: 8px;
   font-weight: 600;
+  flex: 0 0 auto;
 }
 
 .popup-comments {
-  max-height: 160px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   margin-bottom: 12px;
+  padding-right: 2px;
+}
+
+.popup-comments::-webkit-scrollbar {
+  width: 6px;
+}
+
+.popup-comments::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
 }
 
 .comment-item {
@@ -823,6 +841,7 @@
   gap: 6px;
   margin-top: 6px;
   margin-bottom: 10px;
+  flex: 0 0 auto;
 }
 
 .reaction-btn {
@@ -865,16 +884,36 @@
   padding: 13px 14px;
   outline: none;
   font-family: inherit;
+  flex: 0 0 auto;
 }
 
 @media (max-width: 600px) {
   .leaflet-popup-pane .leaflet-popup {
-    width: calc(100vw - 20px) !important;
-    max-width: calc(100vw - 20px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+  }
+
+  .leaflet-popup-content-wrapper {
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
   }
 
   .leaflet-popup-content {
-    max-height: 72dvh !important;
+    max-height: 82dvh !important;
+    height: 82dvh !important;
+  }
+
+  .radar-popup {
+    height: 82dvh !important;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
   }
 }
 
@@ -1228,33 +1267,42 @@
       COMMENT_INPUT_ATTACH_DELAY_MS: 20
     };
 
-    /* =========================================================
-       BLOCK: APP_LABELS
-       Усі тексти застосунку
-       ========================================================= */
-    const APP_LABELS = {
-      markerTypes: {
-        safe: "Безпечно",
-        block: "Блокпост",
-        danger2: "Злодій",
-        trash: "Сміття",
-        question: "Питання",
-        poop: "Лайно"
-      },
-      errors: {
-        noGeolocation: "Геолокація не підтримується",
-        geolocationFailed: "Не вдалося отримати місцезнаходження",
-        mapTouchRequired: "Торкнись мапи",
-        descRequired: "Опис обов’язковий",
-        max100: "Максимум 100 символів",
-        commentRequired: "Коментар обовʼязковий"
-      },
-      popup: {
-        descTitle: "Опис",
-        commentsTitle: "Коментарі",
-        noComments: "Немає коментарів"
-      }
-    };
+   /* =========================================================
+   BLOCK: APP_LABELS
+   Усі тексти застосунку
+   ========================================================= */
+const APP_LABELS = {
+  markerTypes: {
+    safe: "Безпечно",
+    block: "Блокпост",
+    danger2: "Злодій",
+    trash: "Сміття",
+    question: "Питання",
+    poop: "Лайно"
+  },
+
+  errors: {
+    noGeolocation: "Геолокація не підтримується",
+    geolocationFailed: "Не вдалося отримати місцезнаходження",
+    mapTouchRequired: "Торкнись мапи",
+    descRequired: "Опис обов’язковий",
+
+    // 🔥 НОВЕ
+    min10: "Мінімум 10 символів",
+    max100: "Максимум 100 символів",
+    commentRequired: "Коментар обовʼязковий"
+  },
+
+  popup: {
+    descTitle: "Опис",
+    commentsTitle: "Коментарі",
+    noComments: "Немає коментарів",
+
+    // 🔥 НОВЕ (можеш використати потім)
+    writeComment: "Написати коментар...",
+    addComment: "Додати коментар"
+  }
+};
 
     /* =========================================================
        BLOCK: CITY_CONFIG
@@ -2015,74 +2063,76 @@
       }
     };
 
-    /* =========================================================
-       BLOCK: POPUP_RENDERER
-       Генерація HTML popup
-       ========================================================= */
-    const PopupRenderer = {
-      render(point, index) {
-        const commentsHtml = (point.comments || [])
-          .map(
-            c => `
-            <div class="comment-item">
-              <div class="comment-text">${HtmlUtils.escapeHtml(c.text)}</div>
-              <div class="comment-time">${TimeUtils.formatTime(c.time)}</div>
-            </div>
-          `
-          )
-          .join("");
+/* =========================================================
+   BLOCK: POPUP_RENDERER
+   Генерація HTML popup
+   ========================================================= */
+const PopupRenderer = {
+  render(point) {
+    const commentsSorted = [...(point.comments || [])].sort((a, b) => b.time - a.time);
 
-        const voted = LocalStorageEngine.hasVoted(point.id);
-
-        return `
-          <div class="radar-popup">
-            <div class="popup-head">
-              <div class="popup-head-left">
-                <img src="${MarkerIconFactory.getIconPath(point.type)}" class="popup-icon">
-                <div class="popup-meta">
-                  <div class="popup-title-row">
-                    <div class="popup-title">${HtmlUtils.escapeHtml(APP_LABELS.markerTypes[point.type] || point.type)}</div>
-                    <div class="popup-life">${TimeUtils.timeLeftText(point.time)}</div>
-                  </div>
-                  <div class="popup-time">${TimeUtils.formatDateTime(point.time)}</div>
-                </div>
-              </div>
-              <button class="popup-close" onclick="window.closePopup()">×</button>
-            </div>
-
-            <div class="popup-comments-title">${APP_LABELS.popup.descTitle}</div>
-            <div class="popup-desc">${HtmlUtils.escapeHtml(point.desc || "")}</div>
-
-            <div class="popup-comments-title">${APP_LABELS.popup.commentsTitle}</div>
-            <div class="popup-comments">
-              ${
-                commentsHtml ||
-                `<div class="comment-item"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
-              }
-            </div>
-
-            <div class="reaction-row">
-              <button class="reaction-btn like ${voted ? "disabled" : ""}" onclick="window.vote(${index}, 'like')">👍 ${point.likes || 0}</button>
-              <button class="reaction-btn dislike ${voted ? "disabled" : ""}" onclick="window.vote(${index}, 'dislike')">👎 ${point.dislikes || 0}</button>
-            </div>
-
-            <input id="commentInput_${index}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
-            <div class="popup-counter" id="commentCounter_${index}">0 / 100</div>
-            <button class="popup-btn" onclick="window.addComment(${index})">Додати коментар</button>
+    const commentsHtml = commentsSorted
+      .map(
+        c => `
+          <div class="comment-item">
+            <div class="comment-text">${HtmlUtils.escapeHtml(c.text)}</div>
+            <div class="comment-time">${TimeUtils.formatTime(c.time)}</div>
           </div>
-        `;
-      }
-    };
+        `
+      )
+      .join("");
+
+    const voted = LocalStorageEngine.hasVoted(point.id);
+
+    return `
+      <div class="radar-popup">
+        <div class="popup-head">
+          <div class="popup-head-left">
+            <img src="${MarkerIconFactory.getIconPath(point.type)}" class="popup-icon">
+            <div class="popup-meta">
+              <div class="popup-title-row">
+                <div class="popup-title">${HtmlUtils.escapeHtml(APP_LABELS.markerTypes[point.type] || point.type)}</div>
+                <div class="popup-life">${TimeUtils.timeLeftText(point.time)}</div>
+              </div>
+              <div class="popup-time">${TimeUtils.formatDateTime(point.time)}</div>
+            </div>
+          </div>
+          <button class="popup-close" onclick="window.closePopup()">×</button>
+        </div>
+
+        <div class="popup-comments-title">${APP_LABELS.popup.descTitle}</div>
+        <div class="popup-desc">${HtmlUtils.escapeHtml(point.desc || "")}</div>
+
+        <div class="popup-comments-title">${APP_LABELS.popup.commentsTitle}</div>
+        <div class="popup-comments" id="popupComments_${point.id}">
+          ${
+            commentsHtml ||
+            `<div class="comment-item"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
+          }
+        </div>
+
+        <div class="reaction-row">
+          <button class="reaction-btn like ${voted ? "disabled" : ""}" onclick="window.vote('${point.id}', 'like')">👍 ${point.likes || 0}</button>
+          <button class="reaction-btn dislike ${voted ? "disabled" : ""}" onclick="window.vote('${point.id}', 'dislike')">👎 ${point.dislikes || 0}</button>
+        </div>
+
+        <input id="commentInput_${point.id}" class="popup-input" maxlength="100" placeholder="Написати коментар...">
+        <div class="popup-counter" id="commentCounter_${point.id}">0 / 100</div>
+        <button class="popup-btn" onclick="window.addComment('${point.id}')">Додати коментар</button>
+      </div>
+    `;
+  }
+};
 
 /* =========================================================
    BLOCK: POPUP_POSITION_ENGINE
    Логіка розміщення popup
    ========================================================= */
 const PopupPositionEngine = {
-  bindMarkerPopup(marker, point, index) {
+  bindMarkerPopup(marker, point) {
     marker.unbindPopup();
 
-    marker.bindPopup(PopupRenderer.render(point, index), {
+    marker.bindPopup(PopupRenderer.render(point), {
       autoPan: false,
       keepInView: false,
       closeButton: false,
@@ -2096,7 +2146,8 @@ const PopupPositionEngine = {
     marker.on("popupopen", () => {
       APP_STATE.currentOpenPointId = point.id;
       setTimeout(() => {
-        PopupCommentFeature.attachCounter(index);
+        PopupCommentFeature.attachCounter(point.id);
+        PopupCommentFeature.scrollCommentsToTop(point.id);
       }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
     });
 
@@ -2131,60 +2182,79 @@ const PopupPositionEngine = {
       }
     };
 
-    /* =========================================================
-       BLOCK: POPUP_COMMENT_FEATURE
-       Коментарі
-       ========================================================= */
-    const PopupCommentFeature = {
-      attachCounter(index) {
-        const input = document.getElementById(`commentInput_${index}`);
-        const counter = document.getElementById(`commentCounter_${index}`);
-        if (!input || !counter) return;
+ /* =========================================================
+   BLOCK: POPUP_COMMENT_FEATURE
+   Коментарі
+   ========================================================= */
+const PopupCommentFeature = {
+  getPointById(pointId) {
+    return APP_STATE.points.find(p => p.id === pointId);
+  },
 
-        input.oninput = () => {
-          counter.textContent = `${input.value.length} / 100`;
-        };
+  attachCounter(pointId) {
+    const input = document.getElementById(`commentInput_${pointId}`);
+    const counter = document.getElementById(`commentCounter_${pointId}`);
+    if (!input || !counter) return;
 
-        input.onfocus = () => {
-          APP_STATE.suspendRenderWhileTyping = true;
-        };
-
-        input.onblur = () => {
-          setTimeout(() => {
-            APP_STATE.suspendRenderWhileTyping = false;
-          }, 150);
-        };
-
-        counter.textContent = `${input.value.length} / 100`;
-      },
-
-      async add(index) {
-        const input = document.getElementById(`commentInput_${index}`);
-        if (!input) return;
-
-        const text = input.value.trim();
-        if (!text) return alert(APP_LABELS.errors.commentRequired);
-        if (text.length > 100) return alert(APP_LABELS.errors.max100);
-
-        const item = APP_STATE.points[index];
-        if (!item?.id) return;
-
-        APP_STATE.suspendRenderWhileTyping = true;
-        APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
-
-        const ref = doc(db, "points", item.id);
-        await updateDoc(ref, {
-          comments: [...(item.comments || []), { text, time: Date.now() }]
-        });
-
-        input.blur();
-
-        setTimeout(() => {
-          APP_STATE.suspendRenderWhileTyping = false;
-          MarkerRenderEngine.queueRender(true);
-        }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
-      }
+    const updateCounter = () => {
+      counter.textContent = `${input.value.length} / 100`;
     };
+
+    input.oninput = updateCounter;
+
+    input.onfocus = () => {
+      APP_STATE.suspendRenderWhileTyping = true;
+    };
+
+    input.onblur = () => {
+      setTimeout(() => {
+        APP_STATE.suspendRenderWhileTyping = false;
+      }, 150);
+    };
+
+    updateCounter();
+  },
+
+  scrollCommentsToTop(pointId) {
+    const commentsBox = document.getElementById(`popupComments_${pointId}`);
+    if (!commentsBox) return;
+    commentsBox.scrollTop = 0;
+  },
+
+  async add(pointId) {
+    const input = document.getElementById(`commentInput_${pointId}`);
+    if (!input) return;
+
+    const text = input.value.trim();
+    if (text.length < 10) {
+      alert("Мінімум 10 символів");
+      return;
+    }
+    if (text.length > 100) {
+      alert("Максимум 100 символів");
+      return;
+    }
+
+    const item = this.getPointById(pointId);
+    if (!item?.id) return;
+
+    APP_STATE.suspendRenderWhileTyping = true;
+    APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+
+    const ref = doc(db, "points", item.id);
+    await updateDoc(ref, {
+      comments: [...(item.comments || []), { text, time: Date.now() }]
+    });
+
+    input.value = "";
+    this.attachCounter(pointId);
+
+    setTimeout(() => {
+      APP_STATE.suspendRenderWhileTyping = false;
+      MarkerRenderEngine.queueRender(true);
+    }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
+  }
+};
 
     /* =========================================================
        BLOCK: POPUP_REACTION_FEATURE
@@ -2243,61 +2313,61 @@ const PopupPositionEngine = {
       }
     };
 
-    /* =========================================================
-       BLOCK: MARKER_CREATE_ENGINE
-       Створення marker
-       ========================================================= */
-    const MarkerCreateEngine = {
-      create(point, index, zoom) {
-        const marker = L.marker([point.lat, point.lng], {
-          icon: MarkerIconFactory.getIcon(point.type, zoom),
-          keyboard: false
-        }).addTo(MAP_INSTANCE);
+ /* =========================================================
+   BLOCK: MARKER_CREATE_ENGINE
+   Створення marker
+   ========================================================= */
+const MarkerCreateEngine = {
+  create(point, index, zoom) {
+    const marker = L.marker([point.lat, point.lng], {
+      icon: MarkerIconFactory.getIcon(point.type, zoom),
+      keyboard: false
+    }).addTo(MAP_INSTANCE);
 
-        marker.pointId = point.id;
-        PopupPositionEngine.bindMarkerPopup(marker, point, index);
+    marker.pointId = point.id;
+    PopupPositionEngine.bindMarkerPopup(marker, point);
 
-        APP_STATE.markerRegistry.set(point.id, {
-          marker,
-          hash: MarkerRegistry.getVisualHash(point),
-          lat: point.lat,
-          lng: point.lng,
-          iconKey: `${point.type}_${zoom}`
-        });
+    APP_STATE.markerRegistry.set(point.id, {
+      marker,
+      hash: MarkerRegistry.getVisualHash(point),
+      lat: point.lat,
+      lng: point.lng,
+      iconKey: `${point.type}_${zoom}`
+    });
+  }
+};
+
+  /* =========================================================
+   BLOCK: MARKER_UPDATE_ENGINE
+   Оновлення marker
+   ========================================================= */
+const MarkerUpdateEngine = {
+  update(entry, point, index, zoom) {
+    const newHash = MarkerRegistry.getVisualHash(point);
+    const newIconKey = `${point.type}_${zoom}`;
+
+    if (entry.iconKey !== newIconKey) {
+      entry.marker.setIcon(MarkerIconFactory.getIcon(point.type, zoom));
+      entry.iconKey = newIconKey;
+    }
+
+    if (entry.lat !== point.lat || entry.lng !== point.lng) {
+      entry.marker.setLatLng([point.lat, point.lng]);
+      entry.lat = point.lat;
+      entry.lng = point.lng;
+    }
+
+    if (entry.hash !== newHash) {
+      const popup = entry.marker.getPopup();
+      if (popup) {
+        popup.setContent(PopupRenderer.render(point));
+      } else {
+        PopupPositionEngine.bindMarkerPopup(entry.marker, point);
       }
-    };
-
-    /* =========================================================
-       BLOCK: MARKER_UPDATE_ENGINE
-       Оновлення marker
-       ========================================================= */
-    const MarkerUpdateEngine = {
-      update(entry, point, index, zoom) {
-        const newHash = MarkerRegistry.getVisualHash(point);
-        const newIconKey = `${point.type}_${zoom}`;
-
-        if (entry.iconKey !== newIconKey) {
-          entry.marker.setIcon(MarkerIconFactory.getIcon(point.type, zoom));
-          entry.iconKey = newIconKey;
-        }
-
-        if (entry.lat !== point.lat || entry.lng !== point.lng) {
-          entry.marker.setLatLng([point.lat, point.lng]);
-          entry.lat = point.lat;
-          entry.lng = point.lng;
-        }
-
-        if (entry.hash !== newHash) {
-          const popup = entry.marker.getPopup();
-          if (popup) {
-            popup.setContent(PopupRenderer.render(point, index));
-          } else {
-            PopupPositionEngine.bindMarkerPopup(entry.marker, point, index);
-          }
-          entry.hash = newHash;
-        }
-      }
-    };
+      entry.hash = newHash;
+    }
+  }
+};
 
     /* =========================================================
        BLOCK: MARKER_GROUP_ENGINE
@@ -2870,21 +2940,21 @@ const PopupPositionEngine = {
       }
     };
 
-    /* =========================================================
-       BLOCK: WINDOW_GLOBAL_ACTIONS
-       Глобальні дії для popup
-       ========================================================= */
-    window.closePopup = function () {
-      MAP_INSTANCE.closePopup();
-    };
+ /* =========================================================
+   BLOCK: WINDOW_GLOBAL_ACTIONS
+   Глобальні дії для popup
+   ========================================================= */
+window.closePopup = function () {
+  MAP_INSTANCE.closePopup();
+};
 
-    window.vote = async function (index, type) {
-      await PopupReactionFeature.vote(index, type);
-    };
+window.vote = async function (pointId, type) {
+  await PopupReactionFeature.vote(pointId, type);
+};
 
-    window.addComment = async function (index) {
-      await PopupCommentFeature.add(index);
-    };
+window.addComment = async function (pointId) {
+  await PopupCommentFeature.add(pointId);
+};
 
     /* =========================================================
        BLOCK: APP_INIT
