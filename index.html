@@ -2633,126 +2633,180 @@ const SettingsWindow = {
       }
     };
 
-    /* =========================================================
-       BLOCK: MARKER_GROUP_ENGINE
-       Групування marker-ів у кола
-       ========================================================= */
-    const MarkerGroupEngine = {
-      buildColoredGroups(points) {
-        const groups = {
-          safe: [],
-          question: [],
-          danger: []
-        };
+  /* =========================================================
+   BLOCK: MARKER_GROUP_ENGINE
+   Групування marker-ів у кола
+   ========================================================= */
+const MarkerGroupEngine = {
+  getGroupType(point) {
+    if (point.type === "safe") return "safe";
+    if (point.type === "question") return "question";
+    return "danger";
+  },
 
-        const visited = new Map();
+  getMinCount(groupType) {
+    if (groupType === "safe") return APP_CONFIG.SAFE_MIN_COUNT;
+    if (groupType === "question") return APP_CONFIG.QUESTION_MIN_COUNT;
+    return APP_CONFIG.DANGER_MIN_COUNT;
+  },
 
-        for (let i = 0; i < points.length; i++) {
-          if (visited.has(points[i].id)) continue;
+  getColor(groupType) {
+    if (groupType === "safe") return "#34c759";
+    if (groupType === "question") return "#ffcc00";
+    return "#ff3b30";
+  },
 
-          let groupType = null;
-          if (points[i].type === "safe") groupType = "safe";
-          else if (points[i].type === "question") groupType = "question";
-          else groupType = "danger";
+  buildCandidateCircles(points) {
+    const candidates = [];
 
-          const queue = [points[i]];
-          const component = [];
-          visited.set(points[i].id, groupType);
+    for (const point of points) {
+      const groupType = this.getGroupType(point);
 
-          while (queue.length) {
-            const current = queue.shift();
-            component.push(current);
+      const sameTypePoints = points.filter(
+        p => this.getGroupType(p) === groupType
+      );
 
-            for (let j = 0; j < points.length; j++) {
-              const candidate = points[j];
-              if (visited.has(candidate.id)) continue;
+      const nearby = sameTypePoints.filter(p => {
+        return (
+          GeoUtils.distanceMeters(point.lat, point.lng, p.lat, p.lng) <=
+          APP_CONFIG.GROUP_RADIUS_METERS
+        );
+      });
 
-              let candidateType = null;
-              if (candidate.type === "safe") candidateType = "safe";
-              else if (candidate.type === "question") candidateType = "question";
-              else candidateType = "danger";
+      const minCount = this.getMinCount(groupType);
 
-              if (candidateType !== groupType) continue;
+      if (nearby.length >= minCount) {
+        const avgLat =
+          nearby.reduce((sum, p) => sum + p.lat, 0) / nearby.length;
+        const avgLng =
+          nearby.reduce((sum, p) => sum + p.lng, 0) / nearby.length;
 
-              if (
-                GeoUtils.distanceMeters(
-                  current.lat,
-                  current.lng,
-                  candidate.lat,
-                  candidate.lng
-                ) <= APP_CONFIG.GROUP_RADIUS_METERS
-              ) {
-                visited.set(candidate.id, groupType);
-                queue.push(candidate);
-              }
-            }
-          }
-
-          if (groupType === "safe" && component.length >= APP_CONFIG.SAFE_MIN_COUNT) {
-            const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
-            const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
-            groups.safe.push({ lat: avgLat, lng: avgLng, color: "#34c759" });
-          } else if (
-            groupType === "question" &&
-            component.length >= APP_CONFIG.QUESTION_MIN_COUNT
-          ) {
-            const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
-            const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
-            groups.question.push({ lat: avgLat, lng: avgLng, color: "#ffcc00" });
-          } else if (
-            groupType === "danger" &&
-            component.length >= APP_CONFIG.DANGER_MIN_COUNT
-          ) {
-            const avgLat = component.reduce((s, p) => s + p.lat, 0) / component.length;
-            const avgLng = component.reduce((s, p) => s + p.lng, 0) / component.length;
-            groups.danger.push({ lat: avgLat, lng: avgLng, color: "#ff3b30" });
-          }
-        }
-
-        return groups;
-      },
-
-      render(points) {
-        GROUP_CIRCLE_LAYER.clearLayers();
-        const groups = this.buildColoredGroups(points);
-
-        for (const group of groups.safe) {
-          L.circle([group.lat, group.lng], {
-            radius: APP_CONFIG.GROUP_RADIUS_METERS,
-            color: group.color,
-            weight: 2.5,
-            opacity: 0.9,
-            fillColor: group.color,
-            fillOpacity: 0.2,
-            interactive: false
-          }).addTo(GROUP_CIRCLE_LAYER);
-        }
-
-        for (const group of groups.question) {
-          L.circle([group.lat, group.lng], {
-            radius: APP_CONFIG.GROUP_RADIUS_METERS,
-            color: group.color,
-            weight: 2.5,
-            opacity: 0.9,
-            fillColor: group.color,
-            fillOpacity: 0.2,
-            interactive: false
-          }).addTo(GROUP_CIRCLE_LAYER);
-        }
-
-        for (const group of groups.danger) {
-          L.circle([group.lat, group.lng], {
-            radius: APP_CONFIG.GROUP_RADIUS_METERS,
-            color: group.color,
-            weight: 2.5,
-            opacity: 0.9,
-            fillColor: group.color,
-            fillOpacity: 0.2,
-            interactive: false
-          }).addTo(GROUP_CIRCLE_LAYER);
-        }
+        candidates.push({
+          groupType,
+          lat: avgLat,
+          lng: avgLng,
+          color: this.getColor(groupType),
+          count: nearby.length,
+          idsArray: nearby.map(p => p.id).sort(),
+          idsKey: nearby.map(p => p.id).sort().join("|")
+        });
       }
+    }
+
+    return candidates;
+  },
+
+  arraysEqual(a, b) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  },
+
+  intersectionSize(a, b) {
+    const setB = new Set(b);
+    let count = 0;
+    for (const item of a) {
+      if (setB.has(item)) count++;
+    }
+    return count;
+  },
+
+  dedupeCircles(candidates) {
+    const result = [];
+    const sorted = [...candidates].sort((a, b) => b.count - a.count);
+
+    for (const candidate of sorted) {
+      const duplicate = result.some(existing => {
+        if (existing.groupType !== candidate.groupType) return false;
+
+        // 1. Полный дубль по составу
+        if (existing.idsKey === candidate.idsKey) return true;
+
+        const dist = GeoUtils.distanceMeters(
+          existing.lat,
+          existing.lng,
+          candidate.lat,
+          candidate.lng
+        );
+
+        const intersect = this.intersectionSize(
+          existing.idsArray,
+          candidate.idsArray
+        );
+
+        const overlapRatio =
+          intersect / Math.max(existing.idsArray.length, candidate.idsArray.length);
+
+        // 2. Почти тот же круг: очень близкий центр + почти тот же состав
+        if (dist < APP_CONFIG.GROUP_RADIUS_METERS * 0.22 && overlapRatio >= 0.9) {
+          return true;
+        }
+
+        return false;
+      });
+
+      if (!duplicate) {
+        result.push(candidate);
+      }
+    }
+
+    return result;
+  },
+
+  buildColoredGroups(points) {
+    const candidates = this.buildCandidateCircles(points);
+    const uniqueCircles = this.dedupeCircles(candidates);
+
+    return {
+      safe: uniqueCircles.filter(c => c.groupType === "safe"),
+      question: uniqueCircles.filter(c => c.groupType === "question"),
+      danger: uniqueCircles.filter(c => c.groupType === "danger")
     };
+  },
+
+  render(points) {
+    GROUP_CIRCLE_LAYER.clearLayers();
+    const groups = this.buildColoredGroups(points);
+
+    for (const group of groups.safe) {
+      L.circle([group.lat, group.lng], {
+        radius: APP_CONFIG.GROUP_RADIUS_METERS,
+        color: group.color,
+        weight: 2.5,
+        opacity: 0.95,
+        fillColor: group.color,
+        fillOpacity: 0.22,
+        interactive: false
+      }).addTo(GROUP_CIRCLE_LAYER);
+    }
+
+    for (const group of groups.question) {
+      L.circle([group.lat, group.lng], {
+        radius: APP_CONFIG.GROUP_RADIUS_METERS,
+        color: group.color,
+        weight: 2.5,
+        opacity: 0.95,
+        fillColor: group.color,
+        fillOpacity: 0.22,
+        interactive: false
+      }).addTo(GROUP_CIRCLE_LAYER);
+    }
+
+    for (const group of groups.danger) {
+      L.circle([group.lat, group.lng], {
+        radius: APP_CONFIG.GROUP_RADIUS_METERS,
+        color: group.color,
+        weight: 2.5,
+        opacity: 0.95,
+        fillColor: group.color,
+        fillOpacity: 0.22,
+        interactive: false
+      }).addTo(GROUP_CIRCLE_LAYER);
+    }
+  }
+};
 
     /* =========================================================
        BLOCK: MARKER_RENDER_ENGINE
