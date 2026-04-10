@@ -1,3 +1,6 @@
+Ось **повний код** з усіма змінами, який можна одразу скопіювати та запустити:
+
+```html
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -99,7 +102,8 @@
 
     #geoBtn,
     #settingsBtn,
-    #addBtn {
+    #addBtn,
+    #zonesBtn {
       border: none;
       cursor: pointer;
       display: flex;
@@ -140,6 +144,16 @@
       line-height: 1;
     }
 
+    #zonesBtn {
+      width: var(--add-size);
+      height: var(--add-size);
+      border-radius: var(--add-radius);
+      background: rgba(28, 28, 30, 0.8);
+      color: #fff;
+      font-size: 20px;
+      line-height: 1;
+    }
+
     #geoBtn svg {
       width: 20px;
       height: 20px;
@@ -162,7 +176,9 @@
        Спільні стилі вікон
        ========================================================= */
     #pickerBar,
-    #descSheet {
+    #descSheet,
+    #zoneSheet,
+    #zoneEditSheet {
       position: fixed;
       z-index: 1001;
       display: none;
@@ -181,7 +197,9 @@
        Мобільна адаптація
        ========================================================= */
     @media (max-width: 600px) {
-      #pickerBar {
+      #pickerBar,
+      #zoneSheet,
+      #zoneEditSheet {
         position: fixed !important;
         left: 0 !important;
         right: 0 !important;
@@ -265,14 +283,16 @@
        ========================================================= */
     @media (min-width: 601px) {
       #pickerBar,
-      #descSheet {
+      #descSheet,
+      #zoneSheet,
+      #zoneEditSheet {
         position: fixed !important;
         right: 10px !important;
         left: auto !important;
         top: auto !important;
         bottom: 10px !important;
         transform: none !important;
-        width: 300px !important;
+        width: 320px !important;
         max-width: calc(100vw - 20px) !important;
         z-index: 1105 !important;
       }
@@ -365,7 +385,9 @@
        ========================================================= */
     #pickerTop,
     #sheetHead,
-    #settingsHead {
+    #settingsHead,
+    #zoneHead,
+    #zoneEditHead {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -393,14 +415,17 @@
     }
 
     #sheetTitle,
-    #settingsTitle {
+    #settingsTitle,
+    #zoneTitle {
       font-size: var(--title-size);
       font-weight: 700;
     }
 
     #pickerClose,
     #sheetClose,
-    #settingsClose {
+    #settingsClose,
+    #zoneClose,
+    #zoneEditClose {
       border: none;
       background: rgba(255, 255, 255, 0.12);
       color: #fff;
@@ -457,6 +482,8 @@
        ========================================================= */
     #descInput,
     #citySelect,
+    #zoneNameInput,
+    #zoneRadiusInput,
     .popup-input,
     button,
     input,
@@ -465,7 +492,9 @@
       font-size: 16px;
     }
 
-    #descInput {
+    #descInput,
+    #zoneNameInput,
+    #zoneRadiusInput {
       width: 100%;
       border: none;
       border-radius: 16px;
@@ -475,11 +504,24 @@
       font-family: inherit;
       outline: none;
       resize: none;
+    }
+
+    #descInput {
       min-height: 84px;
     }
 
+    #zoneNameInput {
+      margin-bottom: 10px;
+    }
+
+    #zoneRadiusInput {
+      margin-bottom: 10px;
+    }
+
     #descInput::placeholder,
-    .popup-input::placeholder {
+    .popup-input::placeholder,
+    #zoneNameInput::placeholder,
+    #zoneRadiusInput::placeholder {
       color: rgba(255, 255, 255, 0.5);
     }
 
@@ -494,6 +536,8 @@
 
     #saveBtn,
     #saveSettingsBtn,
+    #saveZoneBtn,
+    #saveZoneEditBtn,
     .popup-btn {
       width: 100%;
       border: none;
@@ -510,6 +554,160 @@
     #saveSettingsBtn {
       flex: 0 0 auto;
       margin-top: 10px;
+    }
+
+    /* =========================================================
+       BLOCK: CSS_ZONE_TEMPLATES
+       Шаблони зон
+       ========================================================= */
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .template-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .template-item:active {
+      transform: scale(0.97);
+      background: rgba(10, 132, 255, 0.18);
+    }
+
+    .template-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .template-radius {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .zone-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 15px 0 12px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+    }
+
+    .zone-divider::before,
+    .zone-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* =========================================================
+       BLOCK: CSS_ZONES_LIST
+       Список зон в налаштуваннях
+       ========================================================= */
+    .zones-list {
+      margin-top: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .zone-item {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .zone-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .zone-name {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .zone-name span:first-child {
+      font-size: 16px;
+    }
+
+    .zone-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .zone-action-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 8px;
+      padding: 5px 8px;
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .zone-action-btn.delete {
+      color: #ff6b6b;
+    }
+
+    .zone-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .zone-radius {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .zone-toggle {
+      width: 40px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      position: relative;
+      transition: 0.2s;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .zone-toggle.active {
+      background: #0a84ff;
+    }
+
+    .zone-toggle::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: 0.2s;
+    }
+
+    .zone-toggle.active::after {
+      left: 18px;
     }
 
     /* =========================================================
@@ -1236,6 +1434,22 @@
         padding: 4px 8px;
       }
     }
+
+    /* =========================================================
+       BLOCK: CSS_ZONE_COLORS
+       Кольори зон
+       ========================================================= */
+    .zone-circle {
+      stroke: rgba(10, 132, 255, 0.8);
+      stroke-width: 2;
+      fill: rgba(10, 132, 255, 0.08);
+      transition: all 0.2s ease;
+    }
+
+    .zone-circle:hover {
+      fill: rgba(10, 132, 255, 0.18);
+      stroke-width: 3;
+    }
   </style>
 </head>
 <body>
@@ -1256,6 +1470,7 @@
       </svg>
     </button>
     <button id="settingsBtn" aria-label="Налаштування" title="Налаштування">⚙️</button>
+    <button id="zonesBtn" aria-label="Зони" title="Зони">🏠</button>
     <button id="addBtn" aria-label="Додати мітку" title="Додати мітку">+</button>
   </div>
 
@@ -1321,6 +1536,75 @@
   </div>
 
   <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_ZONE_SHEET
+       Вікно створення зони
+       ========================================================= -->
+  <div id="zoneSheet">
+    <div id="zoneHead">
+      <div id="zoneTitle">➕ Створити зону</div>
+      <button id="zoneClose">×</button>
+    </div>
+
+    <div class="templates-grid" id="templatesGrid">
+      <div class="template-item" data-radius="500" data-name="Дім">
+        <div class="template-name">🏠 Дім</div>
+        <div class="template-radius">500 м</div>
+      </div>
+      <div class="template-item" data-radius="700" data-name="Робота">
+        <div class="template-name">💼 Робота</div>
+        <div class="template-radius">700 м</div>
+      </div>
+      <div class="template-item" data-radius="300" data-name="Мала зона">
+        <div class="template-name">🔴 Мала зона</div>
+        <div class="template-radius">300 м</div>
+      </div>
+      <div class="template-item" data-radius="700" data-name="Середня зона">
+        <div class="template-name">🟠 Середня зона</div>
+        <div class="template-radius">700 м</div>
+      </div>
+      <div class="template-item" data-radius="1500" data-name="Велика зона">
+        <div class="template-name">🟢 Велика зона</div>
+        <div class="template-radius">1500 м</div>
+      </div>
+      <div class="template-item" data-radius="2500" data-name="Мікрорайон">
+        <div class="template-name">🏘️ Мікрорайон</div>
+        <div class="template-radius">2500 м</div>
+      </div>
+    </div>
+
+    <div class="zone-divider">АБО ВРУЧНУ</div>
+
+    <input type="text" id="zoneNameInput" placeholder="Назва зони" maxlength="30">
+    <input type="number" id="zoneRadiusInput" placeholder="Радіус (метри)" min="50" max="5000" step="50">
+    
+    <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 12px; text-align: center;">
+      👆 Після збереження натисни на мапу, щоб поставити центр
+    </div>
+    
+    <button id="saveZoneBtn">Зберегти та вибрати центр</button>
+  </div>
+
+  <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_ZONE_EDIT_SHEET
+       Вікно редагування зони
+       ========================================================= -->
+  <div id="zoneEditSheet">
+    <div id="zoneEditHead">
+      <div id="zoneEditTitle">✏️ Редагувати зону</div>
+      <button id="zoneEditClose">×</button>
+    </div>
+
+    <input type="text" id="zoneEditNameInput" placeholder="Назва зони" maxlength="30">
+    <input type="number" id="zoneEditRadiusInput" placeholder="Радіус (метри)" min="50" max="5000" step="50">
+    
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+      <button id="saveZoneEditBtn" style="flex: 2;">💾 Зберегти</button>
+      <button id="gotoZoneBtn" style="flex: 1; background: rgba(10,132,255,0.6);">📍</button>
+      <button id="deleteZoneBtn" style="flex: 1; background: rgba(255,59,48,0.6);">🗑️</button>
+    </div>
+  </div>
+
+  <!-- =========================================================
        BLOCK: HTML_STRUCTURE_SETTINGS_SHEET
        Вікно налаштувань
        ========================================================= -->
@@ -1348,16 +1632,18 @@
           <div class="filter-toggle" id="themeToggle"></div>
         </div>
       </div>
-<div class="settings-group">
-  <div class="settings-label">🔔 Сповіщення</div>
-  <div class="filter-item" id="notificationsToggleRow">
-    <div class="filter-item-left">
-      <span id="notificationsIcon">🔔</span>
-      <span id="notificationsLabel">Увімкнено</span>
-    </div>
-    <div class="filter-toggle" id="notificationsToggle"></div>
-  </div>
-</div>
+
+      <div class="settings-group">
+        <div class="settings-label">🔔 Сповіщення</div>
+        <div class="filter-item" id="notificationsToggleRow">
+          <div class="filter-item-left">
+            <span id="notificationsIcon">🔔</span>
+            <span id="notificationsLabel">Увімкнено</span>
+          </div>
+          <div class="filter-toggle" id="notificationsToggle"></div>
+        </div>
+      </div>
+
       <div class="settings-group">
         <div class="settings-label">⏱️ Фільтр за часом</div>
         <div class="time-slider-container">
@@ -1366,6 +1652,16 @@
             <span>🕒 15 хв</span>
             <span class="time-value" id="timeValue">24 год</span>
             <span>📅 24 год</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-label">🏠 Мої зони</div>
+        <div id="zonesList" class="zones-list">
+          <!-- зони будуть тут -->
+          <div style="color: rgba(255,255,255,0.4); text-align: center; padding: 20px;">
+            Немає зон<br>Натисніть 🏠, щоб додати
           </div>
         </div>
       </div>
@@ -1483,6 +1779,7 @@
 const APP_CONFIG = {
   SETTINGS_KEY: "radar_settings",
   VOTES_KEY: "radar_votes",
+  ZONES_KEY: "radar_zones",
   TILE_CACHE_NAME: "radar-tile-cache-v5",
   CLIENT_ID_KEY: "radar_client_id",
   LIFE_MS: 24 * 60 * 60 * 1000,
@@ -1498,7 +1795,7 @@ const APP_CONFIG = {
   COMMENT_INPUT_ATTACH_DELAY_MS: 20
 };
 
-  /* =========================================================
+/* =========================================================
    BLOCK: APP_LABELS
    Усі тексти застосунку
    ========================================================= */
@@ -1539,6 +1836,19 @@ const APP_LABELS = {
     addComment: "Додати коментар"
   }
 };
+
+/* =========================================================
+   BLOCK: ZONE_TEMPLATE_CONFIG
+   Шаблони зон
+   ========================================================= */
+const ZONE_TEMPLATES = [
+  { id: "home", name: "Дім", radius: 500, icon: "🏠" },
+  { id: "work", name: "Робота", radius: 700, icon: "💼" },
+  { id: "small", name: "Мала зона", radius: 300, icon: "🔴" },
+  { id: "medium", name: "Середня зона", radius: 700, icon: "🟠" },
+  { id: "large", name: "Велика зона", radius: 1500, icon: "🟢" },
+  { id: "district", name: "Мікрорайон", radius: 2500, icon: "🏘️" }
+];
 
     /* =========================================================
        BLOCK: CITY_CONFIG
@@ -1622,7 +1932,14 @@ const APP_STATE = {
   notificationQueue: [],
   notificationIsShowing: false,
   knownPointIds: new Set(),
-  clientId: null
+  clientId: null,
+  
+  // Зони
+  zones: [],
+  zoneCircleLayer: null,
+  pendingZone: null, // { name, radius, templateMode }
+  zoneEditId: null,
+  isCreatingZone: false
 };
 
  /* =========================================================
@@ -1635,6 +1952,7 @@ const DOM = {
   geoBtn: document.getElementById("geoBtn"),
   settingsBtn: document.getElementById("settingsBtn"),
   addBtn: document.getElementById("addBtn"),
+  zonesBtn: document.getElementById("zonesBtn"),
 
   pickerBar: document.getElementById("pickerBar"),
   pickerClose: document.getElementById("pickerClose"),
@@ -1646,6 +1964,21 @@ const DOM = {
   saveBtn: document.getElementById("saveBtn"),
   sheetIcon: document.getElementById("sheetIcon"),
   sheetTitle: document.getElementById("sheetTitle"),
+
+  zoneSheet: document.getElementById("zoneSheet"),
+  zoneClose: document.getElementById("zoneClose"),
+  zoneNameInput: document.getElementById("zoneNameInput"),
+  zoneRadiusInput: document.getElementById("zoneRadiusInput"),
+  saveZoneBtn: document.getElementById("saveZoneBtn"),
+  templatesGrid: document.getElementById("templatesGrid"),
+
+  zoneEditSheet: document.getElementById("zoneEditSheet"),
+  zoneEditClose: document.getElementById("zoneEditClose"),
+  zoneEditNameInput: document.getElementById("zoneEditNameInput"),
+  zoneEditRadiusInput: document.getElementById("zoneEditRadiusInput"),
+  saveZoneEditBtn: document.getElementById("saveZoneEditBtn"),
+  gotoZoneBtn: document.getElementById("gotoZoneBtn"),
+  deleteZoneBtn: document.getElementById("deleteZoneBtn"),
 
   settingsSheet: document.getElementById("settingsSheet"),
   settingsBody: document.getElementById("settingsBody"),
@@ -1662,6 +1995,7 @@ const DOM = {
   notificationsToggleRow: document.getElementById("notificationsToggleRow"),
   notificationsLabel: document.getElementById("notificationsLabel"),
   notificationsIcon: document.getElementById("notificationsIcon"),
+  zonesList: document.getElementById("zonesList"),
 
   successModalBackdrop: document.getElementById("successModalBackdrop"),
   successModalClose: document.getElementById("successModalClose"),
@@ -1767,13 +2101,169 @@ const DOM = {
           [lat - latDelta, lng - lngDelta],
           [lat + latDelta, lng + lngDelta]
         );
+      },
+      isPointInCircle(lat, lng, centerLat, centerLng, radiusMeters) {
+        return this.distanceMeters(lat, lng, centerLat, centerLng) <= radiusMeters;
       }
     };
 
-   /* =========================================================
-   BLOCK: LOCAL_STORAGE_ENGINE
-   Робота з localStorage
+/* =========================================================
+   BLOCK: ZONE_STORAGE_ENGINE
+   Збереження зон у localStorage
    ========================================================= */
+const ZoneStorageEngine = {
+  loadZones() {
+    try {
+      const saved = localStorage.getItem(APP_CONFIG.ZONES_KEY);
+      if (!saved) return [];
+      
+      const zones = JSON.parse(saved);
+      return zones.map(z => ({
+        ...z,
+        enabled: z.enabled !== false,
+        radius: Number(z.radius) || 500,
+        lat: Number(z.lat),
+        lng: Number(z.lng)
+      }));
+    } catch {
+      return [];
+    }
+  },
+
+  saveZones(zones) {
+    localStorage.setItem(APP_CONFIG.ZONES_KEY, JSON.stringify(zones));
+  },
+
+  addZone(zone) {
+    const zones = this.loadZones();
+    const newZone = {
+      id: Date.now().toString() + "_" + Math.random().toString(36).slice(2, 6),
+      ...zone,
+      enabled: true
+    };
+    zones.push(newZone);
+    this.saveZones(zones);
+    return newZone;
+  },
+
+  updateZone(id, updates) {
+    const zones = this.loadZones();
+    const index = zones.findIndex(z => z.id === id);
+    if (index !== -1) {
+      zones[index] = { ...zones[index], ...updates };
+      this.saveZones(zones);
+      return zones[index];
+    }
+    return null;
+  },
+
+  deleteZone(id) {
+    const zones = this.loadZones();
+    const filtered = zones.filter(z => z.id !== id);
+    this.saveZones(filtered);
+    return filtered;
+  },
+
+  toggleZone(id) {
+    const zones = this.loadZones();
+    const zone = zones.find(z => z.id === id);
+    if (zone) {
+      zone.enabled = !zone.enabled;
+      this.saveZones(zones);
+      return zone;
+    }
+    return null;
+  }
+};
+
+/* =========================================================
+   BLOCK: ZONE_CIRCLE_ENGINE
+   Рендер кіл зон на карті
+   ========================================================= */
+const ZoneCircleEngine = {
+  init() {
+    APP_STATE.zoneCircleLayer = L.layerGroup().addTo(MAP_INSTANCE);
+  },
+
+  renderAll() {
+    if (!APP_STATE.zoneCircleLayer) this.init();
+    APP_STATE.zoneCircleLayer.clearLayers();
+    
+    const zones = ZoneStorageEngine.loadZones();
+    APP_STATE.zones = zones;
+    
+    for (const zone of zones) {
+      if (!zone.enabled) continue;
+      if (!zone.lat || !zone.lng) continue;
+      
+      const circle = L.circle([zone.lat, zone.lng], {
+        radius: zone.radius,
+        color: "#0a84ff",
+        weight: 2.5,
+        opacity: 0.8,
+        fillColor: "#0a84ff",
+        fillOpacity: 0.1,
+        className: "zone-circle"
+      }).addTo(APP_STATE.zoneCircleLayer);
+      
+      circle.zoneId = zone.id;
+      
+      if (zone.name) {
+        circle.bindTooltip(zone.name, {
+          permanent: false,
+          direction: "center",
+          className: "zone-tooltip"
+        });
+      }
+    }
+  },
+
+  flyToZone(zone) {
+    if (!zone.lat || !zone.lng) return;
+    MAP_INSTANCE.flyTo([zone.lat, zone.lng], Math.max(MAP_INSTANCE.getZoom(), 15), {
+      animate: true,
+      duration: 0.8
+    });
+  }
+};
+
+/* =========================================================
+   BLOCK: ZONE_NOTIFICATION_FILTER
+   Фільтрація сповіщень по зонах
+   ========================================================= */
+const ZoneNotificationFilter = {
+  shouldNotify(point) {
+    // Спочатку перевіряємо сповіщення по місту
+    const cityNotificationsEnabled = APP_STATE.settings.notificationsEnabled;
+    if (!cityNotificationsEnabled) return false;
+    
+    // Перевіряємо, чи точка в поточному місті
+    const currentCity = APP_STATE.settings.selectedCity;
+    if (point.city !== currentCity) return false;
+    
+    // Якщо є активні зони в поточному місті - перевіряємо їх
+    const activeZones = APP_STATE.zones.filter(z => z.enabled && z.lat && z.lng);
+    
+    if (activeZones.length === 0) {
+      // Немає активних зон - сповіщення по місту як завжди
+      return true;
+    }
+    
+    // Є активні зони - сповіщення тільки якщо точка в зоні
+    for (const zone of activeZones) {
+      if (GeoUtils.isPointInCircle(point.lat, point.lng, zone.lat, zone.lng, zone.radius)) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+};
+
+    /* =========================================================
+       BLOCK: LOCAL_STORAGE_ENGINE
+       Робота з localStorage
+       ========================================================= */
 const LocalStorageEngine = {
   loadSettings() {
     const defaults = {
@@ -2193,6 +2683,325 @@ const LocalStorageEngine = {
       }
     };
 
+/* =========================================================
+   BLOCK: WINDOW_ZONE_SHEET
+   Вікно створення зони
+   ========================================================= */
+const ZoneWindow = {
+  show() {
+    DOM.zoneSheet.style.display = "block";
+    DOM.zoneNameInput.value = "";
+    DOM.zoneRadiusInput.value = "";
+    
+    if (LayoutHelpers.isMobile()) {
+      requestAnimationFrame(() => {
+        DOM.zoneSheet.classList.add("show-mobile");
+      });
+    }
+  },
+
+  hide() {
+    if (LayoutHelpers.isMobile()) {
+      DOM.zoneSheet.classList.remove("show-mobile");
+      setTimeout(() => {
+        DOM.zoneSheet.style.display = "none";
+      }, 220);
+      return;
+    }
+    DOM.zoneSheet.style.display = "none";
+  },
+
+  startCreateFromTemplate(template) {
+    APP_STATE.pendingZone = {
+      name: template.name,
+      radius: template.radius,
+      templateMode: true
+    };
+    DOM.zoneNameInput.value = template.name;
+    DOM.zoneRadiusInput.value = template.radius;
+    this.hide();
+    
+    APP_STATE.isCreatingZone = true;
+    MAP_INSTANCE.once("click", (e) => {
+      this.finishCreate(e.latlng);
+    });
+    
+    // Показуємо інструкцію
+    const notification = document.createElement("div");
+    notification.className = "global-notification";
+    notification.innerHTML = `
+      <div class="global-notification-head">
+        <div class="global-notification-left">
+          <div class="global-notification-meta">
+            <div class="global-notification-title">📍 Вибери центр зони</div>
+            <div class="global-notification-text">Натисни на мапу, щоб поставити центр для "${template.name}"</div>
+          </div>
+        </div>
+      </div>
+    `;
+    DOM.globalNotificationHost.appendChild(notification);
+    requestAnimationFrame(() => notification.classList.add("show"));
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => notification.remove(), 300);
+    }, 4000);
+  },
+
+  startCreateManual() {
+    const name = DOM.zoneNameInput.value.trim();
+    const radius = parseInt(DOM.zoneRadiusInput.value, 10);
+    
+    if (!name) {
+      alert("Введіть назву зони");
+      return;
+    }
+    if (!radius || radius < 50 || radius > 5000) {
+      alert("Радіус має бути від 50 до 5000 метрів");
+      return;
+    }
+    
+    APP_STATE.pendingZone = {
+      name: name,
+      radius: radius,
+      templateMode: false
+    };
+    this.hide();
+    
+    APP_STATE.isCreatingZone = true;
+    MAP_INSTANCE.once("click", (e) => {
+      this.finishCreate(e.latlng);
+    });
+    
+    const notification = document.createElement("div");
+    notification.className = "global-notification";
+    notification.innerHTML = `
+      <div class="global-notification-head">
+        <div class="global-notification-left">
+          <div class="global-notification-meta">
+            <div class="global-notification-title">📍 Вибери центр зони</div>
+            <div class="global-notification-text">Натисни на мапу, щоб поставити центр для "${name}"</div>
+          </div>
+        </div>
+      </div>
+    `;
+    DOM.globalNotificationHost.appendChild(notification);
+    requestAnimationFrame(() => notification.classList.add("show"));
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => notification.remove(), 300);
+    }, 4000);
+  },
+
+  finishCreate(latlng) {
+    if (!APP_STATE.pendingZone) return;
+    
+    const newZone = ZoneStorageEngine.addZone({
+      name: APP_STATE.pendingZone.name,
+      radius: APP_STATE.pendingZone.radius,
+      lat: latlng.lat,
+      lng: latlng.lng
+    });
+    
+    APP_STATE.pendingZone = null;
+    APP_STATE.isCreatingZone = false;
+    
+    ZoneCircleEngine.renderAll();
+    ZoneManagerUI.renderZonesList();
+    
+    const notification = document.createElement("div");
+    notification.className = "global-notification";
+    notification.innerHTML = `
+      <div class="global-notification-head">
+        <div class="global-notification-left">
+          <div class="global-notification-meta">
+            <div class="global-notification-title">✅ Зону створено</div>
+            <div class="global-notification-text">"${newZone.name}" (${newZone.radius} м) додано</div>
+          </div>
+        </div>
+      </div>
+    `;
+    DOM.globalNotificationHost.appendChild(notification);
+    requestAnimationFrame(() => notification.classList.add("show"));
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+};
+
+/* =========================================================
+   BLOCK: WINDOW_ZONE_EDIT_SHEET
+   Вікно редагування зони
+   ========================================================= */
+const ZoneEditWindow = {
+  show(zoneId) {
+    const zone = APP_STATE.zones.find(z => z.id === zoneId);
+    if (!zone) return;
+    
+    APP_STATE.zoneEditId = zoneId;
+    DOM.zoneEditNameInput.value = zone.name;
+    DOM.zoneEditRadiusInput.value = zone.radius;
+    
+    DOM.zoneEditSheet.style.display = "block";
+    if (LayoutHelpers.isMobile()) {
+      requestAnimationFrame(() => {
+        DOM.zoneEditSheet.classList.add("show-mobile");
+      });
+    }
+  },
+
+  hide() {
+    if (LayoutHelpers.isMobile()) {
+      DOM.zoneEditSheet.classList.remove("show-mobile");
+      setTimeout(() => {
+        DOM.zoneEditSheet.style.display = "none";
+      }, 220);
+      return;
+    }
+    DOM.zoneEditSheet.style.display = "none";
+    APP_STATE.zoneEditId = null;
+  },
+
+  save() {
+    const name = DOM.zoneEditNameInput.value.trim();
+    const radius = parseInt(DOM.zoneEditRadiusInput.value, 10);
+    
+    if (!name) {
+      alert("Введіть назву зони");
+      return;
+    }
+    if (!radius || radius < 50 || radius > 5000) {
+      alert("Радіус має бути від 50 до 5000 метрів");
+      return;
+    }
+    
+    ZoneStorageEngine.updateZone(APP_STATE.zoneEditId, { name, radius });
+    ZoneCircleEngine.renderAll();
+    ZoneManagerUI.renderZonesList();
+    this.hide();
+    
+    const notification = document.createElement("div");
+    notification.className = "global-notification";
+    notification.innerHTML = `
+      <div class="global-notification-head">
+        <div class="global-notification-left">
+          <div class="global-notification-meta">
+            <div class="global-notification-title">✏️ Зону оновлено</div>
+            <div class="global-notification-text">"${name}" (${radius} м)</div>
+          </div>
+        </div>
+      </div>
+    `;
+    DOM.globalNotificationHost.appendChild(notification);
+    requestAnimationFrame(() => notification.classList.add("show"));
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => notification.remove(), 300);
+    }, 2000);
+  },
+
+  delete() {
+    if (!confirm(`Видалити зону "${APP_STATE.zones.find(z => z.id === APP_STATE.zoneEditId)?.name}"?`)) return;
+    
+    ZoneStorageEngine.deleteZone(APP_STATE.zoneEditId);
+    ZoneCircleEngine.renderAll();
+    ZoneManagerUI.renderZonesList();
+    this.hide();
+    
+    const notification = document.createElement("div");
+    notification.className = "global-notification";
+    notification.innerHTML = `
+      <div class="global-notification-head">
+        <div class="global-notification-left">
+          <div class="global-notification-meta">
+            <div class="global-notification-title">🗑️ Зону видалено</div>
+          </div>
+        </div>
+      </div>
+    `;
+    DOM.globalNotificationHost.appendChild(notification);
+    requestAnimationFrame(() => notification.classList.add("show"));
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => notification.remove(), 300);
+    }, 2000);
+  },
+
+  goto() {
+    const zone = APP_STATE.zones.find(z => z.id === APP_STATE.zoneEditId);
+    if (zone && zone.lat && zone.lng) {
+      ZoneCircleEngine.flyToZone(zone);
+      this.hide();
+    }
+  }
+};
+
+/* =========================================================
+   BLOCK: ZONE_MANAGER_UI
+   Відображення списку зон в налаштуваннях
+   ========================================================= */
+const ZoneManagerUI = {
+  renderZonesList() {
+    const zones = ZoneStorageEngine.loadZones();
+    APP_STATE.zones = zones;
+    
+    if (zones.length === 0) {
+      DOM.zonesList.innerHTML = `<div style="color: rgba(255,255,255,0.4); text-align: center; padding: 20px;">Немає зон<br>Натисніть 🏠, щоб додати</div>`;
+      return;
+    }
+    
+    DOM.zonesList.innerHTML = zones.map(zone => `
+      <div class="zone-item" data-zone-id="${zone.id}">
+        <div class="zone-item-header">
+          <div class="zone-name">
+            <span>${zone.icon || "🏠"}</span>
+            <span>${HtmlUtils.escapeHtml(zone.name)}</span>
+          </div>
+          <div class="zone-actions">
+            <button class="zone-action-btn edit" data-zone-id="${zone.id}" data-action="edit">✏️</button>
+            <button class="zone-action-btn delete" data-zone-id="${zone.id}" data-action="delete">🗑️</button>
+          </div>
+        </div>
+        <div class="zone-details">
+          <div class="zone-radius">📏 ${zone.radius} м</div>
+          <div class="zone-toggle ${zone.enabled ? "active" : ""}" data-zone-id="${zone.id}" data-action="toggle"></div>
+        </div>
+      </div>
+    `).join("");
+    
+    // Додаємо обробники
+    document.querySelectorAll(".zone-toggle").forEach(toggle => {
+      toggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const zoneId = toggle.dataset.zoneId;
+        ZoneStorageEngine.toggleZone(zoneId);
+        ZoneCircleEngine.renderAll();
+        this.renderZonesList();
+      });
+    });
+    
+    document.querySelectorAll(".zone-action-btn.edit").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const zoneId = btn.dataset.zoneId;
+        ZoneEditWindow.show(zoneId);
+      });
+    });
+    
+    document.querySelectorAll(".zone-action-btn.delete").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const zoneId = btn.dataset.zoneId;
+        if (confirm("Видалити зону?")) {
+          ZoneStorageEngine.deleteZone(zoneId);
+          ZoneCircleEngine.renderAll();
+          this.renderZonesList();
+        }
+      });
+    });
+  }
+};
+
     /* =========================================================
        BLOCK: WINDOW_SETTINGS_SHEET
        Вікно налаштувань
@@ -2202,6 +3011,7 @@ const LocalStorageEngine = {
         document.body.classList.add("settings-open");
         DOM.settingsSheet.style.display = "flex";
         DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
+        ZoneManagerUI.renderZonesList();
         this.updateLayout();
 
         if (LayoutHelpers.isMobile()) {
@@ -2422,7 +3232,6 @@ const GlobalNotificationEngine = {
 
       close();
 
-      // закрываем любые popup перед перелетом
       APP_STATE.currentOpenPointId = null;
       APP_STATE.mobileOpenPointId = null;
       MAP_INSTANCE.closePopup();
@@ -2431,7 +3240,6 @@ const GlobalNotificationEngine = {
         MobileMarkerPopupEngine.close();
       }
 
-      // при необходимости синхронизируем город
       if (point.city && APP_STATE.settings.selectedCity !== point.city) {
         APP_STATE.settings.selectedCity = point.city;
         LocalStorageEngine.saveSettings(APP_STATE.settings);
@@ -2463,7 +3271,7 @@ const GlobalNotificationEngine = {
 
 /* =========================================================
    BLOCK: NEW_POINT_NOTIFICATION_ENGINE
-   Виявлення нових міток для сповіщень
+   Виявлення нових міток для сповіщень (з урахуванням зон)
    ========================================================= */
 const NewPointNotificationEngine = {
   sync(points) {
@@ -2481,17 +3289,15 @@ const NewPointNotificationEngine = {
           continue;
         }
 
-        // 🔥 уведомления только для текущего выбранного города
-        if (!point.city || point.city !== currentCity) {
-          continue;
+        // Використовуємо новий фільтр сповіщень по зонах
+        if (ZoneNotificationFilter.shouldNotify(point)) {
+          GlobalNotificationEngine.enqueue({
+            id: point.id,
+            type: point.type,
+            desc: point.desc || "",
+            city: point.city || null
+          });
         }
-
-        GlobalNotificationEngine.enqueue({
-          id: point.id,
-          type: point.type,
-          desc: point.desc || "",
-          city: point.city || null
-        });
       }
     }
 
@@ -3396,12 +4202,24 @@ const CreateMarkerFlow = {
 
     /* =========================================================
        BLOCK: FAB_ADD_BUTTON
-       Кнопка додавання
+       Кнопка додавання мітки
        ========================================================= */
     const FabAddButton = {
       init() {
         DOM.addBtn.addEventListener("click", () => {
           CreateMarkerFlow.openCreateMode();
+        });
+      }
+    };
+
+    /* =========================================================
+       BLOCK: FAB_ZONES_BUTTON
+       Кнопка зон
+       ========================================================= */
+    const FabZonesButton = {
+      init() {
+        DOM.zonesBtn.addEventListener("click", () => {
+          ZoneWindow.show();
         });
       }
     };
@@ -3496,6 +4314,54 @@ const CreateMarkerFlow = {
           e.preventDefault();
           await submitDesc();
         }, { passive: false });
+      }
+    };
+
+    /* =========================================================
+       BLOCK: WINDOW_ZONE_SHEET_EVENTS
+       Події вікна зон
+       ========================================================= */
+    const ZoneWindowEvents = {
+      init() {
+        DOM.zoneClose.addEventListener("click", () => {
+          ZoneWindow.hide();
+        });
+        
+        DOM.saveZoneBtn.addEventListener("click", () => {
+          ZoneWindow.startCreateManual();
+        });
+        
+        DOM.templatesGrid.querySelectorAll(".template-item").forEach(template => {
+          template.addEventListener("click", () => {
+            const radius = parseInt(template.dataset.radius, 10);
+            const name = template.dataset.name;
+            ZoneWindow.startCreateFromTemplate({ name, radius });
+          });
+        });
+      }
+    };
+    
+    /* =========================================================
+       BLOCK: WINDOW_ZONE_EDIT_SHEET_EVENTS
+       Події вікна редагування зони
+       ========================================================= */
+    const ZoneEditWindowEvents = {
+      init() {
+        DOM.zoneEditClose.addEventListener("click", () => {
+          ZoneEditWindow.hide();
+        });
+        
+        DOM.saveZoneEditBtn.addEventListener("click", () => {
+          ZoneEditWindow.save();
+        });
+        
+        DOM.deleteZoneBtn.addEventListener("click", () => {
+          ZoneEditWindow.delete();
+        });
+        
+        DOM.gotoZoneBtn.addEventListener("click", () => {
+          ZoneEditWindow.goto();
+        });
       }
     };
 
@@ -3606,6 +4472,10 @@ const CreateMarkerFlow = {
     const MapEventBindings = {
       init() {
         MAP_INSTANCE.on("click", e => {
+          if (APP_STATE.isCreatingZone) {
+            // Якщо в режимі створення зони - ігноруємо додавання мітки
+            return;
+          }
           if (!APP_STATE.addMode) return;
           CreateMarkerFlow.selectMapPoint(e.latlng);
         });
@@ -3635,6 +4505,8 @@ const CreateMarkerFlow = {
         MAP_INSTANCE.whenReady(() => {
           APP_STATE.mapReady = true;
           MapCityEngine.flyToCity(APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY, false);
+          ZoneCircleEngine.init();
+          ZoneCircleEngine.renderAll();
           AppUIHelpers.safeInvalidateMap(true);
           MarkerRenderEngine.queueRender(true);
         });
@@ -3684,11 +4556,14 @@ function initApp() {
   SettingsBehaviorEngine.initNotificationsToggle();
 
   FabAddButton.init();
+  FabZonesButton.init();
   FabSettingsButton.init();
   FabGeoButton.init();
 
   PickerWindowEvents.init();
   DescWindowEvents.init();
+  ZoneWindowEvents.init();
+  ZoneEditWindowEvents.init();
   SettingsWindowEvents.init();
   SuccessModalEvents.init();
 
@@ -3705,3 +4580,4 @@ initApp();
   </script>
 </body>
 </html>
+```
