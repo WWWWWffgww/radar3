@@ -855,25 +855,27 @@
       position: relative;
     }
 
-    #citySelect {
-      width: 100%;
-      border: none;
-      border-radius: 14px;
-      padding: 12px 14px;
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-      font-family: inherit;
-      outline: none;
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      cursor: pointer;
-    }
+ #citySelect,
+#presetZoneSelect {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-family: inherit;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
 
-    #citySelect option {
-      color: #111;
-      background: #fff;
-    }
+#citySelect option,
+#presetZoneSelect option {
+  color: #111;
+  background: #fff;
+}
 
     .city-select-wrap::after {
       content: "▾";
@@ -3187,11 +3189,10 @@ const ZoneManagerUI = {
        ========================================================= */
     const SettingsWindow = {
       show() {
-        document.body.classList.add("settings-open");
-        DOM.settingsSheet.style.display = "flex";
-        DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
-        ZoneManagerUI.renderZonesList();
-        this.updateLayout();
+  document.body.classList.add("settings-open");
+  DOM.settingsSheet.style.display = "flex";
+  DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
+  this.updateLayout();
 
         if (LayoutHelpers.isMobile()) {
           requestAnimationFrame(() => {
