@@ -1347,7 +1347,16 @@
           <div class="filter-toggle" id="themeToggle"></div>
         </div>
       </div>
-
+<div class="settings-group">
+  <div class="settings-label">🔔 Сповіщення</div>
+  <div class="filter-item" id="notificationsToggleRow">
+    <div class="filter-item-left">
+      <span id="notificationsIcon">🔔</span>
+      <span id="notificationsLabel">Увімкнено</span>
+    </div>
+    <div class="filter-toggle" id="notificationsToggle"></div>
+  </div>
+</div>
       <div class="settings-group">
         <div class="settings-label">⏱️ Фільтр за часом</div>
         <div class="time-slider-container">
@@ -1466,59 +1475,69 @@
       orderBy
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-    /* =========================================================
-       BLOCK: APP_CONFIG
-       Глобальні константи застосунку
-       ========================================================= */
-    const APP_CONFIG = {
-      SETTINGS_KEY: "radar_settings",
-      VOTES_KEY: "radar_votes",
-      TILE_CACHE_NAME: "radar-tile-cache-v5",
-      LIFE_MS: 24 * 60 * 60 * 1000,
-      GROUP_RADIUS_METERS: 165,
-      SAFE_MIN_COUNT: 3,
-      QUESTION_MIN_COUNT: 4,
-      DANGER_MIN_COUNT: 3,
-      DEFAULT_CITY_KEY: "kyiv",
-      DEFAULT_THEME: "day",
-      MOBILE_BREAKPOINT: 600,
-      POPUP_RESTORE_DELAY_MS: 20,
-      COMMENT_RENDER_DELAY_MS: 160,
-      COMMENT_INPUT_ATTACH_DELAY_MS: 20
-    };
+/* =========================================================
+   BLOCK: APP_CONFIG
+   Глобальні константи застосунку
+   ========================================================= */
+const APP_CONFIG = {
+  SETTINGS_KEY: "radar_settings",
+  VOTES_KEY: "radar_votes",
+  TILE_CACHE_NAME: "radar-tile-cache-v5",
+  CLIENT_ID_KEY: "radar_client_id",
+  LIFE_MS: 24 * 60 * 60 * 1000,
+  GROUP_RADIUS_METERS: 165,
+  SAFE_MIN_COUNT: 3,
+  QUESTION_MIN_COUNT: 4,
+  DANGER_MIN_COUNT: 3,
+  DEFAULT_CITY_KEY: "kyiv",
+  DEFAULT_THEME: "day",
+  MOBILE_BREAKPOINT: 600,
+  POPUP_RESTORE_DELAY_MS: 20,
+  COMMENT_RENDER_DELAY_MS: 160,
+  COMMENT_INPUT_ATTACH_DELAY_MS: 20
+};
 
-    /* =========================================================
-       BLOCK: APP_LABELS
-       Усі тексти застосунку
-       ========================================================= */
-    const APP_LABELS = {
-      markerTypes: {
-        safe: "Безпечно",
-        block: "Блокпост",
-        danger2: "Злодій",
-        trash: "Сміття",
-        question: "Питання",
-        poop: "Лайно"
-      },
+  /* =========================================================
+   BLOCK: APP_LABELS
+   Усі тексти застосунку
+   ========================================================= */
+const APP_LABELS = {
+  markerTypes: {
+    safe: "Безпечно",
+    block: "Блокпост",
+    danger2: "Злодій",
+    trash: "Сміття",
+    question: "Питання",
+    poop: "Лайно"
+  },
 
-      errors: {
-        noGeolocation: "Геолокація не підтримується",
-        geolocationFailed: "Не вдалося отримати місцезнаходження",
-        mapTouchRequired: "Торкнись мапи",
-        descRequired: "Опис обов’язковий",
-        min10: "Мінімум 10 символів",
-        max100: "Максимум 100 символів",
-        commentRequired: "Коментар обовʼязковий"
-      },
+  notificationTitles: {
+    safe: "Нова безпечна мітка",
+    block: "Новий блокпост",
+    danger2: "Новий злодій",
+    trash: "Нове сміття",
+    question: "Нове питання",
+    poop: "Нове лайно"
+  },
 
-      popup: {
-        descTitle: "Опис",
-        commentsTitle: "Коментарі",
-        noComments: "Немає коментарів",
-        writeComment: "Написати коментар...",
-        addComment: "Додати коментар"
-      }
-    };
+  errors: {
+    noGeolocation: "Геолокація не підтримується",
+    geolocationFailed: "Не вдалося отримати місцезнаходження",
+    mapTouchRequired: "Торкнись мапи",
+    descRequired: "Опис обов’язковий",
+    min10: "Мінімум 10 символів",
+    max100: "Максимум 100 символів",
+    commentRequired: "Коментар обовʼязковий"
+  },
+
+  popup: {
+    descTitle: "Опис",
+    commentsTitle: "Коментарі",
+    noComments: "Немає коментарів",
+    writeComment: "Написати коментар...",
+    addComment: "Додати коментар"
+  }
+};
 
     /* =========================================================
        BLOCK: CITY_CONFIG
@@ -1578,75 +1597,80 @@
       measurementId: "G-P1FWYRC2PL"
     };
 
-    /* =========================================================
-       BLOCK: STATE_CONTAINER
-       Увесь стан застосунку
-       ========================================================= */
-    const APP_STATE = {
-      settings: null,
-      addMode: false,
-      selectedLatLng: null,
-      tempMarker: null,
-      currentType: "safe",
-      points: [],
-      currentOpenPointId: null,
-      mobileOpenPointId: null,
-      userLocationMarker: null,
-      userLocationCircle: null,
-      renderQueued: false,
-      mapReady: false,
-      suspendRenderWhileTyping: false,
-      suppressPopupRestoreUntil: 0,
-      currentTileLayer: null,
-      markerRegistry: new Map(),
-      notificationQueue: [],
-      notificationIsShowing: false,
-      knownPointIds: new Set()
-    };
+/* =========================================================
+   BLOCK: STATE_CONTAINER
+   Увесь стан застосунку
+   ========================================================= */
+const APP_STATE = {
+  settings: null,
+  addMode: false,
+  selectedLatLng: null,
+  tempMarker: null,
+  currentType: "safe",
+  points: [],
+  currentOpenPointId: null,
+  mobileOpenPointId: null,
+  userLocationMarker: null,
+  userLocationCircle: null,
+  renderQueued: false,
+  mapReady: false,
+  suspendRenderWhileTyping: false,
+  suppressPopupRestoreUntil: 0,
+  currentTileLayer: null,
+  markerRegistry: new Map(),
+  notificationQueue: [],
+  notificationIsShowing: false,
+  knownPointIds: new Set(),
+  clientId: null
+};
 
-    /* =========================================================
-       BLOCK: DOM_REFERENCES
-       Усі посилання на DOM
-       ========================================================= */
-    const DOM = {
-      map: document.getElementById("map"),
-      fabBar: document.getElementById("fabBar"),
-      geoBtn: document.getElementById("geoBtn"),
-      settingsBtn: document.getElementById("settingsBtn"),
-      addBtn: document.getElementById("addBtn"),
+ /* =========================================================
+   BLOCK: DOM_REFERENCES
+   Усі посилання на DOM
+   ========================================================= */
+const DOM = {
+  map: document.getElementById("map"),
+  fabBar: document.getElementById("fabBar"),
+  geoBtn: document.getElementById("geoBtn"),
+  settingsBtn: document.getElementById("settingsBtn"),
+  addBtn: document.getElementById("addBtn"),
 
-      pickerBar: document.getElementById("pickerBar"),
-      pickerClose: document.getElementById("pickerClose"),
+  pickerBar: document.getElementById("pickerBar"),
+  pickerClose: document.getElementById("pickerClose"),
 
-      descSheet: document.getElementById("descSheet"),
-      sheetClose: document.getElementById("sheetClose"),
-      descInput: document.getElementById("descInput"),
-      descCounter: document.getElementById("descCounter"),
-      saveBtn: document.getElementById("saveBtn"),
-      sheetIcon: document.getElementById("sheetIcon"),
-      sheetTitle: document.getElementById("sheetTitle"),
+  descSheet: document.getElementById("descSheet"),
+  sheetClose: document.getElementById("sheetClose"),
+  descInput: document.getElementById("descInput"),
+  descCounter: document.getElementById("descCounter"),
+  saveBtn: document.getElementById("saveBtn"),
+  sheetIcon: document.getElementById("sheetIcon"),
+  sheetTitle: document.getElementById("sheetTitle"),
 
-      settingsSheet: document.getElementById("settingsSheet"),
-      settingsBody: document.getElementById("settingsBody"),
-      settingsClose: document.getElementById("settingsClose"),
-      saveSettingsBtn: document.getElementById("saveSettingsBtn"),
-      citySelect: document.getElementById("citySelect"),
-      timeSlider: document.getElementById("timeSlider"),
-      timeValue: document.getElementById("timeValue"),
-      themeToggle: document.getElementById("themeToggle"),
-      themeToggleRow: document.getElementById("themeToggleRow"),
-      themeLabel: document.getElementById("themeLabel"),
-      themeIcon: document.getElementById("themeIcon"),
+  settingsSheet: document.getElementById("settingsSheet"),
+  settingsBody: document.getElementById("settingsBody"),
+  settingsClose: document.getElementById("settingsClose"),
+  saveSettingsBtn: document.getElementById("saveSettingsBtn"),
+  citySelect: document.getElementById("citySelect"),
+  timeSlider: document.getElementById("timeSlider"),
+  timeValue: document.getElementById("timeValue"),
+  themeToggle: document.getElementById("themeToggle"),
+  themeToggleRow: document.getElementById("themeToggleRow"),
+  themeLabel: document.getElementById("themeLabel"),
+  themeIcon: document.getElementById("themeIcon"),
+  notificationsToggle: document.getElementById("notificationsToggle"),
+  notificationsToggleRow: document.getElementById("notificationsToggleRow"),
+  notificationsLabel: document.getElementById("notificationsLabel"),
+  notificationsIcon: document.getElementById("notificationsIcon"),
 
-      successModalBackdrop: document.getElementById("successModalBackdrop"),
-      successModalClose: document.getElementById("successModalClose"),
+  successModalBackdrop: document.getElementById("successModalBackdrop"),
+  successModalClose: document.getElementById("successModalClose"),
 
-      mobileMarkerPopupBackdrop: document.getElementById("mobileMarkerPopupBackdrop"),
-      mobileMarkerPopupSheet: document.getElementById("mobileMarkerPopupSheet"),
-      mobileMarkerPopupContent: document.getElementById("mobileMarkerPopupContent"),
+  mobileMarkerPopupBackdrop: document.getElementById("mobileMarkerPopupBackdrop"),
+  mobileMarkerPopupSheet: document.getElementById("mobileMarkerPopupSheet"),
+  mobileMarkerPopupContent: document.getElementById("mobileMarkerPopupContent"),
 
-      globalNotificationHost: document.getElementById("globalNotificationHost")
-    };
+  globalNotificationHost: document.getElementById("globalNotificationHost")
+};
 
     /* =========================================================
        BLOCK: APP_HELPERS
@@ -1745,85 +1769,99 @@
       }
     };
 
-    /* =========================================================
-       BLOCK: LOCAL_STORAGE_ENGINE
-       Робота з localStorage
-       ========================================================= */
-    const LocalStorageEngine = {
-      loadSettings() {
-        const defaults = {
-          mapTheme: APP_CONFIG.DEFAULT_THEME,
-          timeFilterMinutes: 1440,
-          selectedCity: APP_CONFIG.DEFAULT_CITY_KEY,
-          filters: {
-            safe: true,
-            block: true,
-            danger2: true,
-            trash: true,
-            question: true,
-            poop: true
-          }
-        };
-
-        try {
-          const saved = localStorage.getItem(APP_CONFIG.SETTINGS_KEY);
-          if (!saved) return defaults;
-
-          const parsed = JSON.parse(saved);
-
-          let timeFilterMinutes = 1440;
-          if (typeof parsed.timeFilterMinutes === "number") {
-            timeFilterMinutes = parsed.timeFilterMinutes;
-          } else if (typeof parsed.timeFilterHours === "number") {
-            timeFilterMinutes = Math.round(parsed.timeFilterHours * 60);
-          }
-
-          const selectedCity = CITY_CONFIG[parsed.selectedCity]
-            ? parsed.selectedCity
-            : APP_CONFIG.DEFAULT_CITY_KEY;
-
-          return {
-            ...defaults,
-            ...parsed,
-            mapTheme: parsed.mapTheme || APP_CONFIG.DEFAULT_THEME,
-            timeFilterMinutes,
-            selectedCity,
-            filters: {
-              ...defaults.filters,
-              ...(parsed.filters || {})
-            }
-          };
-        } catch {
-          return defaults;
-        }
-      },
-
-      saveSettings(settings) {
-        localStorage.setItem(APP_CONFIG.SETTINGS_KEY, JSON.stringify(settings));
-      },
-
-      loadVotes() {
-        try {
-          return JSON.parse(localStorage.getItem(APP_CONFIG.VOTES_KEY) || "{}");
-        } catch {
-          return {};
-        }
-      },
-
-      saveVotes(votes) {
-        localStorage.setItem(APP_CONFIG.VOTES_KEY, JSON.stringify(votes));
-      },
-
-      hasVoted(id) {
-        return !!this.loadVotes()[id];
-      },
-
-      setVoted(id, type) {
-        const votes = this.loadVotes();
-        votes[id] = type;
-        this.saveVotes(votes);
+   /* =========================================================
+   BLOCK: LOCAL_STORAGE_ENGINE
+   Робота з localStorage
+   ========================================================= */
+const LocalStorageEngine = {
+  loadSettings() {
+    const defaults = {
+      mapTheme: APP_CONFIG.DEFAULT_THEME,
+      timeFilterMinutes: 1440,
+      selectedCity: APP_CONFIG.DEFAULT_CITY_KEY,
+      notificationsEnabled: true,
+      filters: {
+        safe: true,
+        block: true,
+        danger2: true,
+        trash: true,
+        question: true,
+        poop: true
       }
     };
+
+    try {
+      const saved = localStorage.getItem(APP_CONFIG.SETTINGS_KEY);
+      if (!saved) return defaults;
+
+      const parsed = JSON.parse(saved);
+
+      let timeFilterMinutes = 1440;
+      if (typeof parsed.timeFilterMinutes === "number") {
+        timeFilterMinutes = parsed.timeFilterMinutes;
+      } else if (typeof parsed.timeFilterHours === "number") {
+        timeFilterMinutes = Math.round(parsed.timeFilterHours * 60);
+      }
+
+      const selectedCity = CITY_CONFIG[parsed.selectedCity]
+        ? parsed.selectedCity
+        : APP_CONFIG.DEFAULT_CITY_KEY;
+
+      return {
+        ...defaults,
+        ...parsed,
+        mapTheme: parsed.mapTheme || APP_CONFIG.DEFAULT_THEME,
+        timeFilterMinutes,
+        selectedCity,
+        notificationsEnabled:
+          typeof parsed.notificationsEnabled === "boolean"
+            ? parsed.notificationsEnabled
+            : true,
+        filters: {
+          ...defaults.filters,
+          ...(parsed.filters || {})
+        }
+      };
+    } catch {
+      return defaults;
+    }
+  },
+
+  saveSettings(settings) {
+    localStorage.setItem(APP_CONFIG.SETTINGS_KEY, JSON.stringify(settings));
+  },
+
+  loadVotes() {
+    try {
+      return JSON.parse(localStorage.getItem(APP_CONFIG.VOTES_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  },
+
+  saveVotes(votes) {
+    localStorage.setItem(APP_CONFIG.VOTES_KEY, JSON.stringify(votes));
+  },
+
+  hasVoted(id) {
+    return !!this.loadVotes()[id];
+  },
+
+  setVoted(id, type) {
+    const votes = this.loadVotes();
+    votes[id] = type;
+    this.saveVotes(votes);
+  },
+
+  getClientId() {
+    let clientId = localStorage.getItem(APP_CONFIG.CLIENT_ID_KEY);
+    if (!clientId) {
+      clientId = `client_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem(APP_CONFIG.CLIENT_ID_KEY, clientId);
+    }
+    return clientId;
+  }
+};
 
     /* =========================================================
        BLOCK: FIREBASE_BOOTSTRAP
@@ -2306,193 +2344,225 @@
       }
     };
 
-    /* =========================================================
-       BLOCK: GLOBAL_NOTIFICATION_ENGINE
-       Глобальні сповіщення про нові мітки
-       ========================================================= */
-    const GlobalNotificationEngine = {
-      DISPLAY_MS: 3200,
-      HIDE_ANIMATION_MS: 300,
+   /* =========================================================
+   BLOCK: GLOBAL_NOTIFICATION_ENGINE
+   Глобальні сповіщення про нові мітки
+   ========================================================= */
+const GlobalNotificationEngine = {
+  DISPLAY_MS: 3200,
+  HIDE_ANIMATION_MS: 300,
 
-      enqueue(notification) {
-        APP_STATE.notificationQueue.push(notification);
-        this.processQueue();
-      },
+  enqueue(notification) {
+    if (!APP_STATE.settings.notificationsEnabled) return;
+    APP_STATE.notificationQueue.push(notification);
+    this.processQueue();
+  },
 
-      processQueue() {
-        if (APP_STATE.notificationIsShowing) return;
-        const next = APP_STATE.notificationQueue.shift();
-        if (!next) return;
+  processQueue() {
+    if (APP_STATE.notificationIsShowing) return;
+    const next = APP_STATE.notificationQueue.shift();
+    if (!next) return;
 
-        APP_STATE.notificationIsShowing = true;
-        this.show(next);
-      },
+    APP_STATE.notificationIsShowing = true;
+    this.show(next);
+  },
 
-      show(notification) {
-        const el = document.createElement("div");
-        el.className = "global-notification";
+  show(notification) {
+    const title =
+      APP_LABELS.notificationTitles[notification.type] ||
+      `Нова мітка: ${APP_LABELS.markerTypes[notification.type] || notification.type}`;
 
-        el.innerHTML = `
-          <div class="global-notification-head">
-            <div class="global-notification-left">
-              <img class="global-notification-icon" src="${MarkerIconFactory.getIconPath(notification.type)}" alt="">
-              <div class="global-notification-meta">
-                <div class="global-notification-title">Нова мітка: ${HtmlUtils.escapeHtml(APP_LABELS.markerTypes[notification.type] || notification.type)}</div>
-                <div class="global-notification-text">${HtmlUtils.escapeHtml(notification.desc || "Без опису")}</div>
-              </div>
-            </div>
-            <button class="global-notification-close" type="button">×</button>
+    const el = document.createElement("div");
+    el.className = "global-notification";
+
+    el.innerHTML = `
+      <div class="global-notification-head">
+        <div class="global-notification-left">
+          <img class="global-notification-icon" src="${MarkerIconFactory.getIconPath(notification.type)}" alt="">
+          <div class="global-notification-meta">
+            <div class="global-notification-title">${HtmlUtils.escapeHtml(title)}</div>
+            <div class="global-notification-text">${HtmlUtils.escapeHtml(notification.desc || "Без опису")}</div>
           </div>
-        `;
+        </div>
+        <button class="global-notification-close" type="button">×</button>
+      </div>
+    `;
 
-        DOM.globalNotificationHost.appendChild(el);
+    DOM.globalNotificationHost.appendChild(el);
 
-        let closed = false;
+    let closed = false;
 
-        const close = () => {
-          if (closed) return;
-          closed = true;
+    const close = () => {
+      if (closed) return;
+      closed = true;
 
-          el.classList.remove("show");
-          el.classList.add("hide");
+      el.classList.remove("show");
+      el.classList.add("hide");
 
-          setTimeout(() => {
-            el.remove();
-            APP_STATE.notificationIsShowing = false;
-            this.processQueue();
-          }, this.HIDE_ANIMATION_MS);
-        };
+      setTimeout(() => {
+        el.remove();
+        APP_STATE.notificationIsShowing = false;
+        this.processQueue();
+      }, this.HIDE_ANIMATION_MS);
+    };
 
-        el.querySelector(".global-notification-close")?.addEventListener("click", close);
+    el.querySelector(".global-notification-close")?.addEventListener("click", close);
 
-        requestAnimationFrame(() => {
-          el.classList.add("show");
+    requestAnimationFrame(() => {
+      el.classList.add("show");
+    });
+
+    setTimeout(close, this.DISPLAY_MS);
+  }
+};
+
+ /* =========================================================
+   BLOCK: NEW_POINT_NOTIFICATION_ENGINE
+   Виявлення нових міток для сповіщень
+   ========================================================= */
+const NewPointNotificationEngine = {
+  sync(points) {
+    const currentIds = new Set(points.map(p => p.id));
+
+    if (APP_STATE.knownPointIds.size === 0) {
+      APP_STATE.knownPointIds = currentIds;
+      return;
+    }
+
+    for (const point of points) {
+      if (!APP_STATE.knownPointIds.has(point.id)) {
+        if (point.clientId && APP_STATE.clientId && point.clientId === APP_STATE.clientId) {
+          continue;
+        }
+
+        GlobalNotificationEngine.enqueue({
+          id: point.id,
+          type: point.type,
+          desc: point.desc || ""
         });
-
-        setTimeout(close, this.DISPLAY_MS);
       }
+    }
+
+    APP_STATE.knownPointIds = currentIds;
+  }
+};
+
+/* =========================================================
+   BLOCK: SETTINGS_UI_ENGINE
+   Заповнення UI налаштувань
+   ========================================================= */
+const SettingsUIEngine = {
+  populateCitySelect() {
+    const entries = Object.entries(CITY_CONFIG).sort((a, b) =>
+      a[1].name.localeCompare(b[1].name, "uk")
+    );
+
+    DOM.citySelect.innerHTML = entries
+      .map(([key, city]) => `<option value="${key}">${city.name}</option>`)
+      .join("");
+
+    DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
+  },
+
+  updateTimeDisplay(minutes) {
+    DOM.timeValue.textContent = TimeUtils.formatMinutesText(minutes);
+  },
+
+  updateFilterUI() {
+    const ids = {
+      safe: "filterSafe",
+      block: "filterBlock",
+      danger2: "filterDanger2",
+      trash: "filterTrash",
+      question: "filterQuestion",
+      poop: "filterPoop"
     };
 
-    /* =========================================================
-       BLOCK: NEW_POINT_NOTIFICATION_ENGINE
-       Виявлення нових міток для сповіщень
-       ========================================================= */
-    const NewPointNotificationEngine = {
-      sync(points) {
-        const currentIds = new Set(points.map(p => p.id));
-
-        if (APP_STATE.knownPointIds.size === 0) {
-          APP_STATE.knownPointIds = currentIds;
-          return;
-        }
-
-        for (const point of points) {
-          if (!APP_STATE.knownPointIds.has(point.id)) {
-            GlobalNotificationEngine.enqueue({
-              id: point.id,
-              type: point.type,
-              desc: point.desc || ""
-            });
-          }
-        }
-
-        APP_STATE.knownPointIds = currentIds;
+    for (const [type, id] of Object.entries(ids)) {
+      const toggle = document.getElementById(id);
+      if (toggle) {
+        toggle.classList.toggle("active", !!APP_STATE.settings.filters[type]);
       }
-    };
+    }
+  },
 
-    /* =========================================================
-       BLOCK: SETTINGS_UI_ENGINE
-       Заповнення UI налаштувань
-       ========================================================= */
-    const SettingsUIEngine = {
-      populateCitySelect() {
-        const entries = Object.entries(CITY_CONFIG).sort((a, b) =>
-          a[1].name.localeCompare(b[1].name, "uk")
-        );
+  updateThemeUI() {
+    const isNight = APP_STATE.settings.mapTheme === "night";
+    DOM.themeToggle.classList.toggle("active", isNight);
+    DOM.themeLabel.textContent = isNight ? "Нічна тема" : "Денна тема";
+    DOM.themeIcon.textContent = isNight ? "🌙" : "☀️";
+  },
 
-        DOM.citySelect.innerHTML = entries
-          .map(([key, city]) => `<option value="${key}">${city.name}</option>`)
-          .join("");
+  updateNotificationsUI() {
+    const enabled = !!APP_STATE.settings.notificationsEnabled;
+    DOM.notificationsToggle.classList.toggle("active", enabled);
+    DOM.notificationsLabel.textContent = enabled ? "Увімкнено" : "Вимкнено";
+    DOM.notificationsIcon.textContent = enabled ? "🔔" : "🔕";
+  }
+};
 
-        DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
-      },
+  /* =========================================================
+   BLOCK: SETTINGS_BEHAVIOR_ENGINE
+   Поведінка налаштувань
+   ========================================================= */
+const SettingsBehaviorEngine = {
+  initFilterToggles() {
+    document.querySelectorAll(".filter-item[data-filter-type]").forEach(item => {
+      const type = item.dataset.filterType;
+      const toggle = item.querySelector(".filter-toggle");
 
-      updateTimeDisplay(minutes) {
-        DOM.timeValue.textContent = TimeUtils.formatMinutesText(minutes);
-      },
-
-      updateFilterUI() {
-        const ids = {
-          safe: "filterSafe",
-          block: "filterBlock",
-          danger2: "filterDanger2",
-          trash: "filterTrash",
-          question: "filterQuestion",
-          poop: "filterPoop"
-        };
-
-        for (const [type, id] of Object.entries(ids)) {
-          const toggle = document.getElementById(id);
-          if (toggle) {
-            toggle.classList.toggle("active", !!APP_STATE.settings.filters[type]);
-          }
-        }
-      },
-
-      updateThemeUI() {
-        const isNight = APP_STATE.settings.mapTheme === "night";
-        DOM.themeToggle.classList.toggle("active", isNight);
-        DOM.themeLabel.textContent = isNight ? "Нічна тема" : "Денна тема";
-        DOM.themeIcon.textContent = isNight ? "🌙" : "☀️";
-      }
-    };
-
-    /* =========================================================
-       BLOCK: SETTINGS_BEHAVIOR_ENGINE
-       Поведінка налаштувань
-       ========================================================= */
-    const SettingsBehaviorEngine = {
-      initFilterToggles() {
-        document.querySelectorAll(".filter-item[data-filter-type]").forEach(item => {
-          const type = item.dataset.filterType;
-          const toggle = item.querySelector(".filter-toggle");
-
-          if (toggle) {
-            toggle.addEventListener("click", e => {
-              e.stopPropagation();
-              APP_STATE.settings.filters[type] = !APP_STATE.settings.filters[type];
-              SettingsUIEngine.updateFilterUI();
-              MarkerRenderEngine.queueRender();
-            });
-          }
-
-          item.addEventListener("click", e => {
-            if (e.target !== toggle) {
-              APP_STATE.settings.filters[type] = !APP_STATE.settings.filters[type];
-              SettingsUIEngine.updateFilterUI();
-              MarkerRenderEngine.queueRender();
-            }
-          });
-        });
-      },
-
-      initThemeToggle() {
-        DOM.themeToggle.addEventListener("click", e => {
+      if (toggle) {
+        toggle.addEventListener("click", e => {
           e.stopPropagation();
-          this.toggleTheme();
+          APP_STATE.settings.filters[type] = !APP_STATE.settings.filters[type];
+          SettingsUIEngine.updateFilterUI();
+          MarkerRenderEngine.queueRender();
         });
-
-        DOM.themeToggleRow.addEventListener("click", () => {
-          this.toggleTheme();
-        });
-      },
-
-      toggleTheme() {
-        APP_STATE.settings.mapTheme =
-          APP_STATE.settings.mapTheme === "night" ? "day" : "night";
-        SettingsUIEngine.updateThemeUI();
       }
-    };
+
+      item.addEventListener("click", e => {
+        if (e.target !== toggle) {
+          APP_STATE.settings.filters[type] = !APP_STATE.settings.filters[type];
+          SettingsUIEngine.updateFilterUI();
+          MarkerRenderEngine.queueRender();
+        }
+      });
+    });
+  },
+
+  initThemeToggle() {
+    DOM.themeToggle.addEventListener("click", e => {
+      e.stopPropagation();
+      this.toggleTheme();
+    });
+
+    DOM.themeToggleRow.addEventListener("click", () => {
+      this.toggleTheme();
+    });
+  },
+
+  toggleTheme() {
+    APP_STATE.settings.mapTheme =
+      APP_STATE.settings.mapTheme === "night" ? "day" : "night";
+    SettingsUIEngine.updateThemeUI();
+  },
+
+  initNotificationsToggle() {
+    DOM.notificationsToggle.addEventListener("click", e => {
+      e.stopPropagation();
+      this.toggleNotifications();
+    });
+
+    DOM.notificationsToggleRow.addEventListener("click", () => {
+      this.toggleNotifications();
+    });
+  },
+
+  toggleNotifications() {
+    APP_STATE.settings.notificationsEnabled = !APP_STATE.settings.notificationsEnabled;
+    SettingsUIEngine.updateNotificationsUI();
+  }
+};
 
     /* =========================================================
        BLOCK: MARKER_FILTER_ENGINE
@@ -3146,113 +3216,114 @@
       }
     };
 
-    /* =========================================================
-       BLOCK: CREATE_MARKER_FLOW
-       Процес додавання мітки
-       ========================================================= */
-    const CreateMarkerFlow = {
-      openCreateMode() {
-        APP_STATE.addMode = true;
+/* =========================================================
+   BLOCK: CREATE_MARKER_FLOW
+   Процес додавання мітки
+   ========================================================= */
+const CreateMarkerFlow = {
+  openCreateMode() {
+    APP_STATE.addMode = true;
 
-        SettingsWindow.hide();
-        PickerWindow.show();
-        DescWindow.hide();
-      },
+    SettingsWindow.hide();
+    PickerWindow.show();
+    DescWindow.hide();
+  },
 
-      closeCreateMode() {
-        APP_STATE.addMode = false;
-        PickerWindow.hide();
-        DescWindow.hide();
+  closeCreateMode() {
+    APP_STATE.addMode = false;
+    PickerWindow.hide();
+    DescWindow.hide();
 
-        APP_STATE.selectedLatLng = null;
-        DescWindow.reset();
+    APP_STATE.selectedLatLng = null;
+    DescWindow.reset();
 
-        document.body.classList.remove("settings-open");
+    document.body.classList.remove("settings-open");
 
-        if (APP_STATE.tempMarker) {
-          MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
-          APP_STATE.tempMarker = null;
-        }
-      },
+    if (APP_STATE.tempMarker) {
+      MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+      APP_STATE.tempMarker = null;
+    }
+  },
 
-      selectMapPoint(latlng) {
-        APP_STATE.selectedLatLng = latlng;
+  selectMapPoint(latlng) {
+    APP_STATE.selectedLatLng = latlng;
 
-        if (APP_STATE.tempMarker) {
-          MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
-        }
+    if (APP_STATE.tempMarker) {
+      MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+    }
 
-        APP_STATE.tempMarker = L.marker(latlng, {
-          icon: MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()),
-          keyboard: false
-        }).addTo(MAP_INSTANCE);
+    APP_STATE.tempMarker = L.marker(latlng, {
+      icon: MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()),
+      keyboard: false
+    }).addTo(MAP_INSTANCE);
 
-        PickerWindow.updateActive();
-        PickerWindow.hide();
-        DescWindow.show();
-      },
+    PickerWindow.updateActive();
+    PickerWindow.hide();
+    DescWindow.show();
+  },
 
-      async saveMarker() {
-        const desc = DOM.descInput.value.trim();
+  async saveMarker() {
+    const desc = DOM.descInput.value.trim();
 
-        if (!APP_STATE.selectedLatLng) {
-          alert(APP_LABELS.errors.mapTouchRequired);
-          return;
-        }
+    if (!APP_STATE.selectedLatLng) {
+      alert(APP_LABELS.errors.mapTouchRequired);
+      return;
+    }
 
-        if (!desc) {
-          alert(APP_LABELS.errors.descRequired);
-          return;
-        }
+    if (!desc) {
+      alert(APP_LABELS.errors.descRequired);
+      return;
+    }
 
-        if (desc.length > 100) {
-          alert(APP_LABELS.errors.max100);
-          return;
-        }
+    if (desc.length > 100) {
+      alert(APP_LABELS.errors.max100);
+      return;
+    }
 
-        DOM.saveBtn.disabled = true;
+    DOM.saveBtn.disabled = true;
 
-        APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
-        APP_STATE.currentOpenPointId = null;
-        MAP_INSTANCE.closePopup();
+    APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+    APP_STATE.currentOpenPointId = null;
+    MAP_INSTANCE.closePopup();
 
-        try {
-          await addDoc(collection(db, "points"), {
-            lat: APP_STATE.selectedLatLng.lat,
-            lng: APP_STATE.selectedLatLng.lng,
-            type: APP_STATE.currentType,
-            desc,
-            time: Date.now(),
-            comments: [],
-            likes: 0,
-            dislikes: 0
-          });
+    try {
+      await addDoc(collection(db, "points"), {
+        lat: APP_STATE.selectedLatLng.lat,
+        lng: APP_STATE.selectedLatLng.lng,
+        type: APP_STATE.currentType,
+        desc,
+        time: Date.now(),
+        comments: [],
+        likes: 0,
+        dislikes: 0,
+        clientId: APP_STATE.clientId
+      });
 
-          DescWindow.hide();
+      DescWindow.hide();
 
-          if (APP_STATE.tempMarker) {
-            MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
-            APP_STATE.tempMarker = null;
-          }
-
-          APP_STATE.selectedLatLng = null;
-          DescWindow.reset();
-          PickerWindow.hide();
-          APP_STATE.addMode = false;
-
-          SuccessModalWindow.show();
-
-          setTimeout(() => {
-            MarkerRenderEngine.queueRender(true);
-          }, 80);
-
-        } finally {
-          setTimeout(() => {
-            DOM.saveBtn.disabled = false;
-          }, 400);
-        }
+      if (APP_STATE.tempMarker) {
+        MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+        APP_STATE.tempMarker = null;
       }
-    };
+
+      APP_STATE.selectedLatLng = null;
+      DescWindow.reset();
+      PickerWindow.hide();
+      APP_STATE.addMode = false;
+
+      SuccessModalWindow.show();
+
+      setTimeout(() => {
+        MarkerRenderEngine.queueRender(true);
+      }, 80);
+
+    } finally {
+      setTimeout(() => {
+        DOM.saveBtn.disabled = false;
+      }, 400);
+    }
+  }
+};
 
     /* =========================================================
        BLOCK: APP_UI_HELPERS
@@ -3537,44 +3608,47 @@
       await PopupCommentFeature.add(pointId);
     };
 
-    /* =========================================================
-       BLOCK: APP_INIT
-       Послідовний запуск застосунку
-       ========================================================= */
-    function initApp() {
-      APP_STATE.settings = LocalStorageEngine.loadSettings();
+/* =========================================================
+   BLOCK: APP_INIT
+   Послідовний запуск застосунку
+   ========================================================= */
+function initApp() {
+  APP_STATE.settings = LocalStorageEngine.loadSettings();
+  APP_STATE.clientId = LocalStorageEngine.getClientId();
 
-      MapThemeEngine.apply(APP_STATE.settings.mapTheme);
+  MapThemeEngine.apply(APP_STATE.settings.mapTheme);
 
-      DOM.timeSlider.value = TimeUtils.clampMinutes(APP_STATE.settings.timeFilterMinutes);
-      SettingsUIEngine.updateTimeDisplay(APP_STATE.settings.timeFilterMinutes);
-      SettingsUIEngine.populateCitySelect();
-      SettingsUIEngine.updateFilterUI();
-      SettingsUIEngine.updateThemeUI();
+  DOM.timeSlider.value = TimeUtils.clampMinutes(APP_STATE.settings.timeFilterMinutes);
+  SettingsUIEngine.updateTimeDisplay(APP_STATE.settings.timeFilterMinutes);
+  SettingsUIEngine.populateCitySelect();
+  SettingsUIEngine.updateFilterUI();
+  SettingsUIEngine.updateThemeUI();
+  SettingsUIEngine.updateNotificationsUI();
 
-      PickerWindow.updateActive();
-      SettingsBehaviorEngine.initFilterToggles();
-      SettingsBehaviorEngine.initThemeToggle();
+  PickerWindow.updateActive();
+  SettingsBehaviorEngine.initFilterToggles();
+  SettingsBehaviorEngine.initThemeToggle();
+  SettingsBehaviorEngine.initNotificationsToggle();
 
-      FabAddButton.init();
-      FabSettingsButton.init();
-      FabGeoButton.init();
+  FabAddButton.init();
+  FabSettingsButton.init();
+  FabGeoButton.init();
 
-      PickerWindowEvents.init();
-      DescWindowEvents.init();
-      SettingsWindowEvents.init();
-      SuccessModalEvents.init();
+  PickerWindowEvents.init();
+  DescWindowEvents.init();
+  SettingsWindowEvents.init();
+  SuccessModalEvents.init();
 
-      MapEventBindings.init();
-      FirebasePointsRepository.subscribe();
-      TelegramMiniAppEngine.init();
-      MobileMarkerPopupEngine.init();
+  MapEventBindings.init();
+  FirebasePointsRepository.subscribe();
+  TelegramMiniAppEngine.init();
+  MobileMarkerPopupEngine.init();
 
-      setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 200);
-      setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 800);
-    }
+  setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 200);
+  setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 800);
+}
 
-    initApp();
+initApp();
   </script>
 </body>
 </html>
