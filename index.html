@@ -1961,6 +1961,93 @@ const ZONE_TEMPLATES = [
    Готові зони
    ========================================================= */
 const PRESET_ZONE_CONFIG = {
+  // ---------------------------------------------------------
+  // ОФІЦІЙНІ РАЙОНИ КИЄВА
+  // ---------------------------------------------------------
+  holosiivskyi_raion: {
+    name: "Голосіївський район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.363,
+    lng: 30.520,
+    radius: 6200
+  },
+  darnytskyi_raion: {
+    name: "Дарницький район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.390,
+    lng: 30.665,
+    radius: 6000
+  },
+  desnianskyi_raion: {
+    name: "Деснянський район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.555,
+    lng: 30.655,
+    radius: 5600
+  },
+  dniprovskyi_raion: {
+    name: "Дніпровський район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.455,
+    lng: 30.610,
+    radius: 4800
+  },
+  obolonskyi_raion: {
+    name: "Оболонський район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.520,
+    lng: 30.470,
+    radius: 5600
+  },
+  pecherskyi_raion: {
+    name: "Печерський район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.425,
+    lng: 30.545,
+    radius: 3200
+  },
+  podilskyi_raion: {
+    name: "Подільський район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.475,
+    lng: 30.455,
+    radius: 4800
+  },
+  sviatoshynskyi_raion: {
+    name: "Святошинський район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.455,
+    lng: 30.365,
+    radius: 5200
+  },
+  solomianskyi_raion: {
+    name: "Солом’янський район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.430,
+    lng: 30.445,
+    radius: 4200
+  },
+  shevchenkivskyi_raion: {
+    name: "Шевченківський район",
+    kind: "circle",
+    icon: "🟢",
+    lat: 50.460,
+    lng: 30.485,
+    radius: 3800
+  },
+
+  // ---------------------------------------------------------
+  // МІКРОРАЙОНИ / МАСИВИ / МІСЦЕВОСТІ
+  // ---------------------------------------------------------
   obolon: {
     name: "Оболонь",
     kind: "circle",
@@ -1969,7 +2056,6 @@ const PRESET_ZONE_CONFIG = {
     lng: 30.498,
     radius: 2200
   },
-
   troieshchyna: {
     name: "Троєщина",
     kind: "circle",
@@ -1978,7 +2064,46 @@ const PRESET_ZONE_CONFIG = {
     lng: 30.610,
     radius: 2600
   },
-
+  vyhurivshchyna: {
+    name: "Вигурівщина",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.525,
+    lng: 30.635,
+    radius: 2200
+  },
+  lisovyi: {
+    name: "Лісовий",
+    kind: "circle",
+    icon: "🌲",
+    lat: 50.480,
+    lng: 30.650,
+    radius: 2200
+  },
+  darnytsia: {
+    name: "Дарниця",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.455,
+    lng: 30.635,
+    radius: 2300
+  },
+  berezniaky: {
+    name: "Березняки",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.425,
+    lng: 30.610,
+    radius: 1800
+  },
+  rusanivka: {
+    name: "Русанівка",
+    kind: "circle",
+    icon: "🏝️",
+    lat: 50.445,
+    lng: 30.595,
+    radius: 1500
+  },
   pozniaky: {
     name: "Позняки",
     kind: "circle",
@@ -1987,7 +2112,6 @@ const PRESET_ZONE_CONFIG = {
     lng: 30.635,
     radius: 2200
   },
-
   osokorky: {
     name: "Осокорки",
     kind: "circle",
@@ -1996,7 +2120,38 @@ const PRESET_ZONE_CONFIG = {
     lng: 30.616,
     radius: 2400
   },
-
+  kharkivskyi: {
+    name: "Харківський",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.413,
+    lng: 30.666,
+    radius: 2500
+  },
+  teremky: {
+    name: "Теремки",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.375,
+    lng: 30.455,
+    radius: 2600
+  },
+  holosiievo: {
+    name: "Голосієво",
+    kind: "circle",
+    icon: "🌳",
+    lat: 50.394,
+    lng: 30.517,
+    radius: 2300
+  },
+  demiivka: {
+    name: "Деміївка",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.404,
+    lng: 30.517,
+    radius: 1700
+  },
   pechersk: {
     name: "Печерськ",
     kind: "circle",
@@ -2005,44 +2160,203 @@ const PRESET_ZONE_CONFIG = {
     lng: 30.548,
     radius: 2000
   },
-
-  solomianka: {
-    name: "Солом’янка",
+  podil: {
+    name: "Поділ",
+    kind: "circle",
+    icon: "🏛️",
+    lat: 50.468,
+    lng: 30.515,
+    radius: 1700
+  },
+  kurenivka: {
+    name: "Куренівка",
     kind: "circle",
     icon: "🏘️",
-    lat: 50.431,
-    lng: 30.461,
-    radius: 2600
+    lat: 50.489,
+    lng: 30.463,
+    radius: 1900
   },
-
-  shevchenkivskyi: {
-    name: "Шевченківський",
+  vynohradar: {
+    name: "Виноградар",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.503,
+    lng: 30.425,
+    radius: 2300
+  },
+  nyvky: {
+    name: "Нивки",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.457,
+    lng: 30.406,
+    radius: 2000
+  },
+  syrets: {
+    name: "Сирець",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.476,
+    lng: 30.440,
+    radius: 1800
+  },
+  shuliavka: {
+    name: "Шулявка",
     kind: "circle",
     icon: "🏘️",
     lat: 50.454,
-    lng: 30.482,
-    radius: 2800
+    lng: 30.445,
+    radius: 1700
   },
-
-  holosiiv: {
-    name: "Голосіїв",
+  borshchahivka: {
+    name: "Борщагівка",
     kind: "circle",
-    icon: "🌳",
-    lat: 50.384,
-    lng: 30.516,
-    radius: 3400
+    icon: "🏘️",
+    lat: 50.423,
+    lng: 30.392,
+    radius: 3200
   },
-
+  akademmistechko: {
+    name: "Академмістечко",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.464,
+    lng: 30.356,
+    radius: 1900
+  },
   sviatoshyn: {
     name: "Святошин",
     kind: "circle",
     icon: "🏘️",
     lat: 50.457,
     lng: 30.367,
-    radius: 3400
+    radius: 1900
+  },
+  solomianka: {
+    name: "Солом’янка",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.430,
+    lng: 30.461,
+    radius: 2000
+  },
+  chokolivka: {
+    name: "Чоколівка",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.421,
+    lng: 30.449,
+    radius: 1600
+  },
+  karavaievi_dachi: {
+    name: "Караваєві Дачі",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.438,
+    lng: 30.436,
+    radius: 1500
+  },
+  lukianivka: {
+    name: "Лук’янівка",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.463,
+    lng: 30.481,
+    radius: 1600
+  },
+  tatarka: {
+    name: "Татарка",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.468,
+    lng: 30.495,
+    radius: 1400
+  },
+  priorca: {
+    name: "Пріорка",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.495,
+    lng: 30.485,
+    radius: 1700
+  },
+  minskyi_masyv: {
+    name: "Мінський масив",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.526,
+    lng: 30.467,
+    radius: 1700
+  },
+  vidradnyi: {
+    name: "Відрадний",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.434,
+    lng: 30.412,
+    radius: 2000
+  },
+  sovky: {
+    name: "Совки",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.397,
+    lng: 30.470,
+    radius: 1800
+  },
+  bortnychi: {
+    name: "Бортничі",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.343,
+    lng: 30.688,
+    radius: 2600
+  },
+  bykivnia: {
+    name: "Биківня",
+    kind: "circle",
+    icon: "🌲",
+    lat: 50.500,
+    lng: 30.695,
+    radius: 2600
+  },
+  koncha_zaspa: {
+    name: "Конча-Заспа",
+    kind: "circle",
+    icon: "🌲",
+    lat: 50.315,
+    lng: 30.555,
+    radius: 4200
+  },
+  pyrohiv: {
+    name: "Пирогів",
+    kind: "circle",
+    icon: "🌳",
+    lat: 50.338,
+    lng: 30.524,
+    radius: 2100
+  },
+  vydubychi: {
+    name: "Видубичі",
+    kind: "circle",
+    icon: "🏞️",
+    lat: 50.401,
+    lng: 30.562,
+    radius: 1400
+  },
+  mysholovka: {
+    name: "Мишоловка",
+    kind: "circle",
+    icon: "🏘️",
+    lat: 50.389,
+    lng: 30.540,
+    radius: 1500
   },
 
-   left_bank_kyiv: {
+  // ---------------------------------------------------------
+  // ВЕЛИКІ ЗОНИ
+  // ---------------------------------------------------------
+  left_bank_kyiv: {
     name: "Лівий берег Києва",
     kind: "polygon",
     icon: "🌉",
@@ -2058,7 +2372,7 @@ const PRESET_ZONE_CONFIG = {
     ]
   },
 
-    right_bank_kyiv: {
+  right_bank_kyiv: {
     name: "Правий берег Києва",
     kind: "polygon",
     icon: "🌉",
