@@ -688,6 +688,119 @@
     max-height: none;
   }
 }
+
+    /* =========================================================
+   BLOCK: CSS_ZONE_EDIT_IOS
+   iOS-style вікно редагування зони
+   ========================================================= */
+#zoneEditSheet {
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#zoneEditBody {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.zone-edit-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.zone-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.zone-edit-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.58);
+  padding-left: 2px;
+}
+
+#zoneEditNameInput,
+#zoneEditRadiusInput {
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.10);
+  color: #fff;
+  font-family: inherit;
+  outline: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+#zoneEditNameInput::placeholder,
+#zoneEditRadiusInput::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+#zoneEditNameInput:focus,
+#zoneEditRadiusInput:focus {
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 132, 255, 0.55),
+    0 0 0 3px rgba(10, 132, 255, 0.10);
+}
+
+#zoneEditFooter {
+  display: grid;
+  grid-template-columns: 1fr 92px;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.zone-edit-btn {
+  height: 58px;
+  border: none;
+  border-radius: 20px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.zone-edit-btn:active {
+  transform: scale(0.985);
+}
+
+.zone-edit-btn-save {
+  background: linear-gradient(180deg, #3f95ff, #1b74f0);
+  color: #fff;
+  box-shadow: 0 12px 26px rgba(10, 132, 255, 0.25);
+}
+
+.zone-edit-btn-delete {
+  background: rgba(255, 59, 48, 0.22);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 99, 91, 0.22);
+}
+
+@media (max-width: 600px) {
+  #zoneEditSheet {
+    height: auto !important;
+    max-height: 72dvh !important;
+  }
+
+  #zoneEditFooter {
+    padding-bottom: calc(4px + env(safe-area-inset-bottom));
+  }
+
+  .zone-edit-btn {
+    height: 56px;
+    font-size: 15px;
+  }
+}
     
         /* =========================================================
        BLOCK: CSS_ZONE_SHEET_LAYOUT_REFINED
@@ -1796,20 +1909,30 @@
        Вікно редагування зони
        ========================================================= -->
   <div id="zoneEditSheet">
-    <div id="zoneEditHead">
-      <div id="zoneEditTitle">✏️ Редагувати зону</div>
-      <button id="zoneEditClose">×</button>
-    </div>
+  <div id="zoneEditHead">
+    <div id="zoneEditTitle">✏️ Редагувати зону</div>
+    <button id="zoneEditClose">×</button>
+  </div>
 
-    <input type="text" id="zoneEditNameInput" placeholder="Назва зони" maxlength="30">
-    <input type="number" id="zoneEditRadiusInput" placeholder="Радіус (метри)" min="50" max="5000" step="50">
-    
-    <div style="display: flex; gap: 10px; margin-top: 10px;">
-      <button id="saveZoneEditBtn" style="flex: 2;">💾 Зберегти</button>
-      <button id="gotoZoneBtn" style="flex: 1; background: rgba(10,132,255,0.6);">📍</button>
-      <button id="deleteZoneBtn" style="flex: 1; background: rgba(255,59,48,0.6);">🗑️</button>
+  <div id="zoneEditBody">
+    <div class="zone-edit-fields">
+      <div class="zone-edit-field">
+        <label class="zone-edit-label" for="zoneEditNameInput">Назва зони</label>
+        <input type="text" id="zoneEditNameInput" placeholder="Назва зони" maxlength="30">
+      </div>
+
+      <div class="zone-edit-field" id="zoneEditRadiusWrap">
+        <label class="zone-edit-label" for="zoneEditRadiusInput">Радіус</label>
+        <input type="number" id="zoneEditRadiusInput" placeholder="Радіус (метри)" min="50" max="5000" step="50">
+      </div>
     </div>
   </div>
+
+  <div id="zoneEditFooter">
+    <button id="saveZoneEditBtn" class="zone-edit-btn zone-edit-btn-save">💾 Зберегти</button>
+    <button id="deleteZoneBtn" class="zone-edit-btn zone-edit-btn-delete">🗑</button>
+  </div>
+</div>
 
   <!-- =========================================================
        BLOCK: HTML_STRUCTURE_SETTINGS_SHEET
@@ -2623,12 +2746,12 @@ const DOM = {
   saveZoneBtn: document.getElementById("saveZoneBtn"),
   templatesGrid: document.getElementById("templatesGrid"),
 
-  zoneEditSheet: document.getElementById("zoneEditSheet"),
+     zoneEditSheet: document.getElementById("zoneEditSheet"),
   zoneEditClose: document.getElementById("zoneEditClose"),
   zoneEditNameInput: document.getElementById("zoneEditNameInput"),
   zoneEditRadiusInput: document.getElementById("zoneEditRadiusInput"),
+  zoneEditRadiusWrap: document.getElementById("zoneEditRadiusWrap"),
   saveZoneEditBtn: document.getElementById("saveZoneEditBtn"),
-  gotoZoneBtn: document.getElementById("gotoZoneBtn"),
   deleteZoneBtn: document.getElementById("deleteZoneBtn"),
 
   settingsSheet: document.getElementById("settingsSheet"),
@@ -3699,9 +3822,11 @@ const ZoneEditWindow = {
     DOM.zoneEditNameInput.value = zone.name;
     DOM.zoneEditRadiusInput.value = zone.kind === "circle" ? zone.radius : "";
 
-    DOM.zoneEditRadiusInput.style.display = zone.kind === "circle" ? "block" : "none";
+    if (DOM.zoneEditRadiusWrap) {
+      DOM.zoneEditRadiusWrap.style.display = zone.kind === "circle" ? "flex" : "none";
+    }
 
-    DOM.zoneEditSheet.style.display = "block";
+    DOM.zoneEditSheet.style.display = "flex";
     ZoneCircleEngine.showZonePreview(zone, zone.kind === "circle");
 
     if (LayoutHelpers.isMobile()) {
@@ -3771,12 +3896,6 @@ const ZoneEditWindow = {
     APP_STATE.zones = ZoneStorageEngine.loadZones();
     ZoneManagerUI.renderZonesList();
     this.hide();
-  },
-
-  goto() {
-    const zone = APP_STATE.zones.find(z => z.id === APP_STATE.zoneEditId);
-    if (!zone) return;
-    ZoneCircleEngine.showZonePreview(zone, zone.kind === "circle");
   }
 };
 
@@ -5192,29 +5311,25 @@ const ZoneWindowEvents = {
 };
     
     
-    /* =========================================================
-       BLOCK: WINDOW_ZONE_EDIT_SHEET_EVENTS
-       Події вікна редагування зони
-       ========================================================= */
-    const ZoneEditWindowEvents = {
-      init() {
-        DOM.zoneEditClose.addEventListener("click", () => {
-          ZoneEditWindow.hide();
-        });
-        
-        DOM.saveZoneEditBtn.addEventListener("click", () => {
-          ZoneEditWindow.save();
-        });
-        
-        DOM.deleteZoneBtn.addEventListener("click", () => {
-          ZoneEditWindow.delete();
-        });
-        
-        DOM.gotoZoneBtn.addEventListener("click", () => {
-          ZoneEditWindow.goto();
-        });
-      }
-    };
+/* =========================================================
+   BLOCK: WINDOW_ZONE_EDIT_SHEET_EVENTS
+   Події вікна редагування зони
+   ========================================================= */
+const ZoneEditWindowEvents = {
+  init() {
+    DOM.zoneEditClose.addEventListener("click", () => {
+      ZoneEditWindow.hide();
+    });
+
+    DOM.saveZoneEditBtn.addEventListener("click", () => {
+      ZoneEditWindow.save();
+    });
+
+    DOM.deleteZoneBtn.addEventListener("click", () => {
+      ZoneEditWindow.delete();
+    });
+  }
+};
 
     /* =========================================================
        BLOCK: WINDOW_SETTINGS_SHEET_EVENTS
