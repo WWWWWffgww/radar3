@@ -2345,7 +2345,7 @@ const LocalStorageEngine = {
       }
     };
 
-  /* =========================================================
+/* =========================================================
    BLOCK: GLOBAL_NOTIFICATION_ENGINE
    Глобальні сповіщення про нові мітки
    ========================================================= */
@@ -2413,7 +2413,7 @@ const GlobalNotificationEngine = {
       }, this.HIDE_ANIMATION_MS);
     };
 
-    const openPointFromNotification = async () => {
+    const openPointFromNotification = () => {
       const point = APP_STATE.points.find(p => p.id === notification.id);
       if (!point) {
         close();
@@ -2422,25 +2422,44 @@ const GlobalNotificationEngine = {
 
       close();
 
-      APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+      APP_STATE.suppressPopupRestoreUntil = Date.now() + 1500;
+
+      // на всякий случай синхронизируем город
+      if (point.city && APP_STATE.settings.selectedCity !== point.city) {
+        APP_STATE.settings.selectedCity = point.city;
+        LocalStorageEngine.saveSettings(APP_STATE.settings);
+      }
 
       MAP_INSTANCE.flyTo(
         [point.lat, point.lng],
         Math.max(MAP_INSTANCE.getZoom(), 16),
-        { animate: true, duration: 0.8 }
+        { animate: true, duration: 0.9 }
       );
 
-      setTimeout(() => {
-        const entry = APP_STATE.markerRegistry.get(point.id);
-        if (!entry) return;
+      const tryOpenPopup = (attempt = 0) => {
+        const freshPoint = APP_STATE.points.find(p => p.id === notification.id);
+        if (!freshPoint) return;
+
+        MarkerRenderEngine.queueRender(true);
 
         if (LayoutHelpers.isMobile()) {
-          MobileMarkerPopupEngine.open(point);
-        } else {
+          MobileMarkerPopupEngine.open(freshPoint);
+          return;
+        }
+
+        const entry = APP_STATE.markerRegistry.get(notification.id);
+        if (entry?.marker) {
           MAP_INSTANCE.closePopup();
           entry.marker.openPopup();
+          return;
         }
-      }, 850);
+
+        if (attempt < 12) {
+          setTimeout(() => tryOpenPopup(attempt + 1), 180);
+        }
+      };
+
+      setTimeout(() => tryOpenPopup(0), 500);
     };
 
     el.querySelector(".global-notification-close")?.addEventListener("click", (e) => {
@@ -2460,13 +2479,14 @@ const GlobalNotificationEngine = {
   }
 };
 
- /* =========================================================
+/* =========================================================
    BLOCK: NEW_POINT_NOTIFICATION_ENGINE
    Виявлення нових міток для сповіщень
    ========================================================= */
 const NewPointNotificationEngine = {
   sync(points) {
     const currentIds = new Set(points.map(p => p.id));
+    const currentCity = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
 
     if (APP_STATE.knownPointIds.size === 0) {
       APP_STATE.knownPointIds = currentIds;
@@ -2479,10 +2499,16 @@ const NewPointNotificationEngine = {
           continue;
         }
 
+        // 🔥 уведомления только для текущего выбранного города
+        if (!point.city || point.city !== currentCity) {
+          continue;
+        }
+
         GlobalNotificationEngine.enqueue({
           id: point.id,
           type: point.type,
-          desc: point.desc || ""
+          desc: point.desc || "",
+          city: point.city || null
         });
       }
     }
@@ -3340,7 +3366,8 @@ const CreateMarkerFlow = {
         comments: [],
         likes: 0,
         dislikes: 0,
-        clientId: APP_STATE.clientId
+        clientId: APP_STATE.clientId,
+        city: APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY
       });
 
       DescWindow.hide();
