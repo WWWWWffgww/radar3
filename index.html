@@ -4723,16 +4723,20 @@ const ZoneWindowEvents = {
 function initApp() {
   APP_STATE.settings = LocalStorageEngine.loadSettings();
   APP_STATE.clientId = LocalStorageEngine.getClientId();
+  APP_STATE.zones = ZoneStorageEngine.loadZones();
 
   MapThemeEngine.apply(APP_STATE.settings.mapTheme);
 
   DOM.timeSlider.value = TimeUtils.clampMinutes(APP_STATE.settings.timeFilterMinutes);
   SettingsUIEngine.updateTimeDisplay(APP_STATE.settings.timeFilterMinutes);
+  SettingsUIEngine.populateCitySelect();
+
   DOM.presetZoneSelect.innerHTML =
     `<option value="">Оберіть готову зону</option>` +
     Object.entries(PRESET_ZONE_CONFIG)
       .map(([key, zone]) => `<option value="${key}">${zone.name}</option>`)
       .join("");
+
   SettingsUIEngine.updateFilterUI();
   SettingsUIEngine.updateThemeUI();
   SettingsUIEngine.updateNotificationsUI();
