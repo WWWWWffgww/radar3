@@ -176,88 +176,88 @@
       color: #fff;
     }
 
-/* =========================================================
-   BLOCK: CSS_LAYOUT_MOBILE
-   Мобільна адаптація
-   ========================================================= */
-@media (max-width: 600px) {
-  #pickerBar {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    transform: none !important;
-    z-index: 1105 !important;
-    border-top-left-radius: 22px !important;
-    border-top-right-radius: 22px !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-    padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
-  }
+    /* =========================================================
+       BLOCK: CSS_LAYOUT_MOBILE
+       Мобільна адаптація
+       ========================================================= */
+    @media (max-width: 600px) {
+      #pickerBar {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        transform: none !important;
+        z-index: 1105 !important;
+        border-top-left-radius: 22px !important;
+        border-top-right-radius: 22px !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
+      }
 
-  #descSheet {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    z-index: 1105 !important;
+      #descSheet {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        z-index: 1105 !important;
 
-    border-top-left-radius: 22px !important;
-    border-top-right-radius: 22px !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+        border-top-left-radius: 22px !important;
+        border-top-right-radius: 22px !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
 
-    padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
+        padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
 
-    transform: translateY(100%);
-    transition: transform 0.22s ease;
-  }
+        transform: translateY(100%);
+        transition: transform 0.22s ease;
+      }
 
-  #descSheet.show-mobile {
-    transform: translateY(0);
-  }
+      #descSheet.show-mobile {
+        transform: translateY(0);
+      }
 
-  #pickerBar .picker-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 6px !important;
-  }
+      #pickerBar .picker-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px !important;
+      }
 
-  #pickerBar .picker-item {
-    border-radius: 12px !important;
-    padding: 5px 3px !important;
-  }
+      #pickerBar .picker-item {
+        border-radius: 12px !important;
+        padding: 5px 3px !important;
+      }
 
-  #pickerBar .picker-item img {
-    width: 28px !important;
-    height: 28px !important;
-    margin: 0 auto 3px !important;
-  }
+      #pickerBar .picker-item img {
+        width: 28px !important;
+        height: 28px !important;
+        margin: 0 auto 3px !important;
+      }
 
-  #pickerBar .picker-item span {
-    font-size: 10px !important;
-    line-height: 1.1 !important;
-  }
+      #pickerBar .picker-item span {
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+      }
 
-  #pickerTop {
-    margin-bottom: 6px !important;
-  }
+      #pickerTop {
+        margin-bottom: 6px !important;
+      }
 
-  #pickerHint {
-    font-size: 11px !important;
-  }
+      #pickerHint {
+        font-size: 11px !important;
+      }
 
-  #pickerClose {
-    width: 24px !important;
-    height: 24px !important;
-    font-size: 17px !important;
-  }
-}
+      #pickerClose {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 17px !important;
+      }
+    }
 
     /* =========================================================
        BLOCK: CSS_LAYOUT_DESKTOP
@@ -278,86 +278,86 @@
       }
     }
 
-/* =========================================================
-   BLOCK: CSS_SETTINGS_WINDOW
-   Вікно налаштувань
-   ========================================================= */
-#settingsSheet {
-  position: fixed;
-  left: var(--sheet-side);
-  right: var(--sheet-side);
-  top: var(--sheet-top);
-  bottom: var(--sheet-bottom);
-  z-index: 1015;
-  display: none;
-  flex-direction: column;
-  background: rgba(28, 28, 30, 0.96);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-radius: var(--sheet-radius);
-  padding: var(--sheet-padding);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #fff;
-  overflow: hidden;
-}
+    /* =========================================================
+       BLOCK: CSS_SETTINGS_WINDOW
+       Вікно налаштувань
+       ========================================================= */
+    #settingsSheet {
+      position: fixed;
+      left: var(--sheet-side);
+      right: var(--sheet-side);
+      top: var(--sheet-top);
+      bottom: var(--sheet-bottom);
+      z-index: 1015;
+      display: none;
+      flex-direction: column;
+      background: rgba(28, 28, 30, 0.96);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: var(--sheet-radius);
+      padding: var(--sheet-padding);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+      overflow: hidden;
+    }
 
-@media (min-width: 601px) {
-  #settingsSheet {
-    left: auto;
-    right: 10px;
-    width: 320px;
-    top: 68px;
-    bottom: calc(60px + env(safe-area-inset-bottom));
-    transform: none !important;
-    transition: none !important;
-  }
-}
+    @media (min-width: 601px) {
+      #settingsSheet {
+        left: auto;
+        right: 10px;
+        width: 320px;
+        top: 68px;
+        bottom: calc(60px + env(safe-area-inset-bottom));
+        transform: none !important;
+        transition: none !important;
+      }
+    }
 
-@media (max-width: 600px) {
-  #settingsSheet {
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    height: 82dvh !important;
-    max-height: 82dvh !important;
+    @media (max-width: 600px) {
+      #settingsSheet {
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 82dvh !important;
+        max-height: 82dvh !important;
 
-    border-top-left-radius: 22px !important;
-    border-top-right-radius: 22px !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+        border-top-left-radius: 22px !important;
+        border-top-right-radius: 22px !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
 
-    padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
+        padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
 
-    transform: translateY(100%);
-    transition: transform 0.22s ease;
-  }
+        transform: translateY(100%);
+        transition: transform 0.22s ease;
+      }
 
-  #settingsSheet.show-mobile {
-    transform: translateY(0);
-  }
-}
+      #settingsSheet.show-mobile {
+        transform: translateY(0);
+      }
+    }
 
-#settingsBody {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 2px;
-  -webkit-overflow-scrolling: touch;
-}
+    #settingsBody {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
 
-#settingsBody::-webkit-scrollbar {
-  width: 6px;
-}
+    #settingsBody::-webkit-scrollbar {
+      width: 6px;
+    }
 
-#settingsBody::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-}
+    #settingsBody::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 10px;
+    }
 
     /* =========================================================
        BLOCK: CSS_WINDOW_HEADERS
@@ -1009,6 +1009,120 @@
     }
 
     /* =========================================================
+       BLOCK: CSS_GLOBAL_NOTIFICATION
+       Глобальні push-сповіщення
+       ========================================================= */
+    .global-notification-host {
+      position: fixed;
+      top: calc(10px + env(safe-area-inset-top));
+      left: 0;
+      right: 0;
+      z-index: 4000;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      padding: 0 10px;
+    }
+
+    .global-notification {
+      width: min(420px, calc(100vw - 20px));
+      background: rgba(72, 72, 74, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      color: #fff;
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 12px;
+      transform: translateY(-120%);
+      opacity: 0;
+      transition: transform 0.28s ease, opacity 0.28s ease;
+      pointer-events: auto;
+    }
+
+    .global-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .global-notification.hide {
+      transform: translateY(-120%);
+      opacity: 0;
+    }
+
+    .global-notification-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .global-notification-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .global-notification-icon {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .global-notification-meta {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .global-notification-title {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+
+    .global-notification-text {
+      font-size: 13px;
+      line-height: 1.35;
+      color: rgba(255, 255, 255, 0.88);
+      word-break: break-word;
+    }
+
+    .global-notification-close {
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 600px) {
+      .global-notification-host {
+        top: calc(8px + env(safe-area-inset-top));
+        padding: 0 8px;
+      }
+
+      .global-notification {
+        width: calc(100vw - 16px);
+        border-radius: 16px;
+        padding: 11px;
+      }
+
+      .global-notification-icon {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    /* =========================================================
        BLOCK: CSS_SUCCESS_MODAL
        Модальне вікно успіху
        ========================================================= */
@@ -1314,6 +1428,12 @@
   </div>
 
   <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_GLOBAL_NOTIFICATION
+       Глобальні push-сповіщення
+       ========================================================= -->
+  <div id="globalNotificationHost" class="global-notification-host"></div>
+
+  <!-- =========================================================
        BLOCK: HTML_STRUCTURE_SUCCESS_MODAL
        Вікно успішного додавання
        ========================================================= -->
@@ -1478,7 +1598,10 @@
       suspendRenderWhileTyping: false,
       suppressPopupRestoreUntil: 0,
       currentTileLayer: null,
-      markerRegistry: new Map()
+      markerRegistry: new Map(),
+      notificationQueue: [],
+      notificationIsShowing: false,
+      knownPointIds: new Set()
     };
 
     /* =========================================================
@@ -1520,7 +1643,9 @@
 
       mobileMarkerPopupBackdrop: document.getElementById("mobileMarkerPopupBackdrop"),
       mobileMarkerPopupSheet: document.getElementById("mobileMarkerPopupSheet"),
-      mobileMarkerPopupContent: document.getElementById("mobileMarkerPopupContent")
+      mobileMarkerPopupContent: document.getElementById("mobileMarkerPopupContent"),
+
+      globalNotificationHost: document.getElementById("globalNotificationHost")
     };
 
     /* =========================================================
@@ -1785,39 +1910,39 @@
       }
     });
 
-   /* =========================================================
-   BLOCK: MAP_BOOTSTRAP
-   Створення мапи
-   ========================================================= */
-const MAP_INSTANCE = L.map("map", {
-  preferCanvas: true,
-  zoomControl: true,
+    /* =========================================================
+       BLOCK: MAP_BOOTSTRAP
+       Створення мапи
+       ========================================================= */
+    const MAP_INSTANCE = L.map("map", {
+      preferCanvas: true,
+      zoomControl: true,
 
-  zoomAnimation: true,
-  fadeAnimation: true,
-  markerZoomAnimation: true,
+      zoomAnimation: true,
+      fadeAnimation: true,
+      markerZoomAnimation: true,
 
-  inertia: true,
-  inertiaDeceleration: 3000,
-  inertiaMaxSpeed: 2500,
+      inertia: true,
+      inertiaDeceleration: 3000,
+      inertiaMaxSpeed: 2500,
 
-  wheelDebounceTime: 20,
-  wheelPxPerZoomLevel: 90,
+      wheelDebounceTime: 20,
+      wheelPxPerZoomLevel: 90,
 
-  zoomSnap: 0.25,
-  zoomDelta: 0.5,
+      zoomSnap: 0.25,
+      zoomDelta: 0.5,
 
-  updateWhenIdle: false,
-  updateWhenZooming: true,
+      updateWhenIdle: false,
+      updateWhenZooming: true,
 
-  touchZoom: true,
-  doubleClickZoom: true,
-  boxZoom: false,
-  keyboard: false
-}).setView(
-  [CITY_CONFIG[APP_CONFIG.DEFAULT_CITY_KEY].lat, CITY_CONFIG[APP_CONFIG.DEFAULT_CITY_KEY].lng],
-  12
-);
+      touchZoom: true,
+      doubleClickZoom: true,
+      boxZoom: false,
+      keyboard: false
+    }).setView(
+      [CITY_CONFIG[APP_CONFIG.DEFAULT_CITY_KEY].lat, CITY_CONFIG[APP_CONFIG.DEFAULT_CITY_KEY].lng],
+      12
+    );
 
     const GROUP_CIRCLE_LAYER = L.layerGroup().addTo(MAP_INSTANCE);
 
@@ -1938,39 +2063,39 @@ const MAP_INSTANCE = L.map("map", {
       }
     };
 
-  /* =========================================================
-   BLOCK: MARKER_ICON_FACTORY
-   Іконки міток
-   ========================================================= */
-const MarkerIconFactory = {
-  getIconPath(type) {
-    if (type === "question") return "icons/question.png";
-    if (type === "poop") return "icons/kaka.png";
-    return `icons/${type}.png`;
-  },
+    /* =========================================================
+       BLOCK: MARKER_ICON_FACTORY
+       Іконки міток
+       ========================================================= */
+    const MarkerIconFactory = {
+      getIconPath(type) {
+        if (type === "question") return "icons/question.png";
+        if (type === "poop") return "icons/kaka.png";
+        return `icons/${type}.png`;
+      },
 
-  getIcon(type, zoom) {
-    let size;
+      getIcon(type, zoom) {
+        let size;
 
-    if (zoom < 11) size = 26;
-    else if (zoom < 12) size = 30;
-    else if (zoom < 13) size = 34;
-    else if (zoom < 14) size = 38;
-    else if (zoom < 15) size = 42;
-    else if (zoom < 16) size = 46;
-    else if (zoom < 17) size = 50;
-    else if (zoom < 18) size = 56;
-    else size = 62;
+        if (zoom < 11) size = 26;
+        else if (zoom < 12) size = 30;
+        else if (zoom < 13) size = 34;
+        else if (zoom < 14) size = 38;
+        else if (zoom < 15) size = 42;
+        else if (zoom < 16) size = 46;
+        else if (zoom < 17) size = 50;
+        else if (zoom < 18) size = 56;
+        else size = 62;
 
-    return L.divIcon({
-      className: "",
-      html: `<img src="${this.getIconPath(type)}" class="pin-img" style="width:100%;height:100%;">`,
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size - 5],
-      popupAnchor: [0, -(size - 14)]
-    });
-  }
-};
+        return L.divIcon({
+          className: "",
+          html: `<img src="${this.getIconPath(type)}" class="pin-img" style="width:100%;height:100%;">`,
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size - 5],
+          popupAnchor: [0, -(size - 14)]
+        });
+      }
+    };
 
     /* =========================================================
        BLOCK: WINDOW_PICKER_BAR
@@ -1996,104 +2121,104 @@ const MarkerIconFactory = {
       }
     };
 
-/* =========================================================
-   BLOCK: WINDOW_DESC_SHEET
-   Вікно опису мітки
-   ========================================================= */
-const DescWindow = {
-  show() {
-    DOM.descSheet.style.display = "block";
+    /* =========================================================
+       BLOCK: WINDOW_DESC_SHEET
+       Вікно опису мітки
+       ========================================================= */
+    const DescWindow = {
+      show() {
+        DOM.descSheet.style.display = "block";
 
-    if (LayoutHelpers.isMobile()) {
-      requestAnimationFrame(() => {
-        DOM.descSheet.classList.add("show-mobile");
-      });
-    }
-  },
+        if (LayoutHelpers.isMobile()) {
+          requestAnimationFrame(() => {
+            DOM.descSheet.classList.add("show-mobile");
+          });
+        }
+      },
 
-  hide() {
-    if (LayoutHelpers.isMobile()) {
-      DOM.descSheet.classList.remove("show-mobile");
-      setTimeout(() => {
+      hide() {
+        if (LayoutHelpers.isMobile()) {
+          DOM.descSheet.classList.remove("show-mobile");
+          setTimeout(() => {
+            DOM.descSheet.style.display = "none";
+          }, 220);
+          return;
+        }
+
         DOM.descSheet.style.display = "none";
-      }, 220);
-      return;
-    }
+      },
 
-    DOM.descSheet.style.display = "none";
-  },
+      reset() {
+        DOM.descInput.value = "";
+        DOM.descCounter.textContent = "0 / 100";
+      }
+    };
 
-  reset() {
-    DOM.descInput.value = "";
-    DOM.descCounter.textContent = "0 / 100";
-  }
-};
+    /* =========================================================
+       BLOCK: WINDOW_SETTINGS_SHEET
+       Вікно налаштувань
+       ========================================================= */
+    const SettingsWindow = {
+      show() {
+        document.body.classList.add("settings-open");
+        DOM.settingsSheet.style.display = "flex";
+        DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
+        this.updateLayout();
 
-   /* =========================================================
-   BLOCK: WINDOW_SETTINGS_SHEET
-   Вікно налаштувань
-   ========================================================= */
-const SettingsWindow = {
-  show() {
-    document.body.classList.add("settings-open");
-    DOM.settingsSheet.style.display = "flex";
-    DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
-    this.updateLayout();
+        if (LayoutHelpers.isMobile()) {
+          requestAnimationFrame(() => {
+            DOM.settingsSheet.classList.add("show-mobile");
+          });
+        }
+      },
 
-    if (LayoutHelpers.isMobile()) {
-      requestAnimationFrame(() => {
-        DOM.settingsSheet.classList.add("show-mobile");
-      });
-    }
-  },
+      hide() {
+        if (LayoutHelpers.isMobile()) {
+          DOM.settingsSheet.classList.remove("show-mobile");
+          setTimeout(() => {
+            DOM.settingsSheet.style.display = "none";
+            document.body.classList.remove("settings-open");
+          }, 220);
+          return;
+        }
 
-  hide() {
-    if (LayoutHelpers.isMobile()) {
-      DOM.settingsSheet.classList.remove("show-mobile");
-      setTimeout(() => {
         DOM.settingsSheet.style.display = "none";
         document.body.classList.remove("settings-open");
-      }, 220);
-      return;
-    }
+      },
 
-    DOM.settingsSheet.style.display = "none";
-    document.body.classList.remove("settings-open");
-  },
+      updateLayout() {
+        const sheet = DOM.settingsSheet;
+        if (sheet.style.display === "none") return;
 
-  updateLayout() {
-    const sheet = DOM.settingsSheet;
-    if (sheet.style.display === "none") return;
+        if (LayoutHelpers.isDesktop()) {
+          sheet.style.left = "auto";
+          sheet.style.right = "10px";
+          sheet.style.top = "68px";
+          sheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
+          sheet.style.width = "320px";
+          sheet.style.height = "auto";
+          sheet.style.maxHeight = "none";
+        } else {
+          sheet.style.left = "0";
+          sheet.style.right = "0";
+          sheet.style.top = "auto";
+          sheet.style.bottom = "0";
+          sheet.style.width = "100vw";
+          sheet.style.height = "82dvh";
+          sheet.style.maxHeight = "82dvh";
+        }
 
-    if (LayoutHelpers.isDesktop()) {
-      sheet.style.left = "auto";
-      sheet.style.right = "10px";
-      sheet.style.top = "68px";
-      sheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
-      sheet.style.width = "320px";
-      sheet.style.height = "auto";
-      sheet.style.maxHeight = "none";
-    } else {
-      sheet.style.left = "0";
-      sheet.style.right = "0";
-      sheet.style.top = "auto";
-      sheet.style.bottom = "0";
-      sheet.style.width = "100vw";
-      sheet.style.height = "82dvh";
-      sheet.style.maxHeight = "82dvh";
-    }
+        const head = document.getElementById("settingsHead");
+        const save = DOM.saveSettingsBtn;
+        const body = DOM.settingsBody;
 
-    const head = document.getElementById("settingsHead");
-    const save = DOM.saveSettingsBtn;
-    const body = DOM.settingsBody;
-
-    if (head && save && body) {
-      const totalHeight = sheet.clientHeight;
-      const reserved = head.offsetHeight + save.offsetHeight + 20;
-      body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
-    }
-  }
-};
+        if (head && save && body) {
+          const totalHeight = sheet.clientHeight;
+          const reserved = head.offsetHeight + save.offsetHeight + 20;
+          body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
+        }
+      }
+    };
 
     /* =========================================================
        BLOCK: WINDOW_SUCCESS_MODAL
@@ -2178,6 +2303,100 @@ const SettingsWindow = {
             this.close();
           }
         });
+      }
+    };
+
+    /* =========================================================
+       BLOCK: GLOBAL_NOTIFICATION_ENGINE
+       Глобальні сповіщення про нові мітки
+       ========================================================= */
+    const GlobalNotificationEngine = {
+      DISPLAY_MS: 3200,
+      HIDE_ANIMATION_MS: 300,
+
+      enqueue(notification) {
+        APP_STATE.notificationQueue.push(notification);
+        this.processQueue();
+      },
+
+      processQueue() {
+        if (APP_STATE.notificationIsShowing) return;
+        const next = APP_STATE.notificationQueue.shift();
+        if (!next) return;
+
+        APP_STATE.notificationIsShowing = true;
+        this.show(next);
+      },
+
+      show(notification) {
+        const el = document.createElement("div");
+        el.className = "global-notification";
+
+        el.innerHTML = `
+          <div class="global-notification-head">
+            <div class="global-notification-left">
+              <img class="global-notification-icon" src="${MarkerIconFactory.getIconPath(notification.type)}" alt="">
+              <div class="global-notification-meta">
+                <div class="global-notification-title">Нова мітка: ${HtmlUtils.escapeHtml(APP_LABELS.markerTypes[notification.type] || notification.type)}</div>
+                <div class="global-notification-text">${HtmlUtils.escapeHtml(notification.desc || "Без опису")}</div>
+              </div>
+            </div>
+            <button class="global-notification-close" type="button">×</button>
+          </div>
+        `;
+
+        DOM.globalNotificationHost.appendChild(el);
+
+        let closed = false;
+
+        const close = () => {
+          if (closed) return;
+          closed = true;
+
+          el.classList.remove("show");
+          el.classList.add("hide");
+
+          setTimeout(() => {
+            el.remove();
+            APP_STATE.notificationIsShowing = false;
+            this.processQueue();
+          }, this.HIDE_ANIMATION_MS);
+        };
+
+        el.querySelector(".global-notification-close")?.addEventListener("click", close);
+
+        requestAnimationFrame(() => {
+          el.classList.add("show");
+        });
+
+        setTimeout(close, this.DISPLAY_MS);
+      }
+    };
+
+    /* =========================================================
+       BLOCK: NEW_POINT_NOTIFICATION_ENGINE
+       Виявлення нових міток для сповіщень
+       ========================================================= */
+    const NewPointNotificationEngine = {
+      sync(points) {
+        const currentIds = new Set(points.map(p => p.id));
+
+        if (APP_STATE.knownPointIds.size === 0) {
+          APP_STATE.knownPointIds = currentIds;
+          return;
+        }
+
+        for (const point of points) {
+          if (!APP_STATE.knownPointIds.has(point.id)) {
+            GlobalNotificationEngine.enqueue({
+              id: point.id,
+              type: point.type,
+              desc: point.desc || ""
+            });
+          }
+        }
+
+        APP_STATE.knownPointIds = currentIds;
       }
     };
 
@@ -2633,180 +2852,170 @@ const SettingsWindow = {
       }
     };
 
-  /* =========================================================
-   BLOCK: MARKER_GROUP_ENGINE
-   Групування marker-ів у кола
-   ========================================================= */
-const MarkerGroupEngine = {
-  getGroupType(point) {
-    if (point.type === "safe") return "safe";
-    if (point.type === "question") return "question";
-    return "danger";
-  },
+    /* =========================================================
+       BLOCK: MARKER_GROUP_ENGINE
+       Групування marker-ів у кола
+       ========================================================= */
+    const MarkerGroupEngine = {
+      getGroupType(point) {
+        if (point.type === "safe") return "safe";
+        if (point.type === "question") return "question";
+        return "danger";
+      },
 
-  getMinCount(groupType) {
-    if (groupType === "safe") return APP_CONFIG.SAFE_MIN_COUNT;
-    if (groupType === "question") return APP_CONFIG.QUESTION_MIN_COUNT;
-    return APP_CONFIG.DANGER_MIN_COUNT;
-  },
+      getMinCount(groupType) {
+        if (groupType === "safe") return APP_CONFIG.SAFE_MIN_COUNT;
+        if (groupType === "question") return APP_CONFIG.QUESTION_MIN_COUNT;
+        return APP_CONFIG.DANGER_MIN_COUNT;
+      },
 
-  getColor(groupType) {
-    if (groupType === "safe") return "#34c759";
-    if (groupType === "question") return "#ffcc00";
-    return "#ff3b30";
-  },
+      getColor(groupType) {
+        if (groupType === "safe") return "#34c759";
+        if (groupType === "question") return "#ffcc00";
+        return "#ff3b30";
+      },
 
-  buildCandidateCircles(points) {
-    const candidates = [];
+      buildCandidateCircles(points) {
+        const candidates = [];
 
-    for (const point of points) {
-      const groupType = this.getGroupType(point);
+        for (const point of points) {
+          const groupType = this.getGroupType(point);
 
-      const sameTypePoints = points.filter(
-        p => this.getGroupType(p) === groupType
-      );
+          const sameTypePoints = points.filter(
+            p => this.getGroupType(p) === groupType
+          );
 
-      const nearby = sameTypePoints.filter(p => {
-        return (
-          GeoUtils.distanceMeters(point.lat, point.lng, p.lat, p.lng) <=
-          APP_CONFIG.GROUP_RADIUS_METERS
-        );
-      });
+          const nearby = sameTypePoints.filter(p => {
+            return (
+              GeoUtils.distanceMeters(point.lat, point.lng, p.lat, p.lng) <=
+              APP_CONFIG.GROUP_RADIUS_METERS
+            );
+          });
 
-      const minCount = this.getMinCount(groupType);
+          const minCount = this.getMinCount(groupType);
 
-      if (nearby.length >= minCount) {
-        const avgLat =
-          nearby.reduce((sum, p) => sum + p.lat, 0) / nearby.length;
-        const avgLng =
-          nearby.reduce((sum, p) => sum + p.lng, 0) / nearby.length;
+          if (nearby.length >= minCount) {
+            const avgLat =
+              nearby.reduce((sum, p) => sum + p.lat, 0) / nearby.length;
+            const avgLng =
+              nearby.reduce((sum, p) => sum + p.lng, 0) / nearby.length;
 
-        candidates.push({
-          groupType,
-          lat: avgLat,
-          lng: avgLng,
-          color: this.getColor(groupType),
-          count: nearby.length,
-          idsArray: nearby.map(p => p.id).sort(),
-          idsKey: nearby.map(p => p.id).sort().join("|")
-        });
-      }
-    }
-
-    return candidates;
-  },
-
-  arraysEqual(a, b) {
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if (a[i] !== b[i]) return false;
-    }
-    return true;
-  },
-
-  intersectionSize(a, b) {
-    const setB = new Set(b);
-    let count = 0;
-    for (const item of a) {
-      if (setB.has(item)) count++;
-    }
-    return count;
-  },
-
-  dedupeCircles(candidates) {
-    const result = [];
-    const sorted = [...candidates].sort((a, b) => b.count - a.count);
-
-    for (const candidate of sorted) {
-      const duplicate = result.some(existing => {
-        if (existing.groupType !== candidate.groupType) return false;
-
-        // 1. Полный дубль по составу
-        if (existing.idsKey === candidate.idsKey) return true;
-
-        const dist = GeoUtils.distanceMeters(
-          existing.lat,
-          existing.lng,
-          candidate.lat,
-          candidate.lng
-        );
-
-        const intersect = this.intersectionSize(
-          existing.idsArray,
-          candidate.idsArray
-        );
-
-        const overlapRatio =
-          intersect / Math.max(existing.idsArray.length, candidate.idsArray.length);
-
-        // 2. Почти тот же круг: очень близкий центр + почти тот же состав
-        if (dist < APP_CONFIG.GROUP_RADIUS_METERS * 0.22 && overlapRatio >= 0.9) {
-          return true;
+            candidates.push({
+              groupType,
+              lat: avgLat,
+              lng: avgLng,
+              color: this.getColor(groupType),
+              count: nearby.length,
+              idsArray: nearby.map(p => p.id).sort(),
+              idsKey: nearby.map(p => p.id).sort().join("|")
+            });
+          }
         }
 
-        return false;
-      });
+        return candidates;
+      },
 
-      if (!duplicate) {
-        result.push(candidate);
+      intersectionSize(a, b) {
+        const setB = new Set(b);
+        let count = 0;
+        for (const item of a) {
+          if (setB.has(item)) count++;
+        }
+        return count;
+      },
+
+      dedupeCircles(candidates) {
+        const result = [];
+        const sorted = [...candidates].sort((a, b) => b.count - a.count);
+
+        for (const candidate of sorted) {
+          const duplicate = result.some(existing => {
+            if (existing.groupType !== candidate.groupType) return false;
+
+            if (existing.idsKey === candidate.idsKey) return true;
+
+            const dist = GeoUtils.distanceMeters(
+              existing.lat,
+              existing.lng,
+              candidate.lat,
+              candidate.lng
+            );
+
+            const intersect = this.intersectionSize(
+              existing.idsArray,
+              candidate.idsArray
+            );
+
+            const overlapRatio =
+              intersect / Math.max(existing.idsArray.length, candidate.idsArray.length);
+
+            if (dist < APP_CONFIG.GROUP_RADIUS_METERS * 0.22 && overlapRatio >= 0.9) {
+              return true;
+            }
+
+            return false;
+          });
+
+          if (!duplicate) {
+            result.push(candidate);
+          }
+        }
+
+        return result;
+      },
+
+      buildColoredGroups(points) {
+        const candidates = this.buildCandidateCircles(points);
+        const uniqueCircles = this.dedupeCircles(candidates);
+
+        return {
+          safe: uniqueCircles.filter(c => c.groupType === "safe"),
+          question: uniqueCircles.filter(c => c.groupType === "question"),
+          danger: uniqueCircles.filter(c => c.groupType === "danger")
+        };
+      },
+
+      render(points) {
+        GROUP_CIRCLE_LAYER.clearLayers();
+        const groups = this.buildColoredGroups(points);
+
+        for (const group of groups.safe) {
+          L.circle([group.lat, group.lng], {
+            radius: APP_CONFIG.GROUP_RADIUS_METERS,
+            color: group.color,
+            weight: 2.5,
+            opacity: 0.95,
+            fillColor: group.color,
+            fillOpacity: 0.22,
+            interactive: false
+          }).addTo(GROUP_CIRCLE_LAYER);
+        }
+
+        for (const group of groups.question) {
+          L.circle([group.lat, group.lng], {
+            radius: APP_CONFIG.GROUP_RADIUS_METERS,
+            color: group.color,
+            weight: 2.5,
+            opacity: 0.95,
+            fillColor: group.color,
+            fillOpacity: 0.22,
+            interactive: false
+          }).addTo(GROUP_CIRCLE_LAYER);
+        }
+
+        for (const group of groups.danger) {
+          L.circle([group.lat, group.lng], {
+            radius: APP_CONFIG.GROUP_RADIUS_METERS,
+            color: group.color,
+            weight: 2.5,
+            opacity: 0.95,
+            fillColor: group.color,
+            fillOpacity: 0.22,
+            interactive: false
+          }).addTo(GROUP_CIRCLE_LAYER);
+        }
       }
-    }
-
-    return result;
-  },
-
-  buildColoredGroups(points) {
-    const candidates = this.buildCandidateCircles(points);
-    const uniqueCircles = this.dedupeCircles(candidates);
-
-    return {
-      safe: uniqueCircles.filter(c => c.groupType === "safe"),
-      question: uniqueCircles.filter(c => c.groupType === "question"),
-      danger: uniqueCircles.filter(c => c.groupType === "danger")
     };
-  },
-
-  render(points) {
-    GROUP_CIRCLE_LAYER.clearLayers();
-    const groups = this.buildColoredGroups(points);
-
-    for (const group of groups.safe) {
-      L.circle([group.lat, group.lng], {
-        radius: APP_CONFIG.GROUP_RADIUS_METERS,
-        color: group.color,
-        weight: 2.5,
-        opacity: 0.95,
-        fillColor: group.color,
-        fillOpacity: 0.22,
-        interactive: false
-      }).addTo(GROUP_CIRCLE_LAYER);
-    }
-
-    for (const group of groups.question) {
-      L.circle([group.lat, group.lng], {
-        radius: APP_CONFIG.GROUP_RADIUS_METERS,
-        color: group.color,
-        weight: 2.5,
-        opacity: 0.95,
-        fillColor: group.color,
-        fillOpacity: 0.22,
-        interactive: false
-      }).addTo(GROUP_CIRCLE_LAYER);
-    }
-
-    for (const group of groups.danger) {
-      L.circle([group.lat, group.lng], {
-        radius: APP_CONFIG.GROUP_RADIUS_METERS,
-        color: group.color,
-        weight: 2.5,
-        opacity: 0.95,
-        fillColor: group.color,
-        fillOpacity: 0.22,
-        interactive: false
-      }).addTo(GROUP_CIRCLE_LAYER);
-    }
-  }
-};
 
     /* =========================================================
        BLOCK: MARKER_RENDER_ENGINE
@@ -2937,118 +3146,113 @@ const MarkerGroupEngine = {
       }
     };
 
-/* =========================================================
-   BLOCK: CREATE_MARKER_FLOW
-   Процес додавання мітки
-   ========================================================= */
-const CreateMarkerFlow = {
-  openCreateMode() {
-    APP_STATE.addMode = true;
+    /* =========================================================
+       BLOCK: CREATE_MARKER_FLOW
+       Процес додавання мітки
+       ========================================================= */
+    const CreateMarkerFlow = {
+      openCreateMode() {
+        APP_STATE.addMode = true;
 
-    SettingsWindow.hide();
-    PickerWindow.show();
-    DescWindow.hide();
-  },
+        SettingsWindow.hide();
+        PickerWindow.show();
+        DescWindow.hide();
+      },
 
-  closeCreateMode() {
-    APP_STATE.addMode = false;
-    PickerWindow.hide();
-    DescWindow.hide();
+      closeCreateMode() {
+        APP_STATE.addMode = false;
+        PickerWindow.hide();
+        DescWindow.hide();
 
-    APP_STATE.selectedLatLng = null;
-    DescWindow.reset();
+        APP_STATE.selectedLatLng = null;
+        DescWindow.reset();
 
-    document.body.classList.remove("settings-open");
+        document.body.classList.remove("settings-open");
 
-    if (APP_STATE.tempMarker) {
-      MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
-      APP_STATE.tempMarker = null;
-    }
-  },
+        if (APP_STATE.tempMarker) {
+          MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+          APP_STATE.tempMarker = null;
+        }
+      },
 
-  selectMapPoint(latlng) {
-    APP_STATE.selectedLatLng = latlng;
+      selectMapPoint(latlng) {
+        APP_STATE.selectedLatLng = latlng;
 
-    if (APP_STATE.tempMarker) {
-      MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
-    }
+        if (APP_STATE.tempMarker) {
+          MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+        }
 
-    APP_STATE.tempMarker = L.marker(latlng, {
-      icon: MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()),
-      keyboard: false
-    }).addTo(MAP_INSTANCE);
+        APP_STATE.tempMarker = L.marker(latlng, {
+          icon: MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()),
+          keyboard: false
+        }).addTo(MAP_INSTANCE);
 
-    PickerWindow.updateActive();
-    PickerWindow.hide();
-    DescWindow.show();
-  },
+        PickerWindow.updateActive();
+        PickerWindow.hide();
+        DescWindow.show();
+      },
 
-  async saveMarker() {
-    const desc = DOM.descInput.value.trim();
+      async saveMarker() {
+        const desc = DOM.descInput.value.trim();
 
-    if (!APP_STATE.selectedLatLng) {
-      alert(APP_LABELS.errors.mapTouchRequired);
-      return;
-    }
+        if (!APP_STATE.selectedLatLng) {
+          alert(APP_LABELS.errors.mapTouchRequired);
+          return;
+        }
 
-    if (!desc) {
-      alert(APP_LABELS.errors.descRequired);
-      return;
-    }
+        if (!desc) {
+          alert(APP_LABELS.errors.descRequired);
+          return;
+        }
 
-    if (desc.length > 100) {
-      alert(APP_LABELS.errors.max100);
-      return;
-    }
+        if (desc.length > 100) {
+          alert(APP_LABELS.errors.max100);
+          return;
+        }
 
-    // 👉 фикс: сразу блокируем UI чтобы не было второго клика
-    DOM.saveBtn.disabled = true;
+        DOM.saveBtn.disabled = true;
 
-    APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
-    APP_STATE.currentOpenPointId = null;
-    MAP_INSTANCE.closePopup();
+        APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+        APP_STATE.currentOpenPointId = null;
+        MAP_INSTANCE.closePopup();
 
-    try {
-      await addDoc(collection(db, "points"), {
-        lat: APP_STATE.selectedLatLng.lat,
-        lng: APP_STATE.selectedLatLng.lng,
-        type: APP_STATE.currentType,
-        desc,
-        time: Date.now(),
-        comments: [],
-        likes: 0,
-        dislikes: 0
-      });
+        try {
+          await addDoc(collection(db, "points"), {
+            lat: APP_STATE.selectedLatLng.lat,
+            lng: APP_STATE.selectedLatLng.lng,
+            type: APP_STATE.currentType,
+            desc,
+            time: Date.now(),
+            comments: [],
+            likes: 0,
+            dislikes: 0
+          });
 
-      // 👉 закрываем окно СРАЗУ
-      DescWindow.hide();
+          DescWindow.hide();
 
-      // 👉 убираем временную метку
-      if (APP_STATE.tempMarker) {
-        MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
-        APP_STATE.tempMarker = null;
+          if (APP_STATE.tempMarker) {
+            MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
+            APP_STATE.tempMarker = null;
+          }
+
+          APP_STATE.selectedLatLng = null;
+          DescWindow.reset();
+          PickerWindow.hide();
+          APP_STATE.addMode = false;
+
+          SuccessModalWindow.show();
+
+          setTimeout(() => {
+            MarkerRenderEngine.queueRender(true);
+          }, 80);
+
+        } finally {
+          setTimeout(() => {
+            DOM.saveBtn.disabled = false;
+          }, 400);
+        }
       }
-
-      // 👉 сбрасываем состояние
-      APP_STATE.selectedLatLng = null;
-      DescWindow.reset();
-      PickerWindow.hide();
-      APP_STATE.addMode = false;
-
-      SuccessModalWindow.show();
-
-      setTimeout(() => {
-        MarkerRenderEngine.queueRender(true);
-      }, 80);
-
-    } finally {
-      // 👉 возвращаем кнопку
-      setTimeout(() => {
-        DOM.saveBtn.disabled = false;
-      }, 400);
-    }
-  }
-};
+    };
 
     /* =========================================================
        BLOCK: APP_UI_HELPERS
@@ -3123,86 +3327,86 @@ const CreateMarkerFlow = {
       }
     };
 
-/* =========================================================
-   BLOCK: WINDOW_DESC_SHEET_EVENTS
-   Події вікна опису
-   ========================================================= */
-const DescWindowEvents = {
-  init() {
-    let isSubmitting = false;
+    /* =========================================================
+       BLOCK: WINDOW_DESC_SHEET_EVENTS
+       Події вікна опису
+       ========================================================= */
+    const DescWindowEvents = {
+      init() {
+        let isSubmitting = false;
 
-    const submitDesc = async () => {
-      if (isSubmitting) return;
-      isSubmitting = true;
+        const submitDesc = async () => {
+          if (isSubmitting) return;
+          isSubmitting = true;
 
-      try {
-        if (document.activeElement && typeof document.activeElement.blur === "function") {
-          document.activeElement.blur();
-        }
+          try {
+            if (document.activeElement && typeof document.activeElement.blur === "function") {
+              document.activeElement.blur();
+            }
 
-        await CreateMarkerFlow.saveMarker();
-      } finally {
-        setTimeout(() => {
-          isSubmitting = false;
-        }, 300);
+            await CreateMarkerFlow.saveMarker();
+          } finally {
+            setTimeout(() => {
+              isSubmitting = false;
+            }, 300);
+          }
+        };
+
+        DOM.sheetClose.addEventListener("click", () => {
+          DescWindow.hide();
+          setTimeout(() => {
+            CreateMarkerFlow.closeCreateMode();
+          }, LayoutHelpers.isMobile() ? 220 : 0);
+        });
+
+        DOM.descInput.addEventListener("input", () => {
+          DOM.descCounter.textContent = `${DOM.descInput.value.length} / 100`;
+        });
+
+        DOM.saveBtn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          await submitDesc();
+        });
+
+        DOM.saveBtn.addEventListener("touchend", async (e) => {
+          e.preventDefault();
+          await submitDesc();
+        }, { passive: false });
       }
     };
 
-    DOM.sheetClose.addEventListener("click", () => {
-      DescWindow.hide();
-      setTimeout(() => {
-        CreateMarkerFlow.closeCreateMode();
-      }, LayoutHelpers.isMobile() ? 220 : 0);
-    });
+    /* =========================================================
+       BLOCK: WINDOW_SETTINGS_SHEET_EVENTS
+       Події вікна налаштувань
+       ========================================================= */
+    const SettingsWindowEvents = {
+      init() {
+        DOM.settingsClose.addEventListener("click", () => {
+          SettingsWindow.hide();
+        });
 
-    DOM.descInput.addEventListener("input", () => {
-      DOM.descCounter.textContent = `${DOM.descInput.value.length} / 100`;
-    });
+        DOM.timeSlider.addEventListener("input", e => {
+          SettingsUIEngine.updateTimeDisplay(parseInt(e.target.value, 10));
+        });
 
-    DOM.saveBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-      await submitDesc();
-    });
+        DOM.saveSettingsBtn.addEventListener("click", () => {
+          APP_STATE.settings.timeFilterMinutes = TimeUtils.clampMinutes(
+            parseInt(DOM.timeSlider.value, 10)
+          );
 
-    DOM.saveBtn.addEventListener("touchend", async (e) => {
-      e.preventDefault();
-      await submitDesc();
-    }, { passive: false });
-  }
-};
+          APP_STATE.settings.selectedCity = CITY_CONFIG[DOM.citySelect.value]
+            ? DOM.citySelect.value
+            : APP_CONFIG.DEFAULT_CITY_KEY;
 
-/* =========================================================
-   BLOCK: WINDOW_SETTINGS_SHEET_EVENTS
-   Події вікна налаштувань
-   ========================================================= */
-const SettingsWindowEvents = {
-  init() {
-    DOM.settingsClose.addEventListener("click", () => {
-      SettingsWindow.hide();
-    });
+          LocalStorageEngine.saveSettings(APP_STATE.settings);
+          MapThemeEngine.apply(APP_STATE.settings.mapTheme);
 
-    DOM.timeSlider.addEventListener("input", e => {
-      SettingsUIEngine.updateTimeDisplay(parseInt(e.target.value, 10));
-    });
-
-    DOM.saveSettingsBtn.addEventListener("click", () => {
-      APP_STATE.settings.timeFilterMinutes = TimeUtils.clampMinutes(
-        parseInt(DOM.timeSlider.value, 10)
-      );
-
-      APP_STATE.settings.selectedCity = CITY_CONFIG[DOM.citySelect.value]
-        ? DOM.citySelect.value
-        : APP_CONFIG.DEFAULT_CITY_KEY;
-
-      LocalStorageEngine.saveSettings(APP_STATE.settings);
-      MapThemeEngine.apply(APP_STATE.settings.mapTheme);
-
-      SettingsWindow.hide();
-      MapCityEngine.flyToCity(APP_STATE.settings.selectedCity, true);
-      AppUIHelpers.safeInvalidateMap(true);
-    });
-  }
-};
+          SettingsWindow.hide();
+          MapCityEngine.flyToCity(APP_STATE.settings.selectedCity, true);
+          AppUIHelpers.safeInvalidateMap(true);
+        });
+      }
+    };
 
     /* =========================================================
        BLOCK: WINDOW_SUCCESS_MODAL_EVENTS
@@ -3244,6 +3448,7 @@ const SettingsWindowEvents = {
             }
           });
 
+          NewPointNotificationEngine.sync(fresh);
           APP_STATE.points = fresh;
           MarkerRenderEngine.queueRender();
         });
@@ -3270,47 +3475,47 @@ const SettingsWindowEvents = {
       }
     };
 
- /* =========================================================
-   BLOCK: MAP_EVENT_BINDINGS
-   Події мапи та вікна
-   ========================================================= */
-const MapEventBindings = {
-  init() {
-    MAP_INSTANCE.on("click", e => {
-      if (!APP_STATE.addMode) return;
-      CreateMarkerFlow.selectMapPoint(e.latlng);
-    });
+    /* =========================================================
+       BLOCK: MAP_EVENT_BINDINGS
+       Події мапи та вікна
+       ========================================================= */
+    const MapEventBindings = {
+      init() {
+        MAP_INSTANCE.on("click", e => {
+          if (!APP_STATE.addMode) return;
+          CreateMarkerFlow.selectMapPoint(e.latlng);
+        });
 
-    MAP_INSTANCE.on("zoomend", () => {
-      MarkerRenderEngine.queueRender(true);
-    });
+        MAP_INSTANCE.on("zoomend", () => {
+          MarkerRenderEngine.queueRender(true);
+        });
 
-    window.addEventListener("resize", () => {
-      if (!UIStateHelpers.shouldSkipRenderNow()) {
-        if (DOM.settingsSheet.style.display !== "none") {
-          SettingsWindow.updateLayout();
-        }
-        AppUIHelpers.safeInvalidateMap();
+        window.addEventListener("resize", () => {
+          if (!UIStateHelpers.shouldSkipRenderNow()) {
+            if (DOM.settingsSheet.style.display !== "none") {
+              SettingsWindow.updateLayout();
+            }
+            AppUIHelpers.safeInvalidateMap();
+          }
+        });
+
+        window.addEventListener("orientationchange", () => {
+          setTimeout(() => {
+            AppUIHelpers.safeInvalidateMap(true);
+            if (DOM.settingsSheet.style.display !== "none") {
+              SettingsWindow.updateLayout();
+            }
+          }, 250);
+        });
+
+        MAP_INSTANCE.whenReady(() => {
+          APP_STATE.mapReady = true;
+          MapCityEngine.flyToCity(APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY, false);
+          AppUIHelpers.safeInvalidateMap(true);
+          MarkerRenderEngine.queueRender(true);
+        });
       }
-    });
-
-    window.addEventListener("orientationchange", () => {
-      setTimeout(() => {
-        AppUIHelpers.safeInvalidateMap(true);
-        if (DOM.settingsSheet.style.display !== "none") {
-          SettingsWindow.updateLayout();
-        }
-      }, 250);
-    });
-
-    MAP_INSTANCE.whenReady(() => {
-      APP_STATE.mapReady = true;
-      MapCityEngine.flyToCity(APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY, false);
-      AppUIHelpers.safeInvalidateMap(true);
-      MarkerRenderEngine.queueRender(true);
-    });
-  }
-};
+    };
 
     /* =========================================================
        BLOCK: WINDOW_GLOBAL_ACTIONS
