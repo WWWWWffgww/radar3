@@ -1008,119 +1008,120 @@
       }
     }
 
-    /* =========================================================
-       BLOCK: CSS_GLOBAL_NOTIFICATION
-       Глобальні push-сповіщення
-       ========================================================= */
-    .global-notification-host {
-      position: fixed;
-      top: calc(10px + env(safe-area-inset-top));
-      left: 0;
-      right: 0;
-      z-index: 4000;
-      display: flex;
-      justify-content: center;
-      pointer-events: none;
-      padding: 0 10px;
-    }
+   /* =========================================================
+   BLOCK: CSS_GLOBAL_NOTIFICATION
+   Глобальні push-сповіщення
+   ========================================================= */
+.global-notification-host {
+  position: fixed;
+  top: calc(10px + env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  z-index: 4000;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0 10px;
+}
 
-    .global-notification {
-      width: min(420px, calc(100vw - 20px));
-      background: rgba(72, 72, 74, 0.82);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      color: #fff;
-      border-radius: 18px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 12px;
-      transform: translateY(-120%);
-      opacity: 0;
-      transition: transform 0.28s ease, opacity 0.28s ease;
-      pointer-events: auto;
-    }
+.global-notification {
+  width: min(420px, calc(100vw - 20px));
+  background: rgba(72, 72, 74, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #fff;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 12px;
+  transform: translateY(-120%);
+  opacity: 0;
+  transition: transform 0.28s ease, opacity 0.28s ease;
+  pointer-events: auto;
+  cursor: pointer;
+}
 
-    .global-notification.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
+.global-notification.show {
+  transform: translateY(0);
+  opacity: 1;
+}
 
-    .global-notification.hide {
-      transform: translateY(-120%);
-      opacity: 0;
-    }
+.global-notification.hide {
+  transform: translateY(-120%);
+  opacity: 0;
+}
 
-    .global-notification-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-    }
+.global-notification-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
 
-    .global-notification-left {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      min-width: 0;
-      flex: 1;
-    }
+.global-notification-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
 
-    .global-notification-icon {
-      width: 34px;
-      height: 34px;
-      object-fit: contain;
-      flex: 0 0 auto;
-    }
+.global-notification-icon {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
 
-    .global-notification-meta {
-      min-width: 0;
-      flex: 1;
-    }
+.global-notification-meta {
+  min-width: 0;
+  flex: 1;
+}
 
-    .global-notification-title {
-      font-size: 14px;
-      font-weight: 700;
-      line-height: 1.2;
-      margin-bottom: 3px;
-    }
+.global-notification-title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 3px;
+}
 
-    .global-notification-text {
-      font-size: 13px;
-      line-height: 1.35;
-      color: rgba(255, 255, 255, 0.88);
-      word-break: break-word;
-    }
+.global-notification-text {
+  font-size: 13px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.88);
+  word-break: break-word;
+}
 
-    .global-notification-close {
-      border: none;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      font-size: 18px;
-      line-height: 1;
-      cursor: pointer;
-      flex: 0 0 auto;
-    }
+.global-notification-close {
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
 
-    @media (max-width: 600px) {
-      .global-notification-host {
-        top: calc(8px + env(safe-area-inset-top));
-        padding: 0 8px;
-      }
+@media (max-width: 600px) {
+  .global-notification-host {
+    top: calc(8px + env(safe-area-inset-top));
+    padding: 0 8px;
+  }
 
-      .global-notification {
-        width: calc(100vw - 16px);
-        border-radius: 16px;
-        padding: 11px;
-      }
+  .global-notification {
+    width: calc(100vw - 16px);
+    border-radius: 16px;
+    padding: 11px;
+  }
 
-      .global-notification-icon {
-        width: 32px;
-        height: 32px;
-      }
-    }
+  .global-notification-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
 
     /* =========================================================
        BLOCK: CSS_SUCCESS_MODAL
@@ -2344,12 +2345,12 @@ const LocalStorageEngine = {
       }
     };
 
-   /* =========================================================
+  /* =========================================================
    BLOCK: GLOBAL_NOTIFICATION_ENGINE
    Глобальні сповіщення про нові мітки
    ========================================================= */
 const GlobalNotificationEngine = {
-  DISPLAY_MS: 3200,
+  DISPLAY_MS: 6500,
   HIDE_ANIMATION_MS: 300,
 
   enqueue(notification) {
@@ -2391,10 +2392,16 @@ const GlobalNotificationEngine = {
     DOM.globalNotificationHost.appendChild(el);
 
     let closed = false;
+    let autoCloseTimer = null;
 
     const close = () => {
       if (closed) return;
       closed = true;
+
+      if (autoCloseTimer) {
+        clearTimeout(autoCloseTimer);
+        autoCloseTimer = null;
+      }
 
       el.classList.remove("show");
       el.classList.add("hide");
@@ -2406,13 +2413,50 @@ const GlobalNotificationEngine = {
       }, this.HIDE_ANIMATION_MS);
     };
 
-    el.querySelector(".global-notification-close")?.addEventListener("click", close);
+    const openPointFromNotification = async () => {
+      const point = APP_STATE.points.find(p => p.id === notification.id);
+      if (!point) {
+        close();
+        return;
+      }
+
+      close();
+
+      APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+
+      MAP_INSTANCE.flyTo(
+        [point.lat, point.lng],
+        Math.max(MAP_INSTANCE.getZoom(), 16),
+        { animate: true, duration: 0.8 }
+      );
+
+      setTimeout(() => {
+        const entry = APP_STATE.markerRegistry.get(point.id);
+        if (!entry) return;
+
+        if (LayoutHelpers.isMobile()) {
+          MobileMarkerPopupEngine.open(point);
+        } else {
+          MAP_INSTANCE.closePopup();
+          entry.marker.openPopup();
+        }
+      }, 850);
+    };
+
+    el.querySelector(".global-notification-close")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      close();
+    });
+
+    el.addEventListener("click", () => {
+      openPointFromNotification();
+    });
 
     requestAnimationFrame(() => {
       el.classList.add("show");
     });
 
-    setTimeout(close, this.DISPLAY_MS);
+    autoCloseTimer = setTimeout(close, this.DISPLAY_MS);
   }
 };
 
