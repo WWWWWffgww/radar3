@@ -607,6 +607,114 @@
       background: rgba(255, 255, 255, 0.15);
     }
 
+        /* =========================================================
+       BLOCK: CSS_ZONE_SHEET_LAYOUT_REFINED
+       Компактне вікно зон
+       ========================================================= */
+    #zoneSheet {
+      display: none;
+      flex-direction: column;
+      max-height: min(82dvh, 760px);
+      overflow: hidden;
+    }
+
+    #zoneSheet.show-flex {
+      display: flex !important;
+    }
+
+    .zone-top-group {
+      margin-bottom: 10px;
+    }
+
+    .zone-secondary-btn {
+      width: 100%;
+      margin-top: 10px;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.10);
+      color: #fff;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    .zone-secondary-btn:active {
+      transform: scale(0.99);
+    }
+
+    .zone-compact-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .zone-compact-grid .template-item {
+      padding: 9px 8px;
+      border-radius: 13px;
+    }
+
+    .zone-compact-grid .template-name {
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .zone-compact-grid .template-radius {
+      font-size: 11px;
+    }
+
+    .zone-helper-text {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .zone-list-inside-sheet {
+      flex: 1 1 auto;
+      min-height: 120px;
+      max-height: none;
+      overflow-y: auto;
+      margin-top: 0;
+      margin-bottom: 12px;
+      padding-right: 2px;
+    }
+
+    .zone-list-inside-sheet::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .zone-list-inside-sheet::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.14);
+      border-radius: 10px;
+    }
+
+    .zone-bottom-save {
+      width: 100%;
+      flex: 0 0 auto;
+      margin-top: auto;
+    }
+
+    @media (max-width: 600px) {
+      #zoneSheet {
+        height: 82dvh !important;
+        max-height: 82dvh !important;
+      }
+
+      .zone-compact-grid .template-item {
+        padding: 8px 6px;
+      }
+
+      .zone-compact-grid .template-name {
+        font-size: 12px;
+      }
+
+      .zone-compact-grid .template-radius {
+        font-size: 10px;
+      }
+    }
+
     /* =========================================================
        BLOCK: CSS_ZONES_LIST
        Список зон в налаштуваннях
@@ -1544,17 +1652,17 @@
       <button id="zoneClose">×</button>
     </div>
 
-    <div class="settings-group" style="margin-bottom: 14px;">
+    <div class="settings-group zone-top-group">
       <div class="settings-label">📍 Готові зони</div>
       <div class="city-select-wrap">
         <select id="presetZoneSelect">
           <option value="">Оберіть готову зону</option>
         </select>
       </div>
-      <button id="applyPresetZoneBtn" style="margin-top:10px;">Додати готову зону</button>
+      <button id="applyPresetZoneBtn" class="zone-secondary-btn">Додати готову зону</button>
     </div>
 
-    <div class="templates-grid" id="templatesGrid">
+    <div class="templates-grid zone-compact-grid" id="templatesGrid">
       <div class="template-item" data-radius="500" data-name="Дім">
         <div class="template-name">🏠 Дім</div>
         <div class="template-radius">500 м</div>
@@ -1563,21 +1671,13 @@
         <div class="template-name">💼 Робота</div>
         <div class="template-radius">700 м</div>
       </div>
-      <div class="template-item" data-radius="300" data-name="Мала зона">
-        <div class="template-name">🔴 Мала зона</div>
-        <div class="template-radius">300 м</div>
-      </div>
-      <div class="template-item" data-radius="700" data-name="Середня зона">
-        <div class="template-name">🟠 Середня зона</div>
-        <div class="template-radius">700 м</div>
+      <div class="template-item" data-radius="2500" data-name="Мікрорайон">
+        <div class="template-name">🏘️ Мікрорайон</div>
+        <div class="template-radius">2500 м</div>
       </div>
       <div class="template-item" data-radius="1500" data-name="Велика зона">
         <div class="template-name">🟢 Велика зона</div>
         <div class="template-radius">1500 м</div>
-      </div>
-      <div class="template-item" data-radius="2500" data-name="Мікрорайон">
-        <div class="template-name">🏘️ Мікрорайон</div>
-        <div class="template-radius">2500 м</div>
       </div>
     </div>
 
@@ -1586,19 +1686,19 @@
     <input type="text" id="zoneNameInput" placeholder="Назва зони" maxlength="30">
     <input type="number" id="zoneRadiusInput" placeholder="Радіус (метри)" min="50" max="5000" step="50">
 
-    <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 12px; text-align: center;">
+    <div class="zone-helper-text">
       👆 Після збереження натисни на мапу, щоб поставити центр
     </div>
 
-    <button id="saveZoneBtn">Зберегти та вибрати центр</button>
-
     <div class="zone-divider">МОЇ ЗОНИ</div>
 
-    <div id="zonesListInZoneSheet" class="zones-list">
+    <div id="zonesListInZoneSheet" class="zones-list zone-list-inside-sheet">
       <div style="color: rgba(255,255,255,0.4); text-align: center; padding: 20px;">
         Немає зон
       </div>
     </div>
+
+    <button id="saveZoneBtn" class="zone-bottom-save">Зберегти та вибрати центр</button>
   </div>
 
   <!-- =========================================================
@@ -2915,7 +3015,8 @@ const LocalStorageEngine = {
    ========================================================= */
 const ZoneWindow = {
   show() {
-    DOM.zoneSheet.style.display = "block";
+    DOM.zoneSheet.style.display = "flex";
+    DOM.zoneSheet.classList.add("show-flex");
     DOM.zoneNameInput.value = "";
     DOM.zoneRadiusInput.value = "";
     DOM.presetZoneSelect.value = "";
@@ -2933,10 +3034,13 @@ const ZoneWindow = {
       DOM.zoneSheet.classList.remove("show-mobile");
       setTimeout(() => {
         DOM.zoneSheet.style.display = "none";
+        DOM.zoneSheet.classList.remove("show-flex");
       }, 220);
       return;
     }
+
     DOM.zoneSheet.style.display = "none";
+    DOM.zoneSheet.classList.remove("show-flex");
   },
 
   startCreateFromTemplate(template) {
