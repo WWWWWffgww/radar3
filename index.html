@@ -2413,7 +2413,7 @@ const GlobalNotificationEngine = {
       }, this.HIDE_ANIMATION_MS);
     };
 
-    const openPointFromNotification = () => {
+    const flyToPointFromNotification = () => {
       const point = APP_STATE.points.find(p => p.id === notification.id);
       if (!point) {
         close();
@@ -2422,9 +2422,16 @@ const GlobalNotificationEngine = {
 
       close();
 
-      APP_STATE.suppressPopupRestoreUntil = Date.now() + 1500;
+      // закрываем любые popup перед перелетом
+      APP_STATE.currentOpenPointId = null;
+      APP_STATE.mobileOpenPointId = null;
+      MAP_INSTANCE.closePopup();
 
-      // на всякий случай синхронизируем город
+      if (LayoutHelpers.isMobile()) {
+        MobileMarkerPopupEngine.close();
+      }
+
+      // при необходимости синхронизируем город
       if (point.city && APP_STATE.settings.selectedCity !== point.city) {
         APP_STATE.settings.selectedCity = point.city;
         LocalStorageEngine.saveSettings(APP_STATE.settings);
@@ -2435,31 +2442,6 @@ const GlobalNotificationEngine = {
         Math.max(MAP_INSTANCE.getZoom(), 16),
         { animate: true, duration: 0.9 }
       );
-
-      const tryOpenPopup = (attempt = 0) => {
-        const freshPoint = APP_STATE.points.find(p => p.id === notification.id);
-        if (!freshPoint) return;
-
-        MarkerRenderEngine.queueRender(true);
-
-        if (LayoutHelpers.isMobile()) {
-          MobileMarkerPopupEngine.open(freshPoint);
-          return;
-        }
-
-        const entry = APP_STATE.markerRegistry.get(notification.id);
-        if (entry?.marker) {
-          MAP_INSTANCE.closePopup();
-          entry.marker.openPopup();
-          return;
-        }
-
-        if (attempt < 12) {
-          setTimeout(() => tryOpenPopup(attempt + 1), 180);
-        }
-      };
-
-      setTimeout(() => tryOpenPopup(0), 500);
     };
 
     el.querySelector(".global-notification-close")?.addEventListener("click", (e) => {
@@ -2468,7 +2450,7 @@ const GlobalNotificationEngine = {
     });
 
     el.addEventListener("click", () => {
-      openPointFromNotification();
+      flyToPointFromNotification();
     });
 
     requestAnimationFrame(() => {
