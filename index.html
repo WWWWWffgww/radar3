@@ -608,6 +608,87 @@
       background: rgba(255, 255, 255, 0.15);
     }
 
+/* =========================================================
+   BLOCK: CSS_ZONE_SHEET_LAYOUT
+   Layout вікна створення зони
+   ========================================================= */
+#zoneSheet {
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#zoneSheetBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+#zoneSheetBody::-webkit-scrollbar {
+  width: 6px;
+}
+
+#zoneSheetBody::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+}
+
+#zoneSheetFooter {
+  flex: 0 0 auto;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(28, 28, 30, 0.96);
+}
+
+.zone-primary-btn {
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  padding: 13px 14px;
+  background: linear-gradient(180deg, #1c8cff, #007aff);
+  color: #fff;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(10, 132, 255, 0.28);
+}
+
+.compact-templates {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.compact-templates .template-item {
+  padding: 9px 8px;
+}
+
+.compact-templates .template-name {
+  font-size: 13px;
+}
+
+.compact-templates .template-radius {
+  font-size: 11px;
+}
+
+@media (max-width: 600px) {
+  #zoneSheet {
+    height: 82dvh !important;
+    max-height: 82dvh !important;
+  }
+
+  #zoneSheetFooter {
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+  }
+
+  #zonesListInZoneSheet {
+    max-height: none;
+  }
+}
+    
         /* =========================================================
        BLOCK: CSS_ZONE_SHEET_LAYOUT_REFINED
        Компактне вікно зон
@@ -1647,35 +1728,41 @@
        BLOCK: HTML_STRUCTURE_ZONE_SHEET
        Вікно створення зони
        ========================================================= -->
-  <div id="zoneSheet">
-    <div id="zoneHead">
-      <div id="zoneTitle">➕ Створити зону</div>
-      <button id="zoneClose">×</button>
-    </div>
+ <div id="zoneSheet">
+  <div id="zoneHead">
+    <div id="zoneTitle">🎯 Створити зону</div>
+    <button id="zoneClose">×</button>
+  </div>
 
-    <div class="settings-group zone-top-group">
+  <div id="zoneSheetBody">
+    <div class="settings-group" style="margin-bottom: 14px;">
       <div class="settings-label">📍 Готові зони</div>
       <div class="city-select-wrap">
         <select id="presetZoneSelect">
           <option value="">Оберіть готову зону</option>
         </select>
       </div>
-      <button id="applyPresetZoneBtn" class="zone-secondary-btn">Додати готову зону</button>
+      <button id="applyPresetZoneBtn" class="zone-primary-btn" style="margin-top:10px;">
+        Додати готову зону
+      </button>
     </div>
 
-    <div class="templates-grid zone-compact-grid" id="templatesGrid">
+    <div class="templates-grid compact-templates" id="templatesGrid">
       <div class="template-item" data-radius="500" data-name="Дім">
         <div class="template-name">🏠 Дім</div>
         <div class="template-radius">500 м</div>
       </div>
+
       <div class="template-item" data-radius="700" data-name="Робота">
         <div class="template-name">💼 Робота</div>
         <div class="template-radius">700 м</div>
       </div>
+
       <div class="template-item" data-radius="2500" data-name="Мікрорайон">
         <div class="template-name">🏘️ Мікрорайон</div>
         <div class="template-radius">2500 м</div>
       </div>
+
       <div class="template-item" data-radius="1500" data-name="Велика зона">
         <div class="template-name">🟢 Велика зона</div>
         <div class="template-radius">1500 м</div>
@@ -1689,15 +1776,21 @@
 
     <div class="zone-divider">МОЇ ЗОНИ</div>
 
-    <div id="zonesListInZoneSheet" class="zones-list zone-list-inside-sheet">
+    <div id="zonesListInZoneSheet" class="zones-list">
       <div style="color: rgba(255,255,255,0.4); text-align: center; padding: 20px;">
         Немає зон
       </div>
     </div>
-
-    <button id="saveZoneBtn" class="zone-bottom-save">Зберегти та вибрати центр</button>
   </div>
 
+  <div id="zoneSheetFooter">
+    <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 10px; text-align: center;">
+      👆 Після збереження натисни на мапу, щоб поставити центр
+    </div>
+
+    <button id="saveZoneBtn" class="zone-primary-btn">Зберегти та вибрати центр</button>
+  </div>
+</div>
   <!-- =========================================================
        BLOCK: HTML_STRUCTURE_ZONE_EDIT_SHEET
        Вікно редагування зони
@@ -3441,20 +3534,19 @@ const LocalStorageEngine = {
    Вікно створення зони
    ========================================================= */
 const ZoneWindow = {
-  show() {
-    DOM.zoneSheet.style.display = "flex";
-    DOM.zoneSheet.classList.add("show-flex");
-    DOM.zoneNameInput.value = "";
-    DOM.zoneRadiusInput.value = "";
-    DOM.presetZoneSelect.value = "";
-    ZoneManagerUI.renderZonesList();
+show() {
+  DOM.zoneSheet.style.display = "flex";
+  DOM.zoneNameInput.value = "";
+  DOM.zoneRadiusInput.value = "";
+  DOM.presetZoneSelect.value = "";
+  ZoneManagerUI.renderZonesList();
 
-    if (LayoutHelpers.isMobile()) {
-      requestAnimationFrame(() => {
-        DOM.zoneSheet.classList.add("show-mobile");
-      });
-    }
-  },
+  if (LayoutHelpers.isMobile()) {
+    requestAnimationFrame(() => {
+      DOM.zoneSheet.classList.add("show-mobile");
+    });
+  }
+},
 
   hide() {
     if (LayoutHelpers.isMobile()) {
