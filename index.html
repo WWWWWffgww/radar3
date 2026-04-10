@@ -2482,16 +2482,22 @@ const APP_STATE = {
   notificationIsShowing: false,
   knownPointIds: new Set(),
   clientId: null,
+
   zonePreviewLayer: null,
   zoneEditHandle: null,
   zoneEditShape: null,
-  
+
   // Зони
   zones: [],
-  zoneCircleLayer: null,
-  pendingZone: null, // { name, radius, templateMode }
+  pendingZone: null,
   zoneEditId: null,
-  isCreatingZone: false
+  isCreatingZone: false,
+
+  // live preview при виборі центру
+  zoneCreateMoveHandler: null,
+  zoneCreateClickHandler: null,
+  zoneCreatePointerHandler: null,
+  zoneCreatePreviewLatLng: null
 };
 
  /* =========================================================
@@ -2782,7 +2788,7 @@ const ZoneStorageEngine = {
     
 /* =========================================================
    BLOCK: ZONE_CIRCLE_ENGINE
-   Показ зони тільки під час редагування
+   Показ зони під час редагування та створення
    ========================================================= */
 const ZoneCircleEngine = {
   init() {
@@ -2861,6 +2867,116 @@ const ZoneCircleEngine = {
       animate: true,
       duration: 0.6
     });
+  },
+
+  startCreatePreview(zone) {
+    this.clearPreview();
+
+    if (!zone || zone.kind !== "circle") return;
+
+    const center = APP_STATE.zoneCreatePreviewLatLng || MAP_INSTANCE.getCenter();
+
+    APP_STATE.zoneEditShape = L.circle(center, {
+      radius: zone.radius,
+      color: "#0a84ff",
+      weight: 3,
+      opacity: 0.95,
+      fillColor: "#0a84ff",
+      fillOpacity: 0.14
+    }).addTo(APP_STATE.zonePreviewLayer);
+
+    const handleIcon = L.divIcon({
+      className: "",
+      html: `<div style="width:18px;height:18px;border-radius:50%;background:#0a84ff;border:3px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,0.25);"></div>`,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
+    });
+
+    APP_STATE.zoneEditHandle = L.marker(center, {
+      icon: handleIcon,
+      interactive: false,
+      zIndexOffset: 3000
+    }).addTo(APP_STATE.zonePreviewLayer);
+  },
+
+  updateCreatePreview(latlng) {
+    APP_STATE.zoneCreatePreviewLatLng = latlng;
+
+    if (APP_STATE.zoneEditShape) {
+      APP_STATE.zoneEditShape.setLatLng(latlng);
+    }
+
+    if (APP_STATE.zoneEditHandle) {
+      APP_STATE.zoneEditHandle.setLatLng(latlng);
+    }
+  },
+
+  beginFloatingCreatePreview(zone) {
+    this.stopFloatingCreatePreview();
+    this.startCreatePreview(zone);
+
+    APP_STATE.zoneCreateMoveHandler = (e) => {
+      if (!APP_STATE.isCreatingZone || !APP_STATE.pendingZone) return;
+      if (!e || !e.latlng) return;
+      this.updateCreatePreview(e.latlng);
+    };
+
+    APP_STATE.zoneCreateClickHandler = (e) => {
+      if (!APP_STATE.isCreatingZone || !APP_STATE.pendingZone) return;
+      if (!e || !e.latlng) return;
+
+      const payload = {
+        kind: "circle",
+        name: APP_STATE.pendingZone.name,
+        radius: APP_STATE.pendingZone.radius,
+        icon: APP_STATE.pendingZone.icon || "🏠",
+        lat: e.latlng.lat,
+        lng: e.latlng.lng
+      };
+
+      this.stopFloatingCreatePreview();
+      ZoneWindow.finishCreate(payload);
+    };
+
+    APP_STATE.zoneCreatePointerHandler = (ev) => {
+      if (!APP_STATE.isCreatingZone || !APP_STATE.pendingZone) return;
+
+      const original = ev.touches?.[0] || ev.changedTouches?.[0];
+      if (!original) return;
+
+      const latlng = MAP_INSTANCE.mouseEventToLatLng(original);
+      if (!latlng) return;
+
+      this.updateCreatePreview(latlng);
+    };
+
+    MAP_INSTANCE.on("mousemove", APP_STATE.zoneCreateMoveHandler);
+    MAP_INSTANCE.on("click", APP_STATE.zoneCreateClickHandler);
+
+    const container = MAP_INSTANCE.getContainer();
+    container.addEventListener("touchstart", APP_STATE.zoneCreatePointerHandler, { passive: true });
+    container.addEventListener("touchmove", APP_STATE.zoneCreatePointerHandler, { passive: true });
+  },
+
+  stopFloatingCreatePreview() {
+    if (APP_STATE.zoneCreateMoveHandler) {
+      MAP_INSTANCE.off("mousemove", APP_STATE.zoneCreateMoveHandler);
+      APP_STATE.zoneCreateMoveHandler = null;
+    }
+
+    if (APP_STATE.zoneCreateClickHandler) {
+      MAP_INSTANCE.off("click", APP_STATE.zoneCreateClickHandler);
+      APP_STATE.zoneCreateClickHandler = null;
+    }
+
+    if (APP_STATE.zoneCreatePointerHandler) {
+      const container = MAP_INSTANCE.getContainer();
+      container.removeEventListener("touchstart", APP_STATE.zoneCreatePointerHandler);
+      container.removeEventListener("touchmove", APP_STATE.zoneCreatePointerHandler);
+      APP_STATE.zoneCreatePointerHandler = null;
+    }
+
+    APP_STATE.zoneCreatePreviewLatLng = null;
   },
 
   getEditedZonePosition() {
@@ -3362,19 +3478,29 @@ const ZoneWindow = {
       icon: template.icon || "🏠"
     };
 
+    APP_STATE.isCreatingZone = true;
     this.hide();
 
-    APP_STATE.isCreatingZone = true;
-    MAP_INSTANCE.once("click", (e) => {
-      this.finishCreate({
-        kind: "circle",
-        name: APP_STATE.pendingZone.name,
-        radius: APP_STATE.pendingZone.radius,
-        icon: APP_STATE.pendingZone.icon,
-        lat: e.latlng.lat,
-        lng: e.latlng.lng
-      });
-    });
+    ZoneCircleEngine.beginFloatingCreatePreview(APP_STATE.pendingZone);
+
+    const notification = document.createElement("div");
+    notification.className = "global-notification";
+    notification.innerHTML = `
+      <div class="global-notification-head">
+        <div class="global-notification-left">
+          <div class="global-notification-meta">
+            <div class="global-notification-title">📍 Вибери центр зони</div>
+            <div class="global-notification-text">Веди курсором або пальцем і натисни, щоб поставити центр</div>
+          </div>
+        </div>
+      </div>
+    `;
+    DOM.globalNotificationHost.appendChild(notification);
+    requestAnimationFrame(() => notification.classList.add("show"));
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
   },
 
   startCreateManual() {
@@ -3397,19 +3523,29 @@ const ZoneWindow = {
       icon: "🏠"
     };
 
+    APP_STATE.isCreatingZone = true;
     this.hide();
 
-    APP_STATE.isCreatingZone = true;
-    MAP_INSTANCE.once("click", (e) => {
-      this.finishCreate({
-        kind: "circle",
-        name,
-        radius,
-        icon: "🏠",
-        lat: e.latlng.lat,
-        lng: e.latlng.lng
-      });
-    });
+    ZoneCircleEngine.beginFloatingCreatePreview(APP_STATE.pendingZone);
+
+    const notification = document.createElement("div");
+    notification.className = "global-notification";
+    notification.innerHTML = `
+      <div class="global-notification-head">
+        <div class="global-notification-left">
+          <div class="global-notification-meta">
+            <div class="global-notification-title">📍 Вибери центр зони</div>
+            <div class="global-notification-text">Веди курсором або пальцем і натисни, щоб поставити центр</div>
+          </div>
+        </div>
+      </div>
+    `;
+    DOM.globalNotificationHost.appendChild(notification);
+    requestAnimationFrame(() => notification.classList.add("show"));
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
   },
 
   applyPreset() {
@@ -3430,6 +3566,9 @@ const ZoneWindow = {
 
     APP_STATE.pendingZone = null;
     APP_STATE.isCreatingZone = false;
+
+    ZoneCircleEngine.stopFloatingCreatePreview();
+    ZoneCircleEngine.clearPreview();
 
     APP_STATE.zones = ZoneStorageEngine.loadZones();
     ZoneManagerUI.renderZonesList();
