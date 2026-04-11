@@ -1818,69 +1818,69 @@
        BLOCK: HTML_STRUCTURE_ZONE_SHEET
        Вікно створення зони
        ========================================================= -->
- <div id="zoneSheet">
-  <div id="zoneHead">
-    <div id="zoneTitle">🎯 Створити зону</div>
-    <button id="zoneClose">×</button>
+  <div id="zoneSheet">
+    <div id="zoneHead">
+      <div id="zoneTitle">🎯 Створити зону</div>
+      <button id="zoneClose">×</button>
+    </div>
+
+    <div id="zoneSheetBody">
+      <div class="settings-group" style="margin-bottom: 14px;">
+        <div class="settings-label">📍 Готові зони</div>
+        <div class="city-select-wrap">
+          <select id="presetZoneSelect">
+            <option value="">Оберіть готову зону</option>
+          </select>
+        </div>
+        <button id="applyPresetZoneBtn" class="zone-primary-btn" style="margin-top:10px;">
+          Додати готову зону
+        </button>
+      </div>
+
+      <div class="templates-grid compact-templates" id="templatesGrid">
+        <div class="template-item" data-radius="500" data-name="Дім">
+          <div class="template-name">🏠 Дім</div>
+          <div class="template-radius">500 м</div>
+        </div>
+
+        <div class="template-item" data-radius="700" data-name="Робота">
+          <div class="template-name">💼 Робота</div>
+          <div class="template-radius">700 м</div>
+        </div>
+
+        <div class="template-item" data-radius="2500" data-name="Мікрорайон">
+          <div class="template-name">🏘️ Мікрорайон</div>
+          <div class="template-radius">2500 м</div>
+        </div>
+
+        <div class="template-item" data-radius="1500" data-name="Велика зона">
+          <div class="template-name">🟢 Велика зона</div>
+          <div class="template-radius">1500 м</div>
+        </div>
+      </div>
+
+      <div class="zone-divider">АБО ВРУЧНУ</div>
+
+      <input type="text" id="zoneNameInput" placeholder="Назва зони" maxlength="30">
+      <input type="number" id="zoneRadiusInput" placeholder="Радіус (метри)" min="50" max="5000" step="50">
+
+      <div id="zoneSheetFooter">
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 10px; text-align: center;">
+          👆 Після збереження натисни на мапу, щоб поставити центр
+        </div>
+        <button id="saveZoneBtn" class="zone-primary-btn">Зберегти та вибрати центр</button>
+      </div>
+
+      <div class="zone-divider">МОЇ ЗОНИ</div>
+
+      <div id="zonesListInZoneSheet" class="zones-list">
+        <div style="color: rgba(255,255,255,0.4); text-align: center; padding: 20px;">
+          Немає зон
+        </div>
+      </div>
+    </div>
   </div>
-
-  <div id="zoneSheetBody">
-    <div class="settings-group" style="margin-bottom: 14px;">
-      <div class="settings-label">📍 Готові зони</div>
-      <div class="city-select-wrap">
-        <select id="presetZoneSelect">
-          <option value="">Оберіть готову зону</option>
-        </select>
-      </div>
-      <button id="applyPresetZoneBtn" class="zone-primary-btn" style="margin-top:10px;">
-        Додати готову зону
-      </button>
-    </div>
-
-    <div class="templates-grid compact-templates" id="templatesGrid">
-      <div class="template-item" data-radius="500" data-name="Дім">
-        <div class="template-name">🏠 Дім</div>
-        <div class="template-radius">500 м</div>
-      </div>
-
-      <div class="template-item" data-radius="700" data-name="Робота">
-        <div class="template-name">💼 Робота</div>
-        <div class="template-radius">700 м</div>
-      </div>
-
-      <div class="template-item" data-radius="2500" data-name="Мікрорайон">
-        <div class="template-name">🏘️ Мікрорайон</div>
-        <div class="template-radius">2500 м</div>
-      </div>
-
-      <div class="template-item" data-radius="1500" data-name="Велика зона">
-        <div class="template-name">🟢 Велика зона</div>
-        <div class="template-radius">1500 м</div>
-      </div>
-    </div>
-
-    <div class="zone-divider">АБО ВРУЧНУ</div>
-
-    <input type="text" id="zoneNameInput" placeholder="Назва зони" maxlength="30">
-    <input type="number" id="zoneRadiusInput" placeholder="Радіус (метри)" min="50" max="5000" step="50">
-
-    <div class="zone-divider">МОЇ ЗОНИ</div>
-
-    <div id="zonesListInZoneSheet" class="zones-list">
-      <div style="color: rgba(255,255,255,0.4); text-align: center; padding: 20px;">
-        Немає зон
-      </div>
-    </div>
-  </div>
-
-  <div id="zoneSheetFooter">
-    <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 10px; text-align: center;">
-      👆 Після збереження натисни на мапу, щоб поставити центр
-    </div>
-
-    <button id="saveZoneBtn" class="zone-primary-btn">Зберегти та вибрати центр</button>
-  </div>
-</div>
+  
   <!-- =========================================================
        BLOCK: HTML_STRUCTURE_ZONE_EDIT_SHEET
        Вікно редагування зони
