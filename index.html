@@ -637,41 +637,11 @@
 }
 
 #zoneSheetFooter {
-  flex: 0 0 auto;
-  margin-top: 10px;
-  padding-top: 10px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+  padding-top: 12px;
+  padding-bottom: 2px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(28, 28, 30, 0.96);
-}
-
-.zone-primary-btn {
-  width: 100%;
-  border: none;
-  border-radius: 16px;
-  padding: 13px 14px;
-  background: linear-gradient(180deg, #1c8cff, #007aff);
-  color: #fff;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  box-shadow: 0 10px 22px rgba(10, 132, 255, 0.28);
-}
-
-.compact-templates {
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-.compact-templates .template-item {
-  padding: 9px 8px;
-}
-
-.compact-templates .template-name {
-  font-size: 13px;
-}
-
-.compact-templates .template-radius {
-  font-size: 11px;
 }
 
 @media (max-width: 600px) {
@@ -679,19 +649,10 @@
     height: 82dvh !important;
     max-height: 82dvh !important;
   }
-
-  #zoneSheetFooter {
-    padding-bottom: calc(6px + env(safe-area-inset-bottom));
-  }
-
-  #zonesListInZoneSheet {
-    max-height: none;
-  }
 }
-
-    /* =========================================================
+/* =========================================================
    BLOCK: CSS_ZONE_EDIT_IOS
-   iOS-style вікно редагування зони
+   Компактне iOS-style вікно редагування зони
    ========================================================= */
 #zoneEditSheet {
   display: none;
@@ -707,13 +668,13 @@
 .zone-edit-fields {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .zone-edit-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .zone-edit-label {
@@ -727,8 +688,8 @@
 #zoneEditRadiusInput {
   width: 100%;
   border: none;
-  border-radius: 18px;
-  padding: 14px 16px;
+  border-radius: 16px;
+  padding: 12px 14px;
   background: rgba(255, 255, 255, 0.10);
   color: #fff;
   font-family: inherit;
@@ -750,20 +711,20 @@
 
 #zoneEditFooter {
   display: grid;
-  grid-template-columns: 1fr 92px;
-  gap: 12px;
-  margin-top: 16px;
-  padding-top: 12px;
+  grid-template-columns: 1fr 84px;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .zone-edit-btn {
-  height: 58px;
+  height: 52px;
   border: none;
-  border-radius: 20px;
+  border-radius: 18px;
   font-family: inherit;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 15px;
   cursor: pointer;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -789,15 +750,31 @@
 @media (max-width: 600px) {
   #zoneEditSheet {
     height: auto !important;
-    max-height: 72dvh !important;
+    max-height: 56dvh !important;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom)) 12px !important;
   }
 
-  #zoneEditFooter {
-    padding-bottom: calc(4px + env(safe-area-inset-bottom));
+  #zoneEditHead {
+    margin-bottom: 8px !important;
+  }
+
+  #zoneEditTitle {
+    font-size: 15px;
+  }
+
+  .zone-edit-fields {
+    gap: 8px;
+  }
+
+  #zoneEditNameInput,
+  #zoneEditRadiusInput {
+    padding: 11px 13px;
+    border-radius: 15px;
+    font-size: 15px;
   }
 
   .zone-edit-btn {
-    height: 56px;
+    height: 50px;
     font-size: 15px;
   }
 }
@@ -3826,6 +3803,11 @@ const ZoneEditWindow = {
       DOM.zoneEditRadiusWrap.style.display = zone.kind === "circle" ? "flex" : "none";
     }
 
+    if (DOM.zoneSheet) {
+      DOM.zoneSheet.style.display = "none";
+      DOM.zoneSheet.classList.remove("show-mobile");
+    }
+
     DOM.zoneEditSheet.style.display = "flex";
     ZoneCircleEngine.showZonePreview(zone, zone.kind === "circle");
 
@@ -3836,20 +3818,25 @@ const ZoneEditWindow = {
     }
   },
 
-  hide() {
+  hide(restoreZoneSheet = true) {
     ZoneCircleEngine.clearPreview();
+
+    const finish = () => {
+      DOM.zoneEditSheet.style.display = "none";
+      APP_STATE.zoneEditId = null;
+
+      if (restoreZoneSheet) {
+        ZoneWindow.show();
+      }
+    };
 
     if (LayoutHelpers.isMobile()) {
       DOM.zoneEditSheet.classList.remove("show-mobile");
-      setTimeout(() => {
-        DOM.zoneEditSheet.style.display = "none";
-      }, 220);
-      APP_STATE.zoneEditId = null;
+      setTimeout(finish, 220);
       return;
     }
 
-    DOM.zoneEditSheet.style.display = "none";
-    APP_STATE.zoneEditId = null;
+    finish();
   },
 
   save() {
@@ -3883,7 +3870,7 @@ const ZoneEditWindow = {
     ZoneStorageEngine.updateZone(APP_STATE.zoneEditId, updates);
     APP_STATE.zones = ZoneStorageEngine.loadZones();
     ZoneManagerUI.renderZonesList();
-    this.hide();
+    this.hide(true);
   },
 
   delete() {
@@ -3895,7 +3882,7 @@ const ZoneEditWindow = {
     ZoneStorageEngine.deleteZone(APP_STATE.zoneEditId);
     APP_STATE.zones = ZoneStorageEngine.loadZones();
     ZoneManagerUI.renderZonesList();
-    this.hide();
+    this.hide(true);
   }
 };
 
