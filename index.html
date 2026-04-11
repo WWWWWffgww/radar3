@@ -4648,56 +4648,18 @@ const SettingsBehaviorEngine = {
 const PopupRenderer = {
   render(point) {
     const commentsSorted = [...(point.comments || [])].sort((a, b) => b.time - a.time);
-    const existingVote = LocalStorageEngine.getCommentVote(point.id, APP_STATE.clientId);
-    const actionLocked = !!existingVote;
 
     const commentsHtml = commentsSorted
       .map(c => {
-        const status = c.status === "not_actual" ? "not_actual" : "actual";
-        const stripeColor = status === "not_actual" ? "#ff453a" : "#34c759";
+        const statusClass =
+          c.status === "not_actual"
+            ? "comment-item comment-not-actual"
+            : "comment-item comment-actual";
 
         return `
-          <div class="comment-item" style="
-            position: relative;
-            margin-bottom: 6px;
-            padding: 6px 8px 6px 10px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.06);
-            overflow: hidden;
-            min-height: auto;
-            height: auto;
-          ">
-            <span style="
-              position: absolute;
-              left: 0;
-              top: 0;
-              bottom: 0;
-              width: 3px;
-              background: ${stripeColor};
-              border-radius: 3px;
-            "></span>
-
-            <div class="comment-text" style="
-              font-size: 13px;
-              line-height: 1.22;
-              color: #fff;
-              white-space: pre-wrap;
-              word-break: break-word;
-              margin: 0;
-              padding: 0;
-            ">
-              ${HtmlUtils.escapeHtml(c.text)}
-            </div>
-
-            <div class="comment-time" style="
-              margin-top: 4px;
-              font-size: 11px;
-              line-height: 1;
-              color: rgba(255,255,255,0.48);
-              text-align: right;
-            ">
-              ${TimeUtils.formatTime(c.time)}
-            </div>
+          <div class="${statusClass}">
+            <div class="comment-text">${HtmlUtils.escapeHtml(c.text || "")}</div>
+            <div class="comment-time">${TimeUtils.formatTime(c.time)}</div>
           </div>
         `;
       })
@@ -4728,16 +4690,7 @@ const PopupRenderer = {
         <div class="popup-comments" id="popupComments_${point.id}">
           ${
             commentsHtml ||
-            `<div class="comment-item" style="
-              position: relative;
-              padding: 6px 8px 6px 10px;
-              border-radius: 10px;
-              background: rgba(255,255,255,0.06);
-              font-size: 13px;
-              line-height: 1.22;
-              min-height: auto;
-              height: auto;
-            ">${APP_LABELS.popup.noComments}</div>`
+            `<div class="comment-item comment-actual"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
           }
         </div>
 
@@ -4749,31 +4702,14 @@ const PopupRenderer = {
         <input id="commentInput_${point.id}" class="popup-input" maxlength="100" placeholder="${APP_LABELS.popup.writeComment}">
         <div class="popup-counter" id="commentCounter_${point.id}">0 / 100</div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button
-            class="popup-btn ${actionLocked ? "disabled" : ""}"
-            style="background:linear-gradient(180deg,#3ecf6d,#28a745);box-shadow:0 10px 22px rgba(52,199,89,0.28);padding:12px 12px;"
-            onclick="window.addComment('${point.id}', 'actual')"
-            ${actionLocked ? "disabled" : ""}
-          >
-            Правда
-          </button>
-
-          <button
-            class="popup-btn ${actionLocked ? "disabled" : ""}"
-            style="background:linear-gradient(180deg,#ff6b5f,#ff3b30);box-shadow:0 10px 22px rgba(255,69,58,0.28);padding:12px 12px;"
-            onclick="window.addComment('${point.id}', 'not_actual')"
-            ${actionLocked ? "disabled" : ""}
-          >
-            Брехня
-          </button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button class="popup-btn" style="background:linear-gradient(180deg,#34c759,#28a745);box-shadow:0 10px 22px rgba(52,199,89,0.22);" onclick="window.addComment('${point.id}','actual')">Правда</button>
+          <button class="popup-btn" style="background:linear-gradient(180deg,#ff5a52,#ff3b30);box-shadow:0 10px 22px rgba(255,59,48,0.22);" onclick="window.addComment('${point.id}','not_actual')">Брехня</button>
         </div>
 
         ${
-          actionLocked
-            ? `<div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.6);text-align:center;">
-                 Ти вже голосував по цій мітці
-               </div>`
+          voted
+            ? `<div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.58);text-align:center;">Ти вже голосував по цій мітці</div>`
             : ``
         }
       </div>
