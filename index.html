@@ -380,6 +380,40 @@
 }
 
     /* =========================================================
+   BLOCK: CSS_PICKER_MOBILE_FIX
+   Фікс відкриття picker на мобілці
+   ========================================================= */
+#pickerBar {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  #pickerBar {
+    z-index: 1205 !important;
+  }
+}
+
+/* =========================================================
+   BLOCK: CSS_SETTINGS_BODY_SCROLL_FIX
+   Фікс скролу в налаштуваннях
+   ========================================================= */
+#settingsBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 600px) {
+  #settingsBody {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+}
+
+
+    /* =========================================================
        BLOCK: CSS_WINDOW_HEADERS
        Заголовки вікон
        ========================================================= */
@@ -3634,29 +3668,39 @@ const LocalStorageEngine = {
       }
     };
 
-    /* =========================================================
-       BLOCK: WINDOW_PICKER_BAR
-       Вікно вибору типу
-       ========================================================= */
-    const PickerWindow = {
-      show() {
-        DOM.pickerBar.style.display = "block";
-      },
-      hide() {
-        DOM.pickerBar.style.display = "none";
-      },
-      updateActive() {
-        document.querySelectorAll(".picker-item").forEach(el => el.classList.remove("active"));
-        document.querySelector(`.picker-item[data-type="${APP_STATE.currentType}"]`)?.classList.add("active");
+  /* =========================================================
+   BLOCK: WINDOW_PICKER_BAR
+   Вікно вибору типу
+   ========================================================= */
+const PickerWindow = {
+  show() {
+    DOM.pickerBar.style.display = "block";
+    DOM.pickerBar.style.zIndex = "1205";
 
-        DOM.sheetIcon.src = MarkerIconFactory.getIconPath(APP_STATE.currentType);
-        DOM.sheetTitle.textContent = APP_LABELS.markerTypes[APP_STATE.currentType] || APP_STATE.currentType;
+    if (LayoutHelpers.isMobile()) {
+      DOM.pickerBar.classList.add("show-mobile");
+    }
+  },
 
-        if (APP_STATE.tempMarker && APP_STATE.selectedLatLng) {
-          APP_STATE.tempMarker.setIcon(MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()));
-        }
-      }
-    };
+  hide() {
+    DOM.pickerBar.classList.remove("show-mobile");
+    DOM.pickerBar.style.display = "none";
+  },
+
+  updateActive() {
+    document.querySelectorAll(".picker-item").forEach(el => el.classList.remove("active"));
+    document.querySelector(`.picker-item[data-type="${APP_STATE.currentType}"]`)?.classList.add("active");
+
+    DOM.sheetIcon.src = MarkerIconFactory.getIconPath(APP_STATE.currentType);
+    DOM.sheetTitle.textContent = APP_LABELS.markerTypes[APP_STATE.currentType] || APP_STATE.currentType;
+
+    if (APP_STATE.tempMarker && APP_STATE.selectedLatLng) {
+      APP_STATE.tempMarker.setIcon(
+        MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom())
+      );
+    }
+  }
+};
 
     /* =========================================================
        BLOCK: WINDOW_DESC_SHEET
@@ -4016,7 +4060,7 @@ const ZoneManagerUI = {
   }
 };
 
-  /* =========================================================
+ /* =========================================================
    BLOCK: WINDOW_SETTINGS_SHEET
    Вікно налаштувань
    ========================================================= */
@@ -4032,6 +4076,18 @@ const SettingsWindow = {
     if (LayoutHelpers.isMobile()) {
       requestAnimationFrame(() => {
         DOM.settingsSheet.classList.add("show-mobile");
+
+        requestAnimationFrame(() => {
+          this.updateLayout();
+        });
+
+        setTimeout(() => {
+          this.updateLayout();
+        }, 40);
+
+        setTimeout(() => {
+          this.updateLayout();
+        }, 260);
       });
     }
   },
@@ -4056,6 +4112,10 @@ const SettingsWindow = {
     const sheet = DOM.settingsSheet;
     if (!sheet || sheet.style.display === "none") return;
 
+    const head = document.getElementById("settingsHead");
+    const save = DOM.saveSettingsBtn;
+    const body = DOM.settingsBody;
+
     if (LayoutHelpers.isDesktop()) {
       sheet.style.left = "auto";
       sheet.style.right = "10px";
@@ -4074,14 +4134,22 @@ const SettingsWindow = {
       sheet.style.maxHeight = "100dvh";
     }
 
-    const head = document.getElementById("settingsHead");
-    const save = DOM.saveSettingsBtn;
-    const body = DOM.settingsBody;
-
     if (head && save && body) {
-      const totalHeight = sheet.clientHeight;
-      const reserved = head.offsetHeight + save.offsetHeight + 20;
-      body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
+      const totalHeight = sheet.getBoundingClientRect().height;
+      const reserved =
+        head.getBoundingClientRect().height +
+        save.getBoundingClientRect().height +
+        24;
+
+      const bodyHeight = Math.max(120, totalHeight - reserved);
+
+      body.style.flex = "0 1 auto";
+      body.style.minHeight = "0";
+      body.style.height = `${bodyHeight}px`;
+      body.style.maxHeight = `${bodyHeight}px`;
+      body.style.overflowY = "auto";
+      body.style.overflowX = "hidden";
+      body.style.webkitOverflowScrolling = "touch";
     }
   }
 };
@@ -5099,9 +5167,22 @@ const CreateMarkerFlow = {
   openCreateMode() {
     APP_STATE.addMode = true;
 
-    SettingsWindow.hide();
-    PickerWindow.show();
+    ZoneWindow.hide();
+    if (DOM.zoneEditSheet) {
+      DOM.zoneEditSheet.style.display = "none";
+      DOM.zoneEditSheet.classList.remove("show-mobile");
+    }
+
+    if (DOM.settingsSheet && DOM.settingsSheet.style.display !== "none") {
+      SettingsWindow.hide();
+    }
+
     DescWindow.hide();
+
+    setTimeout(() => {
+      document.body.classList.remove("settings-open");
+      PickerWindow.show();
+    }, LayoutHelpers.isMobile() ? 280 : 0);
   },
 
   closeCreateMode() {
@@ -5192,7 +5273,6 @@ const CreateMarkerFlow = {
       setTimeout(() => {
         MarkerRenderEngine.queueRender(true);
       }, 80);
-
     } finally {
       setTimeout(() => {
         DOM.saveBtn.disabled = false;
@@ -5217,17 +5297,24 @@ const CreateMarkerFlow = {
       }
     };
 
-    /* =========================================================
-       BLOCK: FAB_ADD_BUTTON
-       Кнопка додавання мітки
-       ========================================================= */
-    const FabAddButton = {
-      init() {
-        DOM.addBtn.addEventListener("click", () => {
-          CreateMarkerFlow.openCreateMode();
-        });
+  /* =========================================================
+   BLOCK: FAB_ADD_BUTTON
+   Кнопка додавання мітки
+   ========================================================= */
+const FabAddButton = {
+  init() {
+    const openAdd = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
       }
+      CreateMarkerFlow.openCreateMode();
     };
+
+    DOM.addBtn.addEventListener("click", openAdd);
+    DOM.addBtn.addEventListener("touchend", openAdd, { passive: false });
+  }
+};
 
     /* =========================================================
        BLOCK: FAB_ZONES_BUTTON
