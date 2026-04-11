@@ -1434,7 +1434,7 @@
   position: relative;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 8px 10px 7px 12px;
+  padding: 8px 10px 7px 14px;
   margin-bottom: 6px;
   min-height: auto;
 }
@@ -1455,6 +1455,10 @@
 
 .comment-item.comment-not-actual::before {
   background: #ff3b30;
+}
+
+.comment-item.comment-empty::before {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .comment-text {
@@ -4714,7 +4718,7 @@ const PopupRenderer = {
         <div class="popup-comments" id="popupComments_${point.id}">
           ${
             commentsHtml ||
-            `<div class="comment-item comment-actual"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
+            `<div class="comment-item comment-empty"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
           }
         </div>
 
