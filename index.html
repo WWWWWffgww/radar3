@@ -608,6 +608,49 @@
       background: rgba(255, 255, 255, 0.15);
     }
 
+    /* =========================================================
+   BLOCK: CSS_ZONE_PRIMARY_BUTTON
+   Основні сині кнопки у вікні зон
+   ========================================================= */
+.zone-primary-btn {
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, #2f95ff 0%, #0a84ff 100%);
+  color: #fff;
+  font-weight: 700;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(10, 132, 255, 0.28);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.zone-primary-btn:hover {
+  box-shadow: 0 12px 26px rgba(10, 132, 255, 0.34);
+}
+
+.zone-primary-btn:active {
+  transform: scale(0.985);
+}
+
+.zone-primary-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+}
+
+@media (max-width: 600px) {
+  .zone-primary-btn {
+    min-height: 54px;
+    border-radius: 19px;
+    font-size: 17px;
+  }
+}
+
 /* =========================================================
    BLOCK: CSS_ZONE_SHEET_LAYOUT
    Layout вікна створення зони
