@@ -4688,7 +4688,8 @@ const PopupRenderer = {
       })
       .join("");
 
-   const commentVote = LocalStorageEngine.getCommentVote(point.id, APP_STATE.clientId);
+    const voted = LocalStorageEngine.hasVoted(point.id);
+    const commentVote = LocalStorageEngine.getCommentVote(point.id, APP_STATE.clientId);
 
     return `
       <div class="radar-popup">
@@ -4726,13 +4727,28 @@ const PopupRenderer = {
         <div class="popup-counter" id="commentCounter_${point.id}">0 / 100</div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <button class="popup-btn" style="background:linear-gradient(180deg,#34c759,#28a745);box-shadow:0 10px 22px rgba(52,199,89,0.22);" onclick="window.addComment('${point.id}','actual')">Правда</button>
-          <button class="popup-btn" style="background:linear-gradient(180deg,#ff5a52,#ff3b30);box-shadow:0 10px 22px rgba(255,59,48,0.22);" onclick="window.addComment('${point.id}','not_actual')">Брехня</button>
+          <button
+            class="popup-btn"
+            style="background:linear-gradient(180deg,#34c759,#28a745);box-shadow:0 10px 22px rgba(52,199,89,0.22);"
+            onclick="window.addComment('${point.id}','actual')"
+            ${commentVote ? "disabled" : ""}
+          >
+            Правда
+          </button>
+
+          <button
+            class="popup-btn"
+            style="background:linear-gradient(180deg,#ff5a52,#ff3b30);box-shadow:0 10px 22px rgba(255,59,48,0.22);"
+            onclick="window.addComment('${point.id}','not_actual')"
+            ${commentVote ? "disabled" : ""}
+          >
+            Брехня
+          </button>
         </div>
 
         ${
-          voted
-            ? `<div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.58);text-align:center;">Ти вже голосував по цій мітці</div>`
+          commentVote
+            ? `<div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.58);text-align:center;">Ти вже залишав коментар до цієї мітки</div>`
             : ``
         }
       </div>
