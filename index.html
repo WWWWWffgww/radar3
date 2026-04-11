@@ -1374,11 +1374,28 @@
   font-weight: 800;
 }
 
+.popup-time-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 3px;
+}
+
 .popup-time {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.74);
   white-space: nowrap;
-  margin-bottom: 3px;
+  margin-bottom: 0;
+}
+
+.popup-type-changed {
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 800;
+  color: #ff9f0a;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .popup-close {
@@ -1434,7 +1451,7 @@
   position: relative;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 8px 10px 7px 14px;
+  padding: 8px 10px 7px 12px;
   margin-bottom: 6px;
   min-height: auto;
 }
@@ -1443,10 +1460,10 @@
   content: "";
   position: absolute;
   left: 0;
-  top: 0px;
-  bottom: 0px;
-  width: 8px;
-  border-radius: 3px;
+  top: 6px;
+  bottom: 6px;
+  width: 6px;
+  border-radius: 8px;
 }
 
 .comment-item.comment-actual::before {
@@ -1457,8 +1474,8 @@
   background: #ff3b30;
 }
 
-.comment-item.comment-empty::before {
-  background: rgba(255, 255, 255, 0.22);
+.comment-item.comment-neutral::before {
+  background: #8e8e93;
 }
 
 .comment-text {
@@ -1556,6 +1573,16 @@
   .radar-popup {
     height: 82dvh !important;
     padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
+  }
+
+  .popup-time-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+
+  .popup-type-changed {
+    font-size: 11px;
   }
 }
 
@@ -4705,7 +4732,15 @@ const PopupRenderer = {
                 <div class="popup-title">${HtmlUtils.escapeHtml(APP_LABELS.markerTypes[point.type] || point.type)}</div>
                 <div class="popup-life">${TimeUtils.timeLeftText(point.time)}</div>
               </div>
-              <div class="popup-time">${TimeUtils.formatDateTime(point.time)}</div>
+
+              <div class="popup-time-row">
+                <div class="popup-time">${TimeUtils.formatDateTime(point.time)}</div>
+                ${
+                  point.typeChangedNotice
+                    ? `<div class="popup-type-changed">мітку змінено</div>`
+                    : ``
+                }
+              </div>
             </div>
           </div>
           <button class="popup-close" onclick="window.closePopup()">×</button>
@@ -4718,7 +4753,7 @@ const PopupRenderer = {
         <div class="popup-comments" id="popupComments_${point.id}">
           ${
             commentsHtml ||
-            `<div class="comment-item comment-empty"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
+            `<div class="comment-item comment-neutral"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
           }
         </div>
 
@@ -4957,11 +4992,14 @@ const PopupCommentFeature = {
     ];
 
     const nextType = this.resolveNextType(item.type, nextComments);
+    const typeWasChanged = nextType !== item.type;
 
     const ref = doc(db, "points", item.id);
     await updateDoc(ref, {
       comments: nextComments,
-      type: nextType
+      type: nextType,
+      typeChangedAt: typeWasChanged ? Date.now() : (item.typeChangedAt || null),
+      typeChangedNotice: typeWasChanged
     });
 
     LocalStorageEngine.setCommentVote(pointId, clientId, status);
