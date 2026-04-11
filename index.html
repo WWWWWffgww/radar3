@@ -190,90 +190,113 @@
       color: #fff;
     }
 
-    /* =========================================================
-       BLOCK: CSS_LAYOUT_MOBILE
-       Мобільна адаптація
-       ========================================================= */
-    @media (max-width: 600px) {
-      #pickerBar,
-      #zoneSheet,
-      #zoneEditSheet {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        top: auto !important;
-        bottom: 0 !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
-        transform: none !important;
-        z-index: 1105 !important;
-        border-top-left-radius: 22px !important;
-        border-top-right-radius: 22px !important;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-        padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
-      }
+  /* =========================================================
+   BLOCK: CSS_LAYOUT_MOBILE
+   Мобільна адаптація
+   ========================================================= */
+@media (max-width: 600px) {
+  #pickerBar,
+  #zoneEditSheet {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    transform: translateY(100%) !important;
+    z-index: 1105 !important;
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
+    transition: transform 0.26s ease !important;
+  }
 
-      #descSheet {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        top: auto !important;
-        bottom: 0 !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
-        z-index: 1105 !important;
+  #zoneSheet {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    transform: translateY(100%) !important;
+    z-index: 1105 !important;
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) 10px !important;
+    transition: transform 0.26s ease !important;
+  }
 
-        border-top-left-radius: 22px !important;
-        border-top-right-radius: 22px !important;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
+  #zoneSheet.show-mobile,
+  #zoneEditSheet.show-mobile,
+  #pickerBar.show-mobile {
+    transform: translateY(0) !important;
+  }
 
-        padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
+  #descSheet {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    z-index: 1105 !important;
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
+    transform: translateY(100%);
+    transition: transform 0.22s ease;
+  }
 
-        transform: translateY(100%);
-        transition: transform 0.22s ease;
-      }
+  #descSheet.show-mobile {
+    transform: translateY(0);
+  }
 
-      #descSheet.show-mobile {
-        transform: translateY(0);
-      }
+  #pickerBar .picker-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+  }
 
-      #pickerBar .picker-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 6px !important;
-      }
+  #pickerBar .picker-item {
+    border-radius: 12px !important;
+    padding: 5px 3px !important;
+  }
 
-      #pickerBar .picker-item {
-        border-radius: 12px !important;
-        padding: 5px 3px !important;
-      }
+  #pickerBar .picker-item img {
+    width: 28px !important;
+    height: 28px !important;
+    margin: 0 auto 3px !important;
+  }
 
-      #pickerBar .picker-item img {
-        width: 28px !important;
-        height: 28px !important;
-        margin: 0 auto 3px !important;
-      }
+  #pickerBar .picker-item span {
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+  }
 
-      #pickerBar .picker-item span {
-        font-size: 10px !important;
-        line-height: 1.1 !important;
-      }
+  #pickerTop {
+    margin-bottom: 6px !important;
+  }
 
-      #pickerTop {
-        margin-bottom: 6px !important;
-      }
+  #pickerHint {
+    font-size: 11px !important;
+  }
 
-      #pickerHint {
-        font-size: 11px !important;
-      }
-
-      #pickerClose {
-        width: 24px !important;
-        height: 24px !important;
-        font-size: 17px !important;
-      }
-    }
+  #pickerClose {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 17px !important;
+  }
+}
 
     /* =========================================================
        BLOCK: CSS_LAYOUT_DESKTOP
@@ -296,86 +319,65 @@
       }
     }
 
-    /* =========================================================
-       BLOCK: CSS_SETTINGS_WINDOW
-       Вікно налаштувань
-       ========================================================= */
-    #settingsSheet {
-      position: fixed;
-      left: var(--sheet-side);
-      right: var(--sheet-side);
-      top: var(--sheet-top);
-      bottom: var(--sheet-bottom);
-      z-index: 1015;
-      display: none;
-      flex-direction: column;
-      background: rgba(28, 28, 30, 0.96);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: var(--sheet-radius);
-      padding: var(--sheet-padding);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #fff;
-      overflow: hidden;
-    }
+  /* =========================================================
+   BLOCK: CSS_SETTINGS_WINDOW
+   Вікно налаштувань
+   ========================================================= */
+#settingsSheet {
+  position: fixed;
+  left: var(--sheet-side);
+  right: var(--sheet-side);
+  top: var(--sheet-top);
+  bottom: var(--sheet-bottom);
+  z-index: 1015;
+  display: none;
+  flex-direction: column;
+  background: rgba(28, 28, 30, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: var(--sheet-radius);
+  padding: var(--sheet-padding);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  overflow: hidden;
+}
 
-    @media (min-width: 601px) {
-      #settingsSheet {
-        left: auto;
-        right: 10px;
-        width: 320px;
-        top: 68px;
-        bottom: calc(60px + env(safe-area-inset-bottom));
-        transform: none !important;
-        transition: none !important;
-      }
-    }
+@media (min-width: 601px) {
+  #settingsSheet {
+    left: auto;
+    right: 10px;
+    width: 320px;
+    top: 68px;
+    bottom: calc(60px + env(safe-area-inset-bottom));
+    transform: none !important;
+    transition: none !important;
+  }
+}
 
-    @media (max-width: 600px) {
-      #settingsSheet {
-        left: 0 !important;
-        right: 0 !important;
-        top: auto !important;
-        bottom: 0 !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
-        height: 82dvh !important;
-        max-height: 82dvh !important;
+@media (max-width: 600px) {
+  #settingsSheet {
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
+    transform: translateY(100%);
+    transition: transform 0.26s ease;
+  }
 
-        border-top-left-radius: 22px !important;
-        border-top-right-radius: 22px !important;
-        border-bottom-left-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-
-        padding: 12px 12px calc(12px + env(safe-area-inset-bottom)) 12px !important;
-
-        transform: translateY(100%);
-        transition: transform 0.22s ease;
-      }
-
-      #settingsSheet.show-mobile {
-        transform: translateY(0);
-      }
-    }
-
-    #settingsBody {
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding-right: 2px;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    #settingsBody::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    #settingsBody::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.14);
-      border-radius: 10px;
-    }
+  #settingsSheet.show-mobile {
+    transform: translateY(0);
+  }
+}
 
     /* =========================================================
        BLOCK: CSS_WINDOW_HEADERS
@@ -680,17 +682,27 @@
 }
 
 #zoneSheetFooter {
-  margin-top: 14px;
-  margin-bottom: 14px;
-  padding-top: 12px;
-  padding-bottom: 2px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-top: 8px;
+  padding-bottom: 0;
+  border-top: none;
+}
+
+#zonesListInZoneSheet {
+  max-height: none !important;
+  overflow: visible !important;
+  margin-top: 4px !important;
 }
 
 @media (max-width: 600px) {
   #zoneSheet {
-    height: 82dvh !important;
-    max-height: 82dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+  }
+
+  #zoneSheetBody {
+    padding-bottom: 4px;
   }
 }
 /* =========================================================
@@ -829,7 +841,7 @@
 #zoneSheet {
   display: none;
   flex-direction: column;
-  max-height: min(78dvh, 700px);
+  max-height: 100dvh;
   overflow: hidden;
 }
 
@@ -837,200 +849,105 @@
   display: flex !important;
 }
 
-#zoneHead {
-  margin-bottom: 8px !important;
+.zone-top-group {
+  margin-bottom: 6px;
 }
 
-#zoneTitle {
-  font-size: 15px;
-}
-
-#zoneSheetBody {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 2px;
-  -webkit-overflow-scrolling: touch;
-}
-
-#zoneSheetBody::-webkit-scrollbar {
-  width: 6px;
-}
-
-#zoneSheetBody::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-}
-
-#zoneSheet .settings-group {
-  margin-bottom: 10px;
-}
-
-#zoneSheet .settings-label {
-  margin-bottom: 5px;
-  font-size: 11px;
-}
-
-#zoneSheet .city-select-wrap {
-  margin-bottom: 0;
-}
-
-#zoneSheet #presetZoneSelect,
-#zoneSheet #zoneNameInput,
-#zoneSheet #zoneRadiusInput {
-  padding: 10px 12px;
+.zone-secondary-btn {
+  width: 100%;
+  margin-top: 8px;
+  border: none;
   border-radius: 14px;
-}
-
-#zoneSheet #zoneNameInput {
-  margin-bottom: 8px;
-}
-
-#zoneSheet #zoneRadiusInput {
-  margin-bottom: 8px;
-}
-
-.zone-primary-btn {
-  border-radius: 16px;
   padding: 12px 14px;
-  font-size: 15px;
-  min-height: 48px;
+  background: rgba(10, 132, 255, 0.85);
+  color: #fff;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(10, 132, 255, 0.22);
 }
 
-.templates-grid.compact-templates,
-#templatesGrid {
-  display: grid;
+.zone-secondary-btn:active {
+  transform: scale(0.99);
+}
+
+.zone-compact-grid {
   grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
-#templatesGrid .template-item {
-  padding: 8px 7px;
-  border-radius: 12px;
+.zone-compact-grid .template-item {
+  padding: 8px 8px;
+  border-radius: 13px;
 }
 
-#templatesGrid .template-name {
-  font-size: 12px;
+.zone-compact-grid .template-name {
+  font-size: 13px;
   margin-bottom: 2px;
 }
 
-#templatesGrid .template-radius {
-  font-size: 10px;
+.zone-compact-grid .template-radius {
+  font-size: 11px;
+}
+
+.zone-helper-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.zone-list-inside-sheet {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  margin-top: 0;
+  margin-bottom: 8px;
+  padding-right: 0;
+}
+
+.zone-bottom-save {
+  width: 100%;
+  flex: 0 0 auto;
+  margin-top: 0;
 }
 
 .zone-divider {
-  margin: 10px 0 8px;
+  display: flex;
+  align-items: center;
   gap: 8px;
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.38);
+  margin: 10px 0 8px;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 11px;
+  line-height: 1;
 }
 
 .zone-divider::before,
 .zone-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
   background: rgba(255, 255, 255, 0.10);
-}
-
-#zoneSheetFooter {
-  margin-top: 8px;
-  margin-bottom: 10px;
-  padding-top: 8px;
-  padding-bottom: 0;
-  border-top: none;
-}
-
-#zonesListInZoneSheet,
-.zones-list {
-  margin-top: 4px;
-  max-height: none;
-  overflow: visible;
-}
-
-#zonesListInZoneSheet .zone-item {
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 10px;
-}
-
-#zonesListInZoneSheet .zone-item-header {
-  margin-bottom: 4px;
-}
-
-#zonesListInZoneSheet .zone-name {
-  font-size: 13px;
-  gap: 5px;
-}
-
-#zonesListInZoneSheet .zone-name span:first-child {
-  font-size: 14px;
-}
-
-#zonesListInZoneSheet .zone-details {
-  font-size: 11px;
-}
-
-#zonesListInZoneSheet .zone-action-btn {
-  padding: 4px 7px;
-  font-size: 11px;
-  border-radius: 7px;
-}
-
-#zonesListInZoneSheet .zone-toggle {
-  width: 36px;
-  height: 22px;
-}
-
-#zonesListInZoneSheet .zone-toggle::after {
-  width: 18px;
-  height: 18px;
-}
-
-#zonesListInZoneSheet .zone-toggle.active::after {
-  left: 16px;
 }
 
 @media (max-width: 600px) {
   #zoneSheet {
-    height: 76dvh !important;
-    max-height: 76dvh !important;
-    padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
   }
 
-  #zoneHead {
-    margin-bottom: 6px !important;
+  .zone-compact-grid .template-item {
+    padding: 8px 6px;
   }
 
-  #zoneTitle {
-    font-size: 14px;
+  .zone-compact-grid .template-name {
+    font-size: 12px;
   }
 
-  .zone-primary-btn {
-    min-height: 46px;
-    font-size: 15px;
-    border-radius: 15px;
-    padding: 11px 13px;
-  }
-
-  #zoneSheet .settings-group {
-    margin-bottom: 8px;
-  }
-
-  .zone-divider {
-    margin: 8px 0 7px;
+  .zone-compact-grid .template-radius {
     font-size: 10px;
-  }
-
-  #templatesGrid .template-item {
-    padding: 7px 6px;
-  }
-
-  #templatesGrid .template-name {
-    font-size: 11px;
-  }
-
-  #templatesGrid .template-radius {
-    font-size: 9px;
   }
 }
 
@@ -3779,19 +3696,19 @@ const LocalStorageEngine = {
    Вікно створення зони
    ========================================================= */
 const ZoneWindow = {
-show() {
-  DOM.zoneSheet.style.display = "flex";
-  DOM.zoneNameInput.value = "";
-  DOM.zoneRadiusInput.value = "";
-  DOM.presetZoneSelect.value = "";
-  ZoneManagerUI.renderZonesList();
+  show() {
+    DOM.zoneSheet.style.display = "flex";
+    DOM.zoneNameInput.value = "";
+    DOM.zoneRadiusInput.value = "";
+    DOM.presetZoneSelect.value = "";
+    ZoneManagerUI.renderZonesList();
 
-  if (LayoutHelpers.isMobile()) {
-    requestAnimationFrame(() => {
-      DOM.zoneSheet.classList.add("show-mobile");
-    });
-  }
-},
+    if (LayoutHelpers.isMobile()) {
+      requestAnimationFrame(() => {
+        DOM.zoneSheet.classList.add("show-mobile");
+      });
+    }
+  },
 
   hide() {
     if (LayoutHelpers.isMobile()) {
@@ -3799,7 +3716,7 @@ show() {
       setTimeout(() => {
         DOM.zoneSheet.style.display = "none";
         DOM.zoneSheet.classList.remove("show-flex");
-      }, 220);
+      }, 260);
       return;
     }
 
@@ -3930,7 +3847,6 @@ show() {
     }, 2600);
   }
 };
-
 /* =========================================================
    BLOCK: WINDOW_ZONE_EDIT_SHEET
    Вікно редагування зони
@@ -4100,71 +4016,75 @@ const ZoneManagerUI = {
   }
 };
 
-    /* =========================================================
-       BLOCK: WINDOW_SETTINGS_SHEET
-       Вікно налаштувань
-       ========================================================= */
-    const SettingsWindow = {
-      show() {
-  document.body.classList.add("settings-open");
-  DOM.settingsSheet.style.display = "flex";
-  DOM.citySelect.value = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
-  this.updateLayout();
+  /* =========================================================
+   BLOCK: WINDOW_SETTINGS_SHEET
+   Вікно налаштувань
+   ========================================================= */
+const SettingsWindow = {
+  show() {
+    document.body.classList.add("settings-open");
+    DOM.settingsSheet.style.display = "flex";
+    DOM.citySelect.value =
+      APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
 
-        if (LayoutHelpers.isMobile()) {
-          requestAnimationFrame(() => {
-            DOM.settingsSheet.classList.add("show-mobile");
-          });
-        }
-      },
+    this.updateLayout();
 
-      hide() {
-        if (LayoutHelpers.isMobile()) {
-          DOM.settingsSheet.classList.remove("show-mobile");
-          setTimeout(() => {
-            DOM.settingsSheet.style.display = "none";
-            document.body.classList.remove("settings-open");
-          }, 220);
-          return;
-        }
+    if (LayoutHelpers.isMobile()) {
+      requestAnimationFrame(() => {
+        DOM.settingsSheet.classList.add("show-mobile");
+      });
+    }
+  },
 
+  hide() {
+    if (LayoutHelpers.isMobile()) {
+      DOM.settingsSheet.classList.remove("show-mobile");
+
+      setTimeout(() => {
         DOM.settingsSheet.style.display = "none";
         document.body.classList.remove("settings-open");
-      },
+      }, 260);
 
-      updateLayout() {
-        const sheet = DOM.settingsSheet;
-        if (sheet.style.display === "none") return;
+      return;
+    }
 
-        if (LayoutHelpers.isDesktop()) {
-          sheet.style.left = "auto";
-          sheet.style.right = "10px";
-          sheet.style.top = "68px";
-          sheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
-          sheet.style.width = "320px";
-          sheet.style.height = "auto";
-          sheet.style.maxHeight = "none";
-        } else {
-          sheet.style.left = "0";
-          sheet.style.right = "0";
-          sheet.style.top = "auto";
-          sheet.style.bottom = "0";
-          sheet.style.width = "100vw";
-          sheet.style.height = "82dvh";
-          sheet.style.maxHeight = "82dvh";
-        }
+    DOM.settingsSheet.style.display = "none";
+    document.body.classList.remove("settings-open");
+  },
 
-        const head = document.getElementById("settingsHead");
-        const save = DOM.saveSettingsBtn;
-        const body = DOM.settingsBody;
+  updateLayout() {
+    const sheet = DOM.settingsSheet;
+    if (!sheet || sheet.style.display === "none") return;
 
-        if (head && save && body) {
-          const totalHeight = sheet.clientHeight;
-          const reserved = head.offsetHeight + save.offsetHeight + 20;
-          body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
-        }
-      }
-    };
+    if (LayoutHelpers.isDesktop()) {
+      sheet.style.left = "auto";
+      sheet.style.right = "10px";
+      sheet.style.top = "68px";
+      sheet.style.bottom = `calc(60px + env(safe-area-inset-bottom))`;
+      sheet.style.width = "320px";
+      sheet.style.height = "auto";
+      sheet.style.maxHeight = "none";
+    } else {
+      sheet.style.left = "0";
+      sheet.style.right = "0";
+      sheet.style.top = "0";
+      sheet.style.bottom = "0";
+      sheet.style.width = "100vw";
+      sheet.style.height = "100dvh";
+      sheet.style.maxHeight = "100dvh";
+    }
+
+    const head = document.getElementById("settingsHead");
+    const save = DOM.saveSettingsBtn;
+    const body = DOM.settingsBody;
+
+    if (head && save && body) {
+      const totalHeight = sheet.clientHeight;
+      const reserved = head.offsetHeight + save.offsetHeight + 20;
+      body.style.maxHeight = `${Math.max(100, totalHeight - reserved)}px`;
+    }
+  }
+};
 
     /* =========================================================
        BLOCK: WINDOW_SUCCESS_MODAL
