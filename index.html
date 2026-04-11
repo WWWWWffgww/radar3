@@ -4634,58 +4634,48 @@ const PopupRenderer = {
       .map(c => {
         const status = c.status === "not_actual" ? "not_actual" : "actual";
         const stripeColor = status === "not_actual" ? "#ff453a" : "#34c759";
-        const statusLabel = status === "not_actual" ? "Брехня" : "Правда";
 
         return `
           <div class="comment-item" style="
-            position:relative;
-            padding:8px 10px 8px 12px;
-            margin-bottom:6px;
-            border-radius:12px;
-            background:rgba(255,255,255,0.06);
-            overflow:hidden;
+            position: relative;
+            margin-bottom: 6px;
+            padding: 6px 8px 6px 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            overflow: hidden;
+            min-height: auto;
+            height: auto;
           ">
             <span style="
-              position:absolute;
-              left:0;
-              top:0;
-              bottom:0;
-              width:3px;
-              background:${stripeColor};
+              position: absolute;
+              left: 0;
+              top: 0;
+              bottom: 0;
+              width: 3px;
+              background: ${stripeColor};
+              border-radius: 3px;
             "></span>
 
             <div class="comment-text" style="
-              font-size:13px;
-              line-height:1.28;
-              color:#fff;
-              white-space:pre-wrap;
-              word-break:break-word;
-              margin-bottom:4px;
+              font-size: 13px;
+              line-height: 1.22;
+              color: #fff;
+              white-space: pre-wrap;
+              word-break: break-word;
+              margin: 0;
+              padding: 0;
             ">
               ${HtmlUtils.escapeHtml(c.text)}
             </div>
 
-            <div style="
-              display:flex;
-              align-items:center;
-              justify-content:space-between;
-              gap:8px;
+            <div class="comment-time" style="
+              margin-top: 4px;
+              font-size: 11px;
+              line-height: 1;
+              color: rgba(255,255,255,0.48);
+              text-align: right;
             ">
-              <span style="
-                font-size:11px;
-                font-weight:700;
-                color:${stripeColor};
-              ">
-                ${statusLabel}
-              </span>
-
-              <div class="comment-time" style="
-                margin-top:0;
-                font-size:11px;
-                color:rgba(255,255,255,0.52);
-              ">
-                ${TimeUtils.formatTime(c.time)}
-              </div>
+              ${TimeUtils.formatTime(c.time)}
             </div>
           </div>
         `;
@@ -4717,7 +4707,16 @@ const PopupRenderer = {
         <div class="popup-comments" id="popupComments_${point.id}">
           ${
             commentsHtml ||
-            `<div class="comment-item" style="padding:8px 10px;border-radius:12px;background:rgba(255,255,255,0.06);font-size:13px;">${APP_LABELS.popup.noComments}</div>`
+            `<div class="comment-item" style="
+              position: relative;
+              padding: 6px 8px 6px 10px;
+              border-radius: 10px;
+              background: rgba(255,255,255,0.06);
+              font-size: 13px;
+              line-height: 1.22;
+              min-height: auto;
+              height: auto;
+            ">${APP_LABELS.popup.noComments}</div>`
           }
         </div>
 
