@@ -2176,25 +2176,25 @@ const APP_CONFIG = {
   TILE_CACHE_NAME: "radar-tile-cache-v5",
   CLIENT_ID_KEY: "radar_client_id",
 
-  COMMENT_COOLDOWNS_KEY: "radar_comment_cooldowns",
-  MARKER_CREATE_COOLDOWNS_KEY: "radar_marker_create_cooldowns",
-  COMMENT_MARKER_VOTES_KEY: "radar_comment_marker_votes",
+  COMMENT_VOTES_KEY: "radar_comment_votes",
+  COMMENT_RATE_LIMIT_KEY: "radar_comment_rate_limit",
+  MARKER_RATE_LIMIT_KEY: "radar_marker_rate_limit",
 
   LIFE_MS: 24 * 60 * 60 * 1000,
   GROUP_RADIUS_METERS: 165,
   SAFE_MIN_COUNT: 3,
   QUESTION_MIN_COUNT: 4,
   DANGER_MIN_COUNT: 3,
-
-  COMMENT_COOLDOWN_MS: 15 * 1000, // тестово 15 секунд
-  MARKER_CREATE_COOLDOWN_MS: 10 * 60 * 1000,
-
   DEFAULT_CITY_KEY: "kyiv",
   DEFAULT_THEME: "day",
   MOBILE_BREAKPOINT: 600,
   POPUP_RESTORE_DELAY_MS: 20,
   COMMENT_RENDER_DELAY_MS: 160,
-  COMMENT_INPUT_ATTACH_DELAY_MS: 20
+  COMMENT_INPUT_ATTACH_DELAY_MS: 20,
+
+  COMMENT_MIN_LENGTH: 10,
+  COMMENT_COOLDOWN_MS: 10 * 60 * 1000,
+  MARKER_COOLDOWN_MS: 10 * 60 * 1000
 };
 
 /* =========================================================
@@ -3404,90 +3404,78 @@ const LocalStorageEngine = {
     return clientId;
   },
 
-  loadCommentCooldowns() {
+  loadCommentVotes() {
     try {
-      return JSON.parse(localStorage.getItem(APP_CONFIG.COMMENT_COOLDOWNS_KEY) || "{}");
+      return JSON.parse(localStorage.getItem(APP_CONFIG.COMMENT_VOTES_KEY) || "{}");
     } catch {
       return {};
     }
   },
 
-  saveCommentCooldowns(data) {
-    localStorage.setItem(APP_CONFIG.COMMENT_COOLDOWNS_KEY, JSON.stringify(data));
+  saveCommentVotes(data) {
+    localStorage.setItem(APP_CONFIG.COMMENT_VOTES_KEY, JSON.stringify(data));
   },
 
-  getCommentCooldownLeft(clientId) {
-    const data = this.loadCommentCooldowns();
-    const lastTime = Number(data[clientId] || 0);
+  getCommentVote(pointId, clientId) {
+    const data = this.loadCommentVotes();
+    return data?.[pointId]?.[clientId] || null;
+  },
+
+  setCommentVote(pointId, clientId, status) {
+    const data = this.loadCommentVotes();
+    if (!data[pointId]) data[pointId] = {};
+    data[pointId][clientId] = status;
+    this.saveCommentVotes(data);
+  },
+
+  loadCommentRateLimit() {
+    try {
+      return JSON.parse(localStorage.getItem(APP_CONFIG.COMMENT_RATE_LIMIT_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  },
+
+  saveCommentRateLimit(data) {
+    localStorage.setItem(APP_CONFIG.COMMENT_RATE_LIMIT_KEY, JSON.stringify(data));
+  },
+
+  getCommentCooldownLeft(pointId) {
+    const data = this.loadCommentRateLimit();
+    const lastTime = data?.[pointId] || 0;
     const left = APP_CONFIG.COMMENT_COOLDOWN_MS - (Date.now() - lastTime);
     return Math.max(0, left);
   },
 
-  canAddComment(clientId) {
-    return this.getCommentCooldownLeft(clientId) <= 0;
+  setCommentCooldown(pointId) {
+    const data = this.loadCommentRateLimit();
+    data[pointId] = Date.now();
+    this.saveCommentRateLimit(data);
   },
 
-  touchCommentCooldown(clientId) {
-    const data = this.loadCommentCooldowns();
-    data[clientId] = Date.now();
-    this.saveCommentCooldowns(data);
-  },
-
-  loadMarkerCreateCooldowns() {
+  loadMarkerRateLimit() {
     try {
-      return JSON.parse(localStorage.getItem(APP_CONFIG.MARKER_CREATE_COOLDOWNS_KEY) || "{}");
+      return JSON.parse(localStorage.getItem(APP_CONFIG.MARKER_RATE_LIMIT_KEY) || "{}");
     } catch {
       return {};
     }
   },
 
-  saveMarkerCreateCooldowns(data) {
-    localStorage.setItem(APP_CONFIG.MARKER_CREATE_COOLDOWNS_KEY, JSON.stringify(data));
+  saveMarkerRateLimit(data) {
+    localStorage.setItem(APP_CONFIG.MARKER_RATE_LIMIT_KEY, JSON.stringify(data));
   },
 
-  getMarkerCreateCooldownLeft(clientId) {
-    const data = this.loadMarkerCreateCooldowns();
-    const lastTime = Number(data[clientId] || 0);
-    const left = APP_CONFIG.MARKER_CREATE_COOLDOWN_MS - (Date.now() - lastTime);
+  getMarkerCooldownLeft(clientId) {
+    const data = this.loadMarkerRateLimit();
+    const lastTime = data?.[clientId] || 0;
+    const left = APP_CONFIG.MARKER_COOLDOWN_MS - (Date.now() - lastTime);
     return Math.max(0, left);
   },
 
-  canCreateMarker(clientId) {
-    return this.getMarkerCreateCooldownLeft(clientId) <= 0;
-  },
-
-  touchMarkerCreateCooldown(clientId) {
-    const data = this.loadMarkerCreateCooldowns();
+  setMarkerCooldown(clientId) {
+    const data = this.loadMarkerRateLimit();
     data[clientId] = Date.now();
-    this.saveMarkerCreateCooldowns(data);
-  },
-
-  loadCommentMarkerVotes() {
-    try {
-      return JSON.parse(localStorage.getItem(APP_CONFIG.COMMENT_MARKER_VOTES_KEY) || "{}");
-    } catch {
-      return {};
-    }
-  },
-
-  saveCommentMarkerVotes(data) {
-    localStorage.setItem(APP_CONFIG.COMMENT_MARKER_VOTES_KEY, JSON.stringify(data));
-  },
-
-  getCommentVote(markerId, clientId) {
-    const data = this.loadCommentMarkerVotes();
-    return data?.[markerId]?.[clientId] || null;
-  },
-
-  hasCommentVote(markerId, clientId) {
-    return !!this.getCommentVote(markerId, clientId);
-  },
-
-  setCommentVote(markerId, clientId, status) {
-    const data = this.loadCommentMarkerVotes();
-    if (!data[markerId]) data[markerId] = {};
-    data[markerId][clientId] = status;
-    this.saveCommentMarkerVotes(data);
+    this.saveMarkerRateLimit(data);
   }
 };
 
@@ -4263,6 +4251,39 @@ const SettingsWindow = {
     };
 
     /* =========================================================
+   BLOCK: ACTION_NOTICE_WINDOW
+   Універсальне popup-попередження
+   ========================================================= */
+const ActionNoticeWindow = {
+  show(message) {
+    const old = document.getElementById("actionNoticeBackdrop");
+    if (old) old.remove();
+
+    const backdrop = document.createElement("div");
+    backdrop.id = "actionNoticeBackdrop";
+    backdrop.className = "success-modal-backdrop";
+    backdrop.style.display = "flex";
+
+    backdrop.innerHTML = `
+      <div class="success-modal">
+        <div class="success-modal-text">${HtmlUtils.escapeHtml(message)}</div>
+        <button class="success-modal-btn" id="actionNoticeCloseBtn">Закрити</button>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+
+    const close = () => backdrop.remove();
+
+    backdrop.addEventListener("click", e => {
+      if (e.target === backdrop) close();
+    });
+
+    backdrop.querySelector("#actionNoticeCloseBtn")?.addEventListener("click", close);
+  }
+};
+
+    /* =========================================================
        BLOCK: MOBILE_MARKER_POPUP_ENGINE
        Мобільний popup мітки
        ========================================================= */
@@ -4881,37 +4902,25 @@ const PopupCommentFeature = {
     commentsBox.scrollTop = 0;
   },
 
-  normalizeCommentStatus(status) {
-    return status === "not_actual" ? "not_actual" : "actual";
-  },
-
-  formatCooldownText(ms) {
-    const totalSec = Math.ceil(ms / 1000);
-    const min = Math.floor(totalSec / 60);
-    const sec = totalSec % 60;
-    return `${min}:${String(sec).padStart(2, "0")}`;
-  },
-
-  countStatuses(comments) {
+  getStatusCounts(comments = []) {
     let actual = 0;
     let notActual = 0;
 
-    for (const comment of comments || []) {
-      const status = this.normalizeCommentStatus(comment.status);
-      if (status === "not_actual") notActual += 1;
-      else actual += 1;
+    for (const c of comments) {
+      if (c.status === "not_actual") notActual += 1;
+      else if (c.status === "actual") actual += 1;
     }
 
     return { actual, notActual };
   },
 
-  getNextType(currentType, counts) {
-    const negativeTypes = ["block", "danger2", "trash", "poop"];
-    const mustFlip = counts.notActual >= 3 && counts.notActual > counts.actual;
+  resolveNextType(currentType, comments = []) {
+    const { actual, notActual } = this.getStatusCounts(comments);
 
-    if (!mustFlip) return currentType;
+    const shouldFlip = notActual >= 3 && notActual > actual;
+    if (!shouldFlip) return currentType;
 
-    if (negativeTypes.includes(currentType)) {
+    if (["trash", "danger2", "block", "poop"].includes(currentType)) {
       return "safe";
     }
 
@@ -4923,34 +4932,37 @@ const PopupCommentFeature = {
   },
 
   async add(pointId, status) {
-    const normalizedStatus = this.normalizeCommentStatus(status);
     const input = document.getElementById(`commentInput_${pointId}`);
     if (!input) return;
 
     const text = input.value.trim();
-    const item = this.getPointById(pointId);
-    if (!item?.id) return;
+    const clientId = APP_STATE.clientId;
 
-    if (text.length < 3) {
-      alert("Напиши хоча б 3 символи");
+    if (text.length < APP_CONFIG.COMMENT_MIN_LENGTH) {
+      ActionNoticeWindow.show(`Коментар має містити мінімум ${APP_CONFIG.COMMENT_MIN_LENGTH} символів`);
       return;
     }
 
     if (text.length > 100) {
-      alert(APP_LABELS.errors.max100);
+      ActionNoticeWindow.show("Максимум 100 символів");
       return;
     }
 
-    const cooldownLeft = LocalStorageEngine.getCommentCooldownLeft(APP_STATE.clientId);
+    const existingVote = LocalStorageEngine.getCommentVote(pointId, clientId);
+    if (existingVote) {
+      ActionNoticeWindow.show("Ти можеш залишити лише 1 коментар до цієї мітки раз на 10 хвилин");
+      return;
+    }
+
+    const cooldownLeft = LocalStorageEngine.getCommentCooldownLeft(pointId);
     if (cooldownLeft > 0) {
-      alert(`Ти можеш залишати лише 1 коментар раз на 15 секунд. Зачекай ще ${this.formatCooldownText(cooldownLeft)}.`);
+      const minutes = Math.ceil(cooldownLeft / 60000);
+      ActionNoticeWindow.show(`Ти можеш залишити лише 1 коментар до цієї мітки раз на 10 хвилин. Спробуй через ${minutes} хв`);
       return;
     }
 
-    if (LocalStorageEngine.hasCommentVote(item.id, APP_STATE.clientId)) {
-      alert("Ти вже голосував по цій мітці.");
-      return;
-    }
+    const item = this.getPointById(pointId);
+    if (!item?.id) return;
 
     APP_STATE.suspendRenderWhileTyping = true;
     APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
@@ -4960,27 +4972,154 @@ const PopupCommentFeature = {
       {
         text,
         time: Date.now(),
-        status: normalizedStatus,
-        clientId: APP_STATE.clientId
+        status,
+        clientId
       }
     ];
 
-    const counts = this.countStatuses(nextComments);
-    const nextType = this.getNextType(item.type, counts);
-
-    const payload = {
-      comments: nextComments
-    };
-
-    if (nextType !== item.type) {
-      payload.type = nextType;
-    }
+    const nextType = this.resolveNextType(item.type, nextComments);
 
     const ref = doc(db, "points", item.id);
-    await updateDoc(ref, payload);
+    await updateDoc(ref, {
+      comments: nextComments,
+      type: nextType
+    });
 
-    LocalStorageEngine.setCommentVote(item.id, APP_STATE.clientId, normalizedStatus);
-    LocalStorageEngine.touchCommentCooldown(APP_STATE.clientId);
+    LocalStorageEngine.setCommentVote(pointId, clientId, status);
+    LocalStorageEngine.setCommentCooldown(pointId);
+
+    input.value = "";
+    this.attachCounter(pointId);
+
+    setTimeout(() => {
+      APP_STATE.suspendRenderWhileTyping = false;
+      MarkerRenderEngine.queueRender(true);
+    }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
+  }
+};/* =========================================================
+   BLOCK: POPUP_COMMENT_FEATURE
+   Коментарі
+   ========================================================= */
+const PopupCommentFeature = {
+  getPointById(pointId) {
+    return APP_STATE.points.find(p => p.id === pointId);
+  },
+
+  attachCounter(pointId) {
+    const input = document.getElementById(`commentInput_${pointId}`);
+    const counter = document.getElementById(`commentCounter_${pointId}`);
+    if (!input || !counter) return;
+
+    const updateCounter = () => {
+      counter.textContent = `${input.value.length} / 100`;
+    };
+
+    input.oninput = updateCounter;
+
+    input.onfocus = () => {
+      APP_STATE.suspendRenderWhileTyping = true;
+    };
+
+    input.onblur = () => {
+      setTimeout(() => {
+        APP_STATE.suspendRenderWhileTyping = false;
+      }, 150);
+    };
+
+    updateCounter();
+  },
+
+  scrollCommentsToTop(pointId) {
+    const commentsBox = document.getElementById(`popupComments_${pointId}`);
+    if (!commentsBox) return;
+    commentsBox.scrollTop = 0;
+  },
+
+  getStatusCounts(comments = []) {
+    let actual = 0;
+    let notActual = 0;
+
+    for (const c of comments) {
+      if (c.status === "not_actual") notActual += 1;
+      else if (c.status === "actual") actual += 1;
+    }
+
+    return { actual, notActual };
+  },
+
+  resolveNextType(currentType, comments = []) {
+    const { actual, notActual } = this.getStatusCounts(comments);
+
+    const shouldFlip = notActual >= 3 && notActual > actual;
+    if (!shouldFlip) return currentType;
+
+    if (["trash", "danger2", "block", "poop"].includes(currentType)) {
+      return "safe";
+    }
+
+    if (currentType === "safe") {
+      return "poop";
+    }
+
+    return currentType;
+  },
+
+  async add(pointId, status) {
+    const input = document.getElementById(`commentInput_${pointId}`);
+    if (!input) return;
+
+    const text = input.value.trim();
+    const clientId = APP_STATE.clientId;
+
+    if (text.length < APP_CONFIG.COMMENT_MIN_LENGTH) {
+      ActionNoticeWindow.show(`Коментар має містити мінімум ${APP_CONFIG.COMMENT_MIN_LENGTH} символів`);
+      return;
+    }
+
+    if (text.length > 100) {
+      ActionNoticeWindow.show("Максимум 100 символів");
+      return;
+    }
+
+    const existingVote = LocalStorageEngine.getCommentVote(pointId, clientId);
+    if (existingVote) {
+      ActionNoticeWindow.show("Ти можеш залишити лише 1 коментар до цієї мітки раз на 10 хвилин");
+      return;
+    }
+
+    const cooldownLeft = LocalStorageEngine.getCommentCooldownLeft(pointId);
+    if (cooldownLeft > 0) {
+      const minutes = Math.ceil(cooldownLeft / 60000);
+      ActionNoticeWindow.show(`Ти можеш залишити лише 1 коментар до цієї мітки раз на 10 хвилин. Спробуй через ${minutes} хв`);
+      return;
+    }
+
+    const item = this.getPointById(pointId);
+    if (!item?.id) return;
+
+    APP_STATE.suspendRenderWhileTyping = true;
+    APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+
+    const nextComments = [
+      ...(item.comments || []),
+      {
+        text,
+        time: Date.now(),
+        status,
+        clientId
+      }
+    ];
+
+    const nextType = this.resolveNextType(item.type, nextComments);
+
+    const ref = doc(db, "points", item.id);
+    await updateDoc(ref, {
+      comments: nextComments,
+      type: nextType
+    });
+
+    LocalStorageEngine.setCommentVote(pointId, clientId, status);
+    LocalStorageEngine.setCommentCooldown(pointId);
 
     input.value = "";
     this.attachCounter(pointId);
@@ -5466,34 +5605,28 @@ const CreateMarkerFlow = {
     DescWindow.show();
   },
 
-  formatCooldownText(ms) {
-    const totalSec = Math.ceil(ms / 1000);
-    const min = Math.floor(totalSec / 60);
-    const sec = totalSec % 60;
-    return `${min}:${String(sec).padStart(2, "0")}`;
-  },
-
   async saveMarker() {
     const desc = DOM.descInput.value.trim();
 
     if (!APP_STATE.selectedLatLng) {
-      alert(APP_LABELS.errors.mapTouchRequired);
+      ActionNoticeWindow.show(APP_LABELS.errors.mapTouchRequired);
       return;
     }
 
     if (!desc) {
-      alert(APP_LABELS.errors.descRequired);
+      ActionNoticeWindow.show(APP_LABELS.errors.descRequired);
       return;
     }
 
     if (desc.length > 100) {
-      alert(APP_LABELS.errors.max100);
+      ActionNoticeWindow.show(APP_LABELS.errors.max100);
       return;
     }
 
-    if (!LocalStorageEngine.canCreateMarker(APP_STATE.clientId)) {
-      const left = LocalStorageEngine.getMarkerCreateCooldownLeft(APP_STATE.clientId);
-      alert(`Наступну мітку можна створити через ${this.formatCooldownText(left)}`);
+    const markerCooldownLeft = LocalStorageEngine.getMarkerCooldownLeft(APP_STATE.clientId);
+    if (markerCooldownLeft > 0) {
+      const minutes = Math.ceil(markerCooldownLeft / 60000);
+      ActionNoticeWindow.show(`Ти можеш ставити 1 мітку раз на 10 хвилин. Спробуй через ${minutes} хв`);
       return;
     }
 
@@ -5517,7 +5650,7 @@ const CreateMarkerFlow = {
         city: APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY
       });
 
-      LocalStorageEngine.touchMarkerCreateCooldown(APP_STATE.clientId);
+      LocalStorageEngine.setMarkerCooldown(APP_STATE.clientId);
 
       DescWindow.hide();
 
