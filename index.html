@@ -2186,7 +2186,7 @@ const APP_CONFIG = {
   QUESTION_MIN_COUNT: 4,
   DANGER_MIN_COUNT: 3,
 
-  COMMENT_COOLDOWN_MS: 15 * 60 * 1000,
+  COMMENT_COOLDOWN_MS: 15 * 1000, // тестово 15 секунд
   MARKER_CREATE_COOLDOWN_MS: 10 * 60 * 1000,
 
   DEFAULT_CITY_KEY: "kyiv",
@@ -4633,21 +4633,60 @@ const PopupRenderer = {
     const commentsHtml = commentsSorted
       .map(c => {
         const status = c.status === "not_actual" ? "not_actual" : "actual";
-        const dotColor = status === "not_actual" ? "#ff453a" : "#34c759";
+        const stripeColor = status === "not_actual" ? "#ff453a" : "#34c759";
         const statusLabel = status === "not_actual" ? "Брехня" : "Правда";
 
         return `
-          <div class="comment-item">
-            <div class="comment-text" style="display:flex;align-items:flex-start;gap:8px;">
-              <span style="width:10px;height:10px;border-radius:50%;background:${dotColor};flex:0 0 10px;margin-top:4px;"></span>
-              <span style="flex:1 1 auto;">
-                ${HtmlUtils.escapeHtml(c.text)}
-                <span style="display:block;margin-top:4px;font-size:11px;color:${dotColor};font-weight:700;">
-                  ${statusLabel}
-                </span>
-              </span>
+          <div class="comment-item" style="
+            position:relative;
+            padding:8px 10px 8px 12px;
+            margin-bottom:6px;
+            border-radius:12px;
+            background:rgba(255,255,255,0.06);
+            overflow:hidden;
+          ">
+            <span style="
+              position:absolute;
+              left:0;
+              top:0;
+              bottom:0;
+              width:3px;
+              background:${stripeColor};
+            "></span>
+
+            <div class="comment-text" style="
+              font-size:13px;
+              line-height:1.28;
+              color:#fff;
+              white-space:pre-wrap;
+              word-break:break-word;
+              margin-bottom:4px;
+            ">
+              ${HtmlUtils.escapeHtml(c.text)}
             </div>
-            <div class="comment-time">${TimeUtils.formatTime(c.time)}</div>
+
+            <div style="
+              display:flex;
+              align-items:center;
+              justify-content:space-between;
+              gap:8px;
+            ">
+              <span style="
+                font-size:11px;
+                font-weight:700;
+                color:${stripeColor};
+              ">
+                ${statusLabel}
+              </span>
+
+              <div class="comment-time" style="
+                margin-top:0;
+                font-size:11px;
+                color:rgba(255,255,255,0.52);
+              ">
+                ${TimeUtils.formatTime(c.time)}
+              </div>
+            </div>
           </div>
         `;
       })
@@ -4678,7 +4717,7 @@ const PopupRenderer = {
         <div class="popup-comments" id="popupComments_${point.id}">
           ${
             commentsHtml ||
-            `<div class="comment-item"><div class="comment-text">${APP_LABELS.popup.noComments}</div></div>`
+            `<div class="comment-item" style="padding:8px 10px;border-radius:12px;background:rgba(255,255,255,0.06);font-size:13px;">${APP_LABELS.popup.noComments}</div>`
           }
         </div>
 
@@ -4693,7 +4732,7 @@ const PopupRenderer = {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <button
             class="popup-btn ${actionLocked ? "disabled" : ""}"
-            style="background:linear-gradient(180deg,#3ecf6d,#28a745);box-shadow:0 10px 22px rgba(52,199,89,0.28);"
+            style="background:linear-gradient(180deg,#3ecf6d,#28a745);box-shadow:0 10px 22px rgba(52,199,89,0.28);padding:12px 12px;"
             onclick="window.addComment('${point.id}', 'actual')"
             ${actionLocked ? "disabled" : ""}
           >
@@ -4702,7 +4741,7 @@ const PopupRenderer = {
 
           <button
             class="popup-btn ${actionLocked ? "disabled" : ""}"
-            style="background:linear-gradient(180deg,#ff6b5f,#ff3b30);box-shadow:0 10px 22px rgba(255,69,58,0.28);"
+            style="background:linear-gradient(180deg,#ff6b5f,#ff3b30);box-shadow:0 10px 22px rgba(255,69,58,0.28);padding:12px 12px;"
             onclick="window.addComment('${point.id}', 'not_actual')"
             ${actionLocked ? "disabled" : ""}
           >
@@ -4713,7 +4752,7 @@ const PopupRenderer = {
         ${
           actionLocked
             ? `<div style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.6);text-align:center;">
-                 Ти вже залишив реакцію для цієї мітки
+                 Ти вже голосував по цій мітці
                </div>`
             : ``
         }
@@ -4804,7 +4843,7 @@ const PopupRenderer = {
       }
     };
 
- /* =========================================================
+/* =========================================================
    BLOCK: POPUP_COMMENT_FEATURE
    Коментарі
    ========================================================= */
@@ -4903,14 +4942,14 @@ const PopupCommentFeature = {
       return;
     }
 
-    if (!LocalStorageEngine.canAddComment(APP_STATE.clientId)) {
-      const left = LocalStorageEngine.getCommentCooldownLeft(APP_STATE.clientId);
-      alert(`Наступний коментар можна залишити через ${this.formatCooldownText(left)}`);
+    const cooldownLeft = LocalStorageEngine.getCommentCooldownLeft(APP_STATE.clientId);
+    if (cooldownLeft > 0) {
+      alert(`Ти можеш залишати лише 1 коментар раз на 15 секунд. Зачекай ще ${this.formatCooldownText(cooldownLeft)}.`);
       return;
     }
 
     if (LocalStorageEngine.hasCommentVote(item.id, APP_STATE.clientId)) {
-      alert("Ти вже залишив реакцію для цієї мітки");
+      alert("Ти вже голосував по цій мітці.");
       return;
     }
 
