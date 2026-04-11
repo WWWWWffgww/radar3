@@ -822,113 +822,217 @@
   }
 }
     
-        /* =========================================================
-       BLOCK: CSS_ZONE_SHEET_LAYOUT_REFINED
-       Компактне вікно зон
-       ========================================================= */
-    #zoneSheet {
-      display: none;
-      flex-direction: column;
-      max-height: min(82dvh, 760px);
-      overflow: hidden;
-    }
-
-    #zoneSheet.show-flex {
-      display: flex !important;
-    }
-
-    .zone-top-group {
-      margin-bottom: 10px;
-    }
-
-.zone-secondary-btn {
-  width: 100%;
-  margin-top: 10px;
-  border: none;
-  border-radius: 14px;
-  padding: 12px 14px;
-  background: rgba(10, 132, 255, 0.85);
-  color: #fff;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  box-shadow: 0 10px 22px rgba(10, 132, 255, 0.22);
+/* =========================================================
+   BLOCK: CSS_ZONE_SHEET_LAYOUT_REFINED
+   Компактне вікно зон
+   ========================================================= */
+#zoneSheet {
+  display: none;
+  flex-direction: column;
+  max-height: min(78dvh, 700px);
+  overflow: hidden;
 }
 
-    .zone-secondary-btn:active {
-      transform: scale(0.99);
-    }
+#zoneSheet.show-flex {
+  display: flex !important;
+}
 
-    .zone-compact-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
-    }
+#zoneHead {
+  margin-bottom: 8px !important;
+}
 
-    .zone-compact-grid .template-item {
-      padding: 9px 8px;
-      border-radius: 13px;
-    }
+#zoneTitle {
+  font-size: 15px;
+}
 
-    .zone-compact-grid .template-name {
-      font-size: 13px;
-      margin-bottom: 3px;
-    }
+#zoneSheetBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+  -webkit-overflow-scrolling: touch;
+}
 
-    .zone-compact-grid .template-radius {
-      font-size: 11px;
-    }
+#zoneSheetBody::-webkit-scrollbar {
+  width: 6px;
+}
 
-    .zone-helper-text {
-      font-size: 12px;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 12px;
-      text-align: center;
-    }
+#zoneSheetBody::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+}
 
-    .zone-list-inside-sheet {
-      flex: 1 1 auto;
-      min-height: 120px;
-      max-height: none;
-      overflow-y: auto;
-      margin-top: 0;
-      margin-bottom: 12px;
-      padding-right: 2px;
-    }
+#zoneSheet .settings-group {
+  margin-bottom: 10px;
+}
 
-    .zone-list-inside-sheet::-webkit-scrollbar {
-      width: 6px;
-    }
+#zoneSheet .settings-label {
+  margin-bottom: 5px;
+  font-size: 11px;
+}
 
-    .zone-list-inside-sheet::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.14);
-      border-radius: 10px;
-    }
+#zoneSheet .city-select-wrap {
+  margin-bottom: 0;
+}
 
-    .zone-bottom-save {
-      width: 100%;
-      flex: 0 0 auto;
-      margin-top: auto;
-    }
+#zoneSheet #presetZoneSelect,
+#zoneSheet #zoneNameInput,
+#zoneSheet #zoneRadiusInput {
+  padding: 10px 12px;
+  border-radius: 14px;
+}
 
-    @media (max-width: 600px) {
-      #zoneSheet {
-        height: 82dvh !important;
-        max-height: 82dvh !important;
-      }
+#zoneSheet #zoneNameInput {
+  margin-bottom: 8px;
+}
 
-      .zone-compact-grid .template-item {
-        padding: 8px 6px;
-      }
+#zoneSheet #zoneRadiusInput {
+  margin-bottom: 8px;
+}
 
-      .zone-compact-grid .template-name {
-        font-size: 12px;
-      }
+.zone-primary-btn {
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-size: 15px;
+  min-height: 48px;
+}
 
-      .zone-compact-grid .template-radius {
-        font-size: 10px;
-      }
-    }
+.templates-grid.compact-templates,
+#templatesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+#templatesGrid .template-item {
+  padding: 8px 7px;
+  border-radius: 12px;
+}
+
+#templatesGrid .template-name {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+#templatesGrid .template-radius {
+  font-size: 10px;
+}
+
+.zone-divider {
+  margin: 10px 0 8px;
+  gap: 8px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.zone-divider::before,
+.zone-divider::after {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+#zoneSheetFooter {
+  margin-top: 8px;
+  margin-bottom: 10px;
+  padding-top: 8px;
+  padding-bottom: 0;
+  border-top: none;
+}
+
+#zonesListInZoneSheet,
+.zones-list {
+  margin-top: 4px;
+  max-height: none;
+  overflow: visible;
+}
+
+#zonesListInZoneSheet .zone-item {
+  padding: 8px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+}
+
+#zonesListInZoneSheet .zone-item-header {
+  margin-bottom: 4px;
+}
+
+#zonesListInZoneSheet .zone-name {
+  font-size: 13px;
+  gap: 5px;
+}
+
+#zonesListInZoneSheet .zone-name span:first-child {
+  font-size: 14px;
+}
+
+#zonesListInZoneSheet .zone-details {
+  font-size: 11px;
+}
+
+#zonesListInZoneSheet .zone-action-btn {
+  padding: 4px 7px;
+  font-size: 11px;
+  border-radius: 7px;
+}
+
+#zonesListInZoneSheet .zone-toggle {
+  width: 36px;
+  height: 22px;
+}
+
+#zonesListInZoneSheet .zone-toggle::after {
+  width: 18px;
+  height: 18px;
+}
+
+#zonesListInZoneSheet .zone-toggle.active::after {
+  left: 16px;
+}
+
+@media (max-width: 600px) {
+  #zoneSheet {
+    height: 76dvh !important;
+    max-height: 76dvh !important;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) 10px !important;
+  }
+
+  #zoneHead {
+    margin-bottom: 6px !important;
+  }
+
+  #zoneTitle {
+    font-size: 14px;
+  }
+
+  .zone-primary-btn {
+    min-height: 46px;
+    font-size: 15px;
+    border-radius: 15px;
+    padding: 11px 13px;
+  }
+
+  #zoneSheet .settings-group {
+    margin-bottom: 8px;
+  }
+
+  .zone-divider {
+    margin: 8px 0 7px;
+    font-size: 10px;
+  }
+
+  #templatesGrid .template-item {
+    padding: 7px 6px;
+  }
+
+  #templatesGrid .template-name {
+    font-size: 11px;
+  }
+
+  #templatesGrid .template-radius {
+    font-size: 9px;
+  }
+}
 
     /* =========================================================
        BLOCK: CSS_ZONES_LIST
