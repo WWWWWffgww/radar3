@@ -344,7 +344,7 @@
     #saveSettingsBtn { flex: 0 0 auto; margin-top: 10px; }
 
     /* =========================================================
-       BLOCK: SAVE MAP VIEW BUTTON (small floppy)
+       BLOCK: SAVE MAP VIEW BUTTON (компактна кнопка)
        ========================================================= */
     .save-map-row {
       display: flex;
@@ -353,16 +353,15 @@
       background: rgba(255,255,255,0.06);
       border-radius: 12px;
       padding: 8px 12px;
-      margin-bottom: 12px;
-      cursor: pointer;
+      margin-bottom: 8px;
     }
     .save-map-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .save-map-icon {
-      font-size: 22px;
+      font-size: 20px;
       line-height: 1;
     }
     .save-map-label {
@@ -373,7 +372,6 @@
       font-size: 10px;
       color: rgba(255,255,255,0.45);
       margin-left: 34px;
-      margin-top: -4px;
       margin-bottom: 6px;
     }
     .floppy-btn {
@@ -600,15 +598,16 @@
     <div id="settingsBody">
       <div class="settings-group"><div class="settings-label">🏙️ Місто</div><div class="city-select-wrap"><select id="citySelect"></select></div></div>
 
-      <!-- Нова компактна кнопка з дискетою -->
+      <!-- Компактна кнопка "Запам'ятати карту" -->
       <div class="settings-group">
         <div class="save-map-row" id="saveMapViewRow">
           <div class="save-map-left">
-            <span class="save-map-label">Запам’ятати карту</span>
+            <span class="save-map-icon">💾</span>
+            <span class="save-map-label">Запам'ятати карту</span>
           </div>
-          <button id="saveMapViewBtn" class="floppy-btn" title="Зберегти поточний центр і масштаб">💾</button>
+          <button id="saveMapViewBtn" class="floppy-btn" title="Запам'ятати поточний центр і масштаб">💾</button>
         </div>
-        <div class="save-map-hint">Збережи центр і масштаб як стартові</div>
+        <div class="save-map-hint">Запам'ятати поточний центр і масштаб</div>
       </div>
 
       <div class="settings-group"><div class="settings-label">🌓 Тема мапи</div><div class="filter-item" id="themeToggleRow"><div class="filter-item-left"><span id="themeIcon">☀️</span><span id="themeLabel">Денна тема</span></div><div class="filter-toggle" id="themeToggle"></div></div></div>
@@ -710,7 +709,7 @@
     const GROUP_CIRCLE_LAYER = L.layerGroup().addTo(MAP_INSTANCE);
     const MapThemeEngine = { apply(theme){ if(APP_STATE.currentTileLayer) MAP_INSTANCE.removeLayer(APP_STATE.currentTileLayer); APP_STATE.currentTileLayer = new CachedTileLayer(MAP_THEME_CONFIG[theme].url,{ attribution:MAP_THEME_CONFIG[theme].attribution }).addTo(MAP_INSTANCE); } };
     const MapCityEngine = { flyToCity(key,animate=true){ let c=CITY_CONFIG[key]||CITY_CONFIG.kyiv; let bounds=GeoUtils.kmToBounds(c.lat,c.lng,c.radiusKm||12); MAP_INSTANCE.fitBounds(bounds,{ animate, duration:animate?0.55:0 }); } };
-    const MapViewStorage = { saveCurrentView(){ let center=MAP_INSTANCE.getCenter(), zoom=MAP_INSTANCE.getZoom(); APP_STATE.settings.savedMapView={ lat:center.lat, lng:center.lng, zoom }; LocalStorageEngine.saveSettings(APP_STATE.settings); let notif=document.createElement("div"); notif.className="global-notification"; notif.innerHTML=`<div class="global-notification-head"><div class="global-notification-left"><div class="global-notification-meta"><div class="global-notification-title">🗺️ Вигляд збережено</div><div class="global-notification-text">При заході карта відкриється тут</div></div></div></div>`; DOM.globalNotificationHost.appendChild(notif); requestAnimationFrame(()=>notif.classList.add("show")); setTimeout(()=>{ notif.classList.remove("show"); setTimeout(()=>notif.remove(),300); },2600); }, restoreSavedView(){ let s=APP_STATE.settings.savedMapView; if(s && typeof s.lat==="number"){ MAP_INSTANCE.setView([s.lat,s.lng],s.zoom,{ animate:false }); return true; } return false; } };
+    const MapViewStorage = { saveCurrentView(){ let center=MAP_INSTANCE.getCenter(), zoom=MAP_INSTANCE.getZoom(); APP_STATE.settings.savedMapView={ lat:center.lat, lng:center.lng, zoom }; LocalStorageEngine.saveSettings(APP_STATE.settings); let notif=document.createElement("div"); notif.className="global-notification"; notif.innerHTML=`<div class="global-notification-head"><div class="global-notification-left"><div class="global-notification-meta"><div class="global-notification-title">🗺️ Карту запам'ятовано</div><div class="global-notification-text">При заході карта відкриється тут</div></div></div></div>`; DOM.globalNotificationHost.appendChild(notif); requestAnimationFrame(()=>notif.classList.add("show")); setTimeout(()=>{ notif.classList.remove("show"); setTimeout(()=>notif.remove(),300); },2600); }, restoreSavedView(){ let s=APP_STATE.settings.savedMapView; if(s && typeof s.lat==="number"){ MAP_INSTANCE.setView([s.lat,s.lng],s.zoom,{ animate:false }); return true; } return false; } };
 
     // ---------- STATE ----------
     const APP_STATE = {
