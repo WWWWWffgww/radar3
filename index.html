@@ -5980,15 +5980,20 @@ const ZoneEditWindowEvents = {
           }, 250);
         });
 
-              MAP_INSTANCE.whenReady(() => {
-          APP_STATE.mapReady = true;
-          MapCityEngine.flyToCity(APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY, false);
-          ZoneCircleEngine.init();
-          AppUIHelpers.safeInvalidateMap(true);
-          MarkerRenderEngine.queueRender(true);
-        });
-      }
-    };
+MAP_INSTANCE.whenReady(() => {
+  APP_STATE.mapReady = true;
+
+  if (!APP_STATE.settings.startupMapView) {
+    MapCityEngine.flyToCity(
+      APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY,
+      false
+    );
+  }
+
+  ZoneCircleEngine.init();
+  AppUIHelpers.safeInvalidateMap(true);
+  MarkerRenderEngine.queueRender(true);
+});
 
 /* =========================================================
    BLOCK: WINDOW_GLOBAL_ACTIONS
