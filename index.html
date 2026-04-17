@@ -2020,7 +2020,6 @@
       <div id="zoneSheetFooter">
         <button id="saveZoneBtn" class="zone-primary-btn">Зберегти та вибрати центр</button>
       </div>
-
       <div class="zone-divider">МОЇ ЗОНИ</div>
 
       <div id="zonesListInZoneSheet" class="zones-list">
@@ -2163,6 +2162,17 @@
             </div>
             <div class="filter-toggle" id="filterPoop"></div>
           </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-label">🗺️ Стартова карта</div>
+        <button id="saveMapViewBtn" class="zone-primary-btn" type="button" style="display:flex;align-items:center;justify-content:center;gap:10px;">
+          <span style="font-size:18px;line-height:1;display:inline-flex;align-items:center;">💾</span>
+          <span>Зберегти позицію</span>
+        </button>
+        <div id="savedMapViewInfo" style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.58);line-height:1.35;">
+          Стартова позиція не збережена
         </div>
       </div>
     </div>
@@ -2894,6 +2904,8 @@ const DOM = {
   settingsBody: document.getElementById("settingsBody"),
   settingsClose: document.getElementById("settingsClose"),
   saveSettingsBtn: document.getElementById("saveSettingsBtn"),
+  saveMapViewBtn: document.getElementById("saveMapViewBtn"),
+  savedMapViewInfo: document.getElementById("savedMapViewInfo"),
   citySelect: document.getElementById("citySelect"),
   timeSlider: document.getElementById("timeSlider"),
   timeValue: document.getElementById("timeValue"),
@@ -3376,6 +3388,7 @@ const LocalStorageEngine = {
       timeFilterMinutes: 1440,
       selectedCity: APP_CONFIG.DEFAULT_CITY_KEY,
       notificationsEnabled: true,
+      startupMapView: null,
       filters: {
         safe: true,
         block: true,
@@ -4030,7 +4043,7 @@ const ZoneWindow = {
 };
 /* =========================================================
    BLOCK: WINDOW_ZONE_EDIT_SHEET
-   Вікно редагування зони
+       Вікно редагування зони
    ========================================================= */
 const ZoneEditWindow = {
   show(zoneId) {
@@ -4201,6 +4214,80 @@ const ZoneManagerUI = {
    BLOCK: WINDOW_SETTINGS_SHEET
    Вікно налаштувань
    ========================================================= */
+const StartupMapViewEngine = {
+  getCurrentView() {
+    const center = MAP_INSTANCE.getCenter();
+
+    return {
+      lat: Number(center.lat.toFixed(6)),
+      lng: Number(center.lng.toFixed(6)),
+      zoom: MAP_INSTANCE.getZoom()
+    };
+  },
+
+  saveCurrentView() {
+    if (!APP_STATE.settings) return;
+
+    APP_STATE.settings.startupMapView = this.getCurrentView();
+    LocalStorageEngine.saveSettings(APP_STATE.settings);
+    this.updateInfoText();
+
+    const notification = document.createElement("div");
+    notification.className = "global-notification";
+    notification.innerHTML = `
+      <div class="global-notification-head">
+        <div class="global-notification-left">
+          <div class="global-notification-meta">
+            <div class="global-notification-title">💾 Стартову позицію збережено</div>
+            <div class="global-notification-text">Карта відкриватиметься з цього місця</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    DOM.globalNotificationHost.appendChild(notification);
+    requestAnimationFrame(() => notification.classList.add("show"));
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => notification.remove(), 300);
+    }, 2600);
+  },
+
+  applySavedView() {
+    const saved = APP_STATE.settings?.startupMapView;
+    if (!saved) return false;
+
+    if (
+      typeof saved.lat !== "number" ||
+      typeof saved.lng !== "number" ||
+      typeof saved.zoom !== "number"
+    ) {
+      return false;
+    }
+
+    MAP_INSTANCE.setView([saved.lat, saved.lng], saved.zoom, { animate: false });
+    return true;
+  },
+
+  updateInfoText() {
+    if (!DOM.savedMapViewInfo) return;
+
+    const saved = APP_STATE.settings?.startupMapView;
+
+    if (!saved) {
+      DOM.savedMapViewInfo.textContent = "Стартова позиція не збережена";
+      return;
+    }
+
+    DOM.savedMapViewInfo.textContent =
+      `Збережено: ${saved.lat.toFixed(4)}, ${saved.lng.toFixed(4)} · zoom ${saved.zoom}`;
+  }
+};
+
+/* =========================================================
+   BLOCK: WINDOW_SETTINGS_SHEET
+   Вікно налаштувань
+   ========================================================= */
 const SettingsWindow = {
   show() {
     document.body.classList.add("settings-open");
@@ -4208,6 +4295,7 @@ const SettingsWindow = {
     DOM.citySelect.value =
       APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
 
+    StartupMapViewEngine.updateInfoText();
     this.updateLayout();
 
     if (LayoutHelpers.isMobile()) {
@@ -5765,6 +5853,10 @@ const ZoneEditWindowEvents = {
           SettingsUIEngine.updateTimeDisplay(parseInt(e.target.value, 10));
         });
 
+        DOM.saveMapViewBtn.addEventListener("click", () => {
+          StartupMapViewEngine.saveCurrentView();
+        });
+
         DOM.saveSettingsBtn.addEventListener("click", () => {
           APP_STATE.settings.timeFilterMinutes = TimeUtils.clampMinutes(
             parseInt(DOM.timeSlider.value, 10)
@@ -5927,6 +6019,7 @@ function initApp() {
   APP_STATE.clientId = LocalStorageEngine.getClientId();
   APP_STATE.zones = ZoneStorageEngine.loadZones();
 
+  StartupMapViewEngine.applySavedView();
   MapThemeEngine.apply(APP_STATE.settings.mapTheme);
 
   DOM.timeSlider.value = TimeUtils.clampMinutes(APP_STATE.settings.timeFilterMinutes);
