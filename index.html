@@ -4970,7 +4970,11 @@ const PopupPositionEngine = {
       className: "radar-popup-wrap"
     });
 
-    const openDesktopPopup = () => {
+    const openDesktopPopup = e => {
+      if (e?.originalEvent?.cancelable) {
+        e.originalEvent.preventDefault();
+      }
+
       if (APP_STATE.addMode) {
         CreateMarkerFlow.closeCreateMode();
       }
@@ -4978,17 +4982,48 @@ const PopupPositionEngine = {
       APP_STATE.suppressPopupRestoreUntil = Date.now() + 700;
 
       const latlng = marker.getLatLng();
+      const currentCenter = MAP_INSTANCE.getCenter();
+      const needPan =
+        GeoUtils.distanceMeters(
+          currentCenter.lat,
+          currentCenter.lng,
+          latlng.lat,
+          latlng.lng
+        ) > 1;
 
-      const handleMoveEnd = () => {
+      // На десктопі спочатку центруємо мітку, потім відкриваємо popup.
+      MAP_INSTANCE.closePopup();
+
+      const openAfterCenter = () => {
         marker.openPopup();
       };
+
+      if (!needPan) {
+        requestAnimationFrame(openAfterCenter);
+        return;
+      }
+
+      let isResolved = false;
+
+      const finish = () => {
+        if (isResolved) return;
+        isResolved = true;
+        MAP_INSTANCE.off("moveend", handleMoveEnd);
+        openAfterCenter();
+      };
+
+      const handleMoveEnd = () => {
+        finish();
+      };
+
+      MAP_INSTANCE.on("moveend", handleMoveEnd);
 
       MAP_INSTANCE.panTo(latlng, {
         animate: true,
         duration: 0.35
       });
 
-      MAP_INSTANCE.once("moveend", handleMoveEnd);
+      setTimeout(finish, 500);
     };
 
     marker.on("click", openDesktopPopup);
@@ -5008,6 +5043,7 @@ const PopupPositionEngine = {
     });
   }
 };
+
 
     /* =========================================================
    BLOCK: POPUP_RESTORE_MANAGER
