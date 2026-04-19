@@ -4368,78 +4368,54 @@ const ActionNoticeWindow = {
   }
 };
 
-    /* =========================================================
-       BLOCK: MOBILE_MARKER_POPUP_ENGINE
-       Мобільний popup мітки
-       ========================================================= */
-    const MobileMarkerPopupEngine = {
-      isOpen() {
-        return DOM.mobileMarkerPopupBackdrop.classList.contains("show");
-      },
+  /* =========================================================
+   BLOCK: MOBILE_MARKER_POPUP_ENGINE
+   Мобільний popup мітки
+   ========================================================= */
+const MobileMarkerPopupEngine = {
+  open(point) {
+    if (!DOM.mobileMarkerPopupBackdrop || !DOM.mobileMarkerPopupContent) return;
 
-      open(point) {
-        APP_STATE.mobileOpenPointId = point.id;
-        APP_STATE.currentOpenPointId = point.id;
+    DOM.mobileMarkerPopupContent.innerHTML = PopupRenderer.render(point);
+    DOM.mobileMarkerPopupBackdrop.style.display = "flex";
 
-        DOM.mobileMarkerPopupContent.innerHTML = PopupRenderer.render(point);
-        DOM.mobileMarkerPopupBackdrop.classList.add("show");
+    requestAnimationFrame(() => {
+      DOM.mobileMarkerPopupBackdrop.classList.add("show");
+    });
 
-        setTimeout(() => {
-          PopupCommentFeature.attachCounter(point.id);
-          PopupCommentFeature.scrollCommentsToTop(point.id);
-        }, 30);
-      },
+    APP_STATE.currentOpenPointId = point.id;
 
-      close() {
-        DOM.mobileMarkerPopupBackdrop.classList.remove("show");
+    setTimeout(() => {
+      PopupCommentFeature.attachCounter(point.id);
+      PopupCommentFeature.scrollCommentsToTop(point.id);
+    }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
+  },
+
+  close() {
+    if (!DOM.mobileMarkerPopupBackdrop) return;
+
+    DOM.mobileMarkerPopupBackdrop.classList.remove("show");
+
+    setTimeout(() => {
+      DOM.mobileMarkerPopupBackdrop.style.display = "none";
+      if (DOM.mobileMarkerPopupContent) {
         DOM.mobileMarkerPopupContent.innerHTML = "";
-        APP_STATE.mobileOpenPointId = null;
-        APP_STATE.currentOpenPointId = null;
-      },
-
-      refreshIfOpen() {
-        if (!LayoutHelpers.isMobile()) return;
-        if (!APP_STATE.mobileOpenPointId) return;
-
-        const point = APP_STATE.points.find(p => p.id === APP_STATE.mobileOpenPointId);
-        if (!point) {
-          this.close();
-          return;
-        }
-
-        const activeElement = document.activeElement;
-        const wasTyping =
-          activeElement &&
-          (((activeElement.tagName || "").toLowerCase() === "input") ||
-            ((activeElement.tagName || "").toLowerCase() === "textarea"));
-
-        const previousValue = wasTyping ? activeElement.value : "";
-
-        DOM.mobileMarkerPopupContent.innerHTML = PopupRenderer.render(point);
-
-        setTimeout(() => {
-          PopupCommentFeature.attachCounter(point.id);
-          PopupCommentFeature.scrollCommentsToTop(point.id);
-
-          if (wasTyping) {
-            const input = document.getElementById(`commentInput_${point.id}`);
-            if (input) {
-              input.value = previousValue;
-              input.focus();
-              input.dispatchEvent(new Event("input"));
-            }
-          }
-        }, 30);
-      },
-
-      init() {
-        DOM.mobileMarkerPopupBackdrop.addEventListener("click", e => {
-          if (e.target === DOM.mobileMarkerPopupBackdrop) {
-            this.close();
-          }
-        });
       }
-    };
+    }, 260);
+
+    APP_STATE.currentOpenPointId = null;
+  },
+
+  init() {
+    if (!DOM.mobileMarkerPopupBackdrop) return;
+
+    DOM.mobileMarkerPopupBackdrop.addEventListener("click", e => {
+      if (e.target === DOM.mobileMarkerPopupBackdrop) {
+        this.close();
+      }
+    });
+  }
+};
 
 /* =========================================================
    BLOCK: GLOBAL_NOTIFICATION_ENGINE
