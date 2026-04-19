@@ -3956,43 +3956,44 @@ const PickerWindow = {
   }
 };
 
-    /* =========================================================
-       BLOCK: WINDOW_DESC_SHEET
-       Вікно опису мітки
-       ========================================================= */
-    const DescWindow = {
-      show() {
-        DOM.descSheet.style.display = "block";
+   /* =========================================================
+   BLOCK: WINDOW_DESC_SHEET
+   Вікно опису мітки
+   ========================================================= */
+const DescWindow = {
+  show() {
+    DOM.descSheet.style.display = "block";
 
-        if (LayoutHelpers.isMobile()) {
-          requestAnimationFrame(() => {
-            DOM.descSheet.classList.add("show-mobile");
-          });
-        }
-      },
+    if (LayoutHelpers.isMobile()) {
+      requestAnimationFrame(() => {
+        DOM.descSheet.classList.add("show-mobile");
+      });
+    }
+  },
 
-      hide() {
-        if (LayoutHelpers.isMobile()) {
-          DOM.descSheet.classList.remove("show-mobile");
-          setTimeout(() => {
-            DOM.descSheet.style.display = "none";
-          }, 220);
-          return;
-        }
-
+  hide() {
+    if (LayoutHelpers.isMobile()) {
+      DOM.descSheet.classList.remove("show-mobile");
+      setTimeout(() => {
         DOM.descSheet.style.display = "none";
-      },
+      }, 220);
+      return;
+    }
 
-      reset() {
-        DOM.descInput.value = "";
-        DOM.descCounter.textContent = "0 / 100";
-      },
+    DOM.descSheet.style.display = "none";
+  },
 
-      updateByType(type) {
-        DOM.sheetIcon.src = MarkerIconFactory.getIconPath(type);
-        DOM.sheetTitle.textContent = APP_LABELS.markerTypes[type] || type;
-      }
-    };
+  reset() {
+    DOM.descInput.value = "";
+    DOM.descCounter.textContent = "0 / 100";
+  },
+
+  updateByType(type) {
+    DOM.sheetIcon.src = MarkerIconFactory.getIconPath(type);
+    DOM.sheetTitle.textContent = APP_LABELS.markerTypes[type] || type;
+  }
+};
+
 
 /* =========================================================
    BLOCK: WINDOW_ZONE_SHEET
@@ -4459,7 +4460,7 @@ const ActionNoticeWindow = {
   }
 };
 
-  /* =========================================================
+/* =========================================================
    BLOCK: MOBILE_MARKER_POPUP_ENGINE
    Мобільний popup мітки
    ========================================================= */
@@ -4530,6 +4531,7 @@ const MobileMarkerPopupEngine = {
     });
   }
 };
+
 
 /* =========================================================
    BLOCK: GLOBAL_NOTIFICATION_ENGINE
@@ -4927,6 +4929,10 @@ const PopupPositionEngine = {
 
     if (LayoutHelpers.isMobile()) {
       const openMobilePopup = () => {
+        if (APP_STATE.addMode) {
+          CreateMarkerFlow.closeCreateMode();
+        }
+
         APP_STATE.suppressPopupRestoreUntil = Date.now() + 700;
 
         const latlng = marker.getLatLng();
@@ -4965,6 +4971,10 @@ const PopupPositionEngine = {
     });
 
     const openDesktopPopup = () => {
+      if (APP_STATE.addMode) {
+        CreateMarkerFlow.closeCreateMode();
+      }
+
       APP_STATE.suppressPopupRestoreUntil = Date.now() + 700;
 
       const latlng = marker.getLatLng();
@@ -4998,6 +5008,7 @@ const PopupPositionEngine = {
     });
   }
 };
+
     /* =========================================================
    BLOCK: POPUP_RESTORE_MANAGER
    Логіка повторного відкриття popup
@@ -5589,6 +5600,7 @@ const CreateMarkerFlow = {
   setType(type) {
     APP_STATE.currentType = type;
     DescWindow.updateByType(type);
+    PickerWindow.updateActive();
   },
 
   selectMapPoint(latlng) {
@@ -5603,6 +5615,8 @@ const CreateMarkerFlow = {
       keyboard: false
     }).addTo(MAP_INSTANCE);
 
+    // На мобілці панель типів не має перекривати вікно опису.
+    PickerWindow.hide();
     DescWindow.show();
   },
 
@@ -5677,6 +5691,7 @@ const CreateMarkerFlow = {
     }
   }
 };
+
     /* =========================================================
        BLOCK: APP_UI_HELPERS
        Допоміжні UI-функції
