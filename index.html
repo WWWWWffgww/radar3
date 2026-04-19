@@ -4778,7 +4778,6 @@ const PopupRenderer = {
             class="popup-btn"
             style="background:linear-gradient(180deg,#34c759,#28a745);box-shadow:0 10px 22px rgba(52,199,89,0.22);"
             onclick="window.addComment('${point.id}','actual')"
-            ${commentVote ? "disabled" : ""}
           >
             Правда
           </button>
@@ -4787,17 +4786,10 @@ const PopupRenderer = {
             class="popup-btn"
             style="background:linear-gradient(180deg,#ff5a52,#ff3b30);box-shadow:0 10px 22px rgba(255,59,48,0.22);"
             onclick="window.addComment('${point.id}','not_actual')"
-            ${commentVote ? "disabled" : ""}
           >
             Брехня
           </button>
         </div>
-
-        ${
-          commentVote
-            ? `<div style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.58);text-align:center;">Ти вже залишав коментар до цієї мітки</div>`
-            : ``
-        }
       </div>
     `;
   }
@@ -4890,8 +4882,38 @@ const PopupRenderer = {
    Коментарі
    ========================================================= */
 const PopupCommentFeature = {
-  getPointById(pointId) {
-    return APP_STATE.points.find(p => p.id === pointId);
+  getPointById(id) {
+    return APP_STATE.points.find(p => p.id === id);
+  },
+
+  attachCounter(pointId) {
+    const input = document.getElementById(`commentInput_${pointId}`);
+    const counter = document.getElementById(`commentCounter_${pointId}`);
+    if (!input || !counter) return;
+
+    const updateCounter = () => {
+      counter.textContent = `${input.value.length} / 100`;
+    };
+
+    input.oninput = updateCounter;
+
+    input.onfocus = () => {
+      APP_STATE.suspendRenderWhileTyping = true;
+    };
+
+    input.onblur = () => {
+      setTimeout(() => {
+        APP_STATE.suspendRenderWhileTyping = false;
+      }, 120);
+    };
+
+    updateCounter();
+  },
+
+  scrollCommentsToTop(pointId) {
+    const wrap = document.getElementById(`popupComments_${pointId}`);
+    if (!wrap) return;
+    wrap.scrollTop = 0;
   },
 
   async add(pointId, status) {
@@ -4907,7 +4929,7 @@ const PopupCommentFeature = {
     }
 
     if (text.length < APP_CONFIG.COMMENT_MIN_LENGTH) {
-      ActionNoticeWindow.show(APP_LABELS.errors.min10);
+      ActionNoticeWindow.show(`Мінімум ${APP_CONFIG.COMMENT_MIN_LENGTH} символів`);
       return;
     }
 
@@ -4925,6 +4947,9 @@ const PopupCommentFeature = {
 
     const item = this.getPointById(pointId);
     if (!item) return;
+
+    APP_STATE.suspendRenderWhileTyping = true;
+    APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
 
     const nextComments = [
       ...(item.comments || []),
@@ -4945,9 +4970,14 @@ const PopupCommentFeature = {
     LocalStorageEngine.setCommentCooldown(pointId, clientId);
 
     input.value = "";
+    this.attachCounter(pointId);
+
     ActionNoticeWindow.show("Тепер ти зможеш написати коментар до цієї мітки через 3 хв");
 
-    MarkerRenderEngine.queueRender(true);
+    setTimeout(() => {
+      APP_STATE.suspendRenderWhileTyping = false;
+      MarkerRenderEngine.queueRender(true);
+    }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
   }
 };
     
