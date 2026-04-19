@@ -1883,34 +1883,39 @@
       stroke-width: 3;
     }
 
-    /* =========================================================
-       BLOCK: CSS_SAVE_MAP_VIEW_BTN
-       Стиль для кнопки збереження позиції карти (ДОДАНО)
-       ========================================================= */
-    .save-map-view-btn {
-      background: rgba(10, 132, 255, 0.2);
-      border: none;
-      border-radius: 30px;
-      padding: 8px 14px;
-      color: #0a84ff;
-      font-weight: 600;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      width: 100%;
-      transition: 0.2s;
-      margin-top: 4px;
-    }
-    .save-map-view-btn:active { transform: scale(0.97); background: rgba(10, 132, 255, 0.35); }
-    .save-map-hint {
-      font-size: 11px;
-      color: rgba(255,255,255,0.5);
-      text-align: center;
-      margin-top: 6px;
-    }
+/* =========================================================
+   BLOCK: CSS_SAVE_MAP_VIEW_BTN
+   Стиль для кнопки збереження позиції карти (ДОДАНО)
+   ========================================================= */
+.save-map-view-btn {
+  background: rgba(10, 132, 255, 0.2);
+  border: none;
+  border-radius: 30px;
+  padding: 8px 14px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.2s;
+  margin-top: 4px;
+}
+
+.save-map-view-btn:active {
+  transform: scale(0.97);
+  background: rgba(10, 132, 255, 0.35);
+}
+
+.save-map-hint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  margin-top: 6px;
+}
   </style>
 </head>
 <body>
@@ -2271,6 +2276,8 @@ const APP_CONFIG = {
   COMMENT_VOTES_KEY: "radar_comment_votes",
   COMMENT_RATE_LIMIT_KEY: "radar_comment_rate_limit",
   MARKER_RATE_LIMIT_KEY: "radar_marker_rate_limit",
+  CITY_RATE_LIMIT_KEY: "radar_city_rate_limit",
+  MAP_VIEW_RATE_LIMIT_KEY: "radar_map_view_rate_limit",
 
   LIFE_MS: 24 * 60 * 60 * 1000,
   GROUP_RADIUS_METERS: 165,
@@ -2285,8 +2292,10 @@ const APP_CONFIG = {
   COMMENT_INPUT_ATTACH_DELAY_MS: 20,
 
   COMMENT_MIN_LENGTH: 10,
-  COMMENT_COOLDOWN_MS: 10 * 60 * 1000,
-  MARKER_COOLDOWN_MS: 10 * 60 * 1000
+  COMMENT_COOLDOWN_MS: 3 * 60 * 1000,
+  MARKER_COOLDOWN_MS: 3 * 60 * 1000,
+  CITY_COOLDOWN_MS: 3 * 60 * 1000,
+  MAP_VIEW_COOLDOWN_MS: 3 * 60 * 1000
 };
 
 /* =========================================================
@@ -3405,62 +3414,24 @@ const ZoneNotificationFilter = {
 };
 
 /* =========================================================
-   BLOCK: LOCAL_STORAGE_ENGINE
+   BLOCK: LocalStorageEngine
    Робота з localStorage
    ========================================================= */
 const LocalStorageEngine = {
+  getClientId() {
+    let id = localStorage.getItem(APP_CONFIG.CLIENT_ID_KEY);
+    if (!id) {
+      id = "c_" + Math.random().toString(36).slice(2);
+      localStorage.setItem(APP_CONFIG.CLIENT_ID_KEY, id);
+    }
+    return id;
+  },
+
   loadSettings() {
-    const defaults = {
-      mapTheme: APP_CONFIG.DEFAULT_THEME,
-      timeFilterMinutes: 1440,
-      selectedCity: APP_CONFIG.DEFAULT_CITY_KEY,
-      notificationsEnabled: true,
-      startupMapView: null,  // ДОДАНО для збереження позиції карти
-      filters: {
-        safe: true,
-        block: true,
-        danger2: true,
-        trash: true,
-        question: true,
-        poop: true
-      }
-    };
-
     try {
-      const saved = localStorage.getItem(APP_CONFIG.SETTINGS_KEY);
-      if (!saved) return defaults;
-
-      const parsed = JSON.parse(saved);
-
-      let timeFilterMinutes = 1440;
-      if (typeof parsed.timeFilterMinutes === "number") {
-        timeFilterMinutes = parsed.timeFilterMinutes;
-      } else if (typeof parsed.timeFilterHours === "number") {
-        timeFilterMinutes = Math.round(parsed.timeFilterHours * 60);
-      }
-
-      const selectedCity = CITY_CONFIG[parsed.selectedCity]
-        ? parsed.selectedCity
-        : APP_CONFIG.DEFAULT_CITY_KEY;
-
-      return {
-        ...defaults,
-        ...parsed,
-        mapTheme: parsed.mapTheme || APP_CONFIG.DEFAULT_THEME,
-        timeFilterMinutes,
-        selectedCity,
-        notificationsEnabled:
-          typeof parsed.notificationsEnabled === "boolean"
-            ? parsed.notificationsEnabled
-            : true,
-        startupMapView: parsed.startupMapView || null,
-        filters: {
-          ...defaults.filters,
-          ...(parsed.filters || {})
-        }
-      };
+      return JSON.parse(localStorage.getItem(APP_CONFIG.SETTINGS_KEY) || "{}");
     } catch {
-      return defaults;
+      return {};
     }
   },
 
@@ -3468,61 +3439,7 @@ const LocalStorageEngine = {
     localStorage.setItem(APP_CONFIG.SETTINGS_KEY, JSON.stringify(settings));
   },
 
-  loadVotes() {
-    try {
-      return JSON.parse(localStorage.getItem(APP_CONFIG.VOTES_KEY) || "{}");
-    } catch {
-      return {};
-    }
-  },
-
-  saveVotes(votes) {
-    localStorage.setItem(APP_CONFIG.VOTES_KEY, JSON.stringify(votes));
-  },
-
-  hasVoted(id) {
-    return !!this.loadVotes()[id];
-  },
-
-  setVoted(id, type) {
-    const votes = this.loadVotes();
-    votes[id] = type;
-    this.saveVotes(votes);
-  },
-
-  getClientId() {
-    let clientId = localStorage.getItem(APP_CONFIG.CLIENT_ID_KEY);
-    if (!clientId) {
-      clientId = `client_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-      localStorage.setItem(APP_CONFIG.CLIENT_ID_KEY, clientId);
-    }
-    return clientId;
-  },
-
-  loadCommentVotes() {
-    try {
-      return JSON.parse(localStorage.getItem(APP_CONFIG.COMMENT_VOTES_KEY) || "{}");
-    } catch {
-      return {};
-    }
-  },
-
-  saveCommentVotes(data) {
-    localStorage.setItem(APP_CONFIG.COMMENT_VOTES_KEY, JSON.stringify(data));
-  },
-
-  getCommentVote(pointId, clientId) {
-    const data = this.loadCommentVotes();
-    return data?.[pointId]?.[clientId] || null;
-  },
-
-  setCommentVote(pointId, clientId, status) {
-    const data = this.loadCommentVotes();
-    if (!data[pointId]) data[pointId] = {};
-    data[pointId][clientId] = status;
-    this.saveCommentVotes(data);
-  },
-
+  /* ===== COMMENTS ===== */
   loadCommentRateLimit() {
     try {
       return JSON.parse(localStorage.getItem(APP_CONFIG.COMMENT_RATE_LIMIT_KEY) || "{}");
@@ -3535,19 +3452,20 @@ const LocalStorageEngine = {
     localStorage.setItem(APP_CONFIG.COMMENT_RATE_LIMIT_KEY, JSON.stringify(data));
   },
 
-  getCommentCooldownLeft(pointId) {
+  getCommentCooldownLeft(pointId, clientId) {
     const data = this.loadCommentRateLimit();
-    const lastTime = data?.[pointId] || 0;
-    const left = APP_CONFIG.COMMENT_COOLDOWN_MS - (Date.now() - lastTime);
-    return Math.max(0, left);
+    const key = `${pointId}__${clientId}`;
+    const last = data[key] || 0;
+    return Math.max(0, APP_CONFIG.COMMENT_COOLDOWN_MS - (Date.now() - last));
   },
 
-  setCommentCooldown(pointId) {
+  setCommentCooldown(pointId, clientId) {
     const data = this.loadCommentRateLimit();
-    data[pointId] = Date.now();
+    data[`${pointId}__${clientId}`] = Date.now();
     this.saveCommentRateLimit(data);
   },
 
+  /* ===== MARKERS ===== */
   loadMarkerRateLimit() {
     try {
       return JSON.parse(localStorage.getItem(APP_CONFIG.MARKER_RATE_LIMIT_KEY) || "{}");
@@ -3562,15 +3480,64 @@ const LocalStorageEngine = {
 
   getMarkerCooldownLeft(clientId) {
     const data = this.loadMarkerRateLimit();
-    const lastTime = data?.[clientId] || 0;
-    const left = APP_CONFIG.MARKER_COOLDOWN_MS - (Date.now() - lastTime);
-    return Math.max(0, left);
+    const last = data[clientId] || 0;
+    return Math.max(0, APP_CONFIG.MARKER_COOLDOWN_MS - (Date.now() - last));
   },
 
   setMarkerCooldown(clientId) {
     const data = this.loadMarkerRateLimit();
     data[clientId] = Date.now();
     this.saveMarkerRateLimit(data);
+  },
+
+  /* ===== CITY ===== */
+  loadCityRateLimit() {
+    try {
+      return JSON.parse(localStorage.getItem(APP_CONFIG.CITY_RATE_LIMIT_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  },
+
+  saveCityRateLimit(data) {
+    localStorage.setItem(APP_CONFIG.CITY_RATE_LIMIT_KEY, JSON.stringify(data));
+  },
+
+  getCityCooldownLeft(clientId) {
+    const data = this.loadCityRateLimit();
+    const last = data[clientId] || 0;
+    return Math.max(0, APP_CONFIG.CITY_COOLDOWN_MS - (Date.now() - last));
+  },
+
+  setCityCooldown(clientId) {
+    const data = this.loadCityRateLimit();
+    data[clientId] = Date.now();
+    this.saveCityRateLimit(data);
+  },
+
+  /* ===== MAP VIEW ===== */
+  loadMapViewRateLimit() {
+    try {
+      return JSON.parse(localStorage.getItem(APP_CONFIG.MAP_VIEW_RATE_LIMIT_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  },
+
+  saveMapViewRateLimit(data) {
+    localStorage.setItem(APP_CONFIG.MAP_VIEW_RATE_LIMIT_KEY, JSON.stringify(data));
+  },
+
+  getMapViewCooldownLeft(clientId) {
+    const data = this.loadMapViewRateLimit();
+    const last = data[clientId] || 0;
+    return Math.max(0, APP_CONFIG.MAP_VIEW_COOLDOWN_MS - (Date.now() - last));
+  },
+
+  setMapViewCooldown(clientId) {
+    const data = this.loadMapViewRateLimit();
+    data[clientId] = Date.now();
+    this.saveMapViewRateLimit(data);
   }
 };
 
@@ -4919,71 +4886,12 @@ const PopupRenderer = {
     };
 
 /* =========================================================
-   BLOCK: POPUP_COMMENT_FEATURE
+   BLOCK: PopupCommentFeature
    Коментарі
    ========================================================= */
 const PopupCommentFeature = {
   getPointById(pointId) {
     return APP_STATE.points.find(p => p.id === pointId);
-  },
-
-  attachCounter(pointId) {
-    const input = document.getElementById(`commentInput_${pointId}`);
-    const counter = document.getElementById(`commentCounter_${pointId}`);
-    if (!input || !counter) return;
-
-    const updateCounter = () => {
-      counter.textContent = `${input.value.length} / 100`;
-    };
-
-    input.oninput = updateCounter;
-
-    input.onfocus = () => {
-      APP_STATE.suspendRenderWhileTyping = true;
-    };
-
-    input.onblur = () => {
-      setTimeout(() => {
-        APP_STATE.suspendRenderWhileTyping = false;
-      }, 150);
-    };
-
-    updateCounter();
-  },
-
-  scrollCommentsToTop(pointId) {
-    const commentsBox = document.getElementById(`popupComments_${pointId}`);
-    if (!commentsBox) return;
-    commentsBox.scrollTop = 0;
-  },
-
-  getStatusCounts(comments = []) {
-    let actual = 0;
-    let notActual = 0;
-
-    for (const c of comments) {
-      if (c.status === "not_actual") notActual += 1;
-      else if (c.status === "actual") actual += 1;
-    }
-
-    return { actual, notActual };
-  },
-
-  resolveNextType(currentType, comments = []) {
-    const { actual, notActual } = this.getStatusCounts(comments);
-
-    const shouldFlip = notActual >= 3 && notActual > actual;
-    if (!shouldFlip) return currentType;
-
-    if (["trash", "danger2", "block", "poop"].includes(currentType)) {
-      return "safe";
-    }
-
-    if (currentType === "safe") {
-      return "poop";
-    }
-
-    return currentType;
   },
 
   async add(pointId, status) {
@@ -4993,34 +4901,30 @@ const PopupCommentFeature = {
     const text = input.value.trim();
     const clientId = APP_STATE.clientId;
 
+    if (!text) {
+      ActionNoticeWindow.show(APP_LABELS.errors.commentRequired);
+      return;
+    }
+
     if (text.length < APP_CONFIG.COMMENT_MIN_LENGTH) {
-      ActionNoticeWindow.show(`Коментар має містити мінімум ${APP_CONFIG.COMMENT_MIN_LENGTH} символів`);
+      ActionNoticeWindow.show(APP_LABELS.errors.min10);
       return;
     }
 
     if (text.length > 100) {
-      ActionNoticeWindow.show("Максимум 100 символів");
+      ActionNoticeWindow.show(APP_LABELS.errors.max100);
       return;
     }
 
-    const existingVote = LocalStorageEngine.getCommentVote(pointId, clientId);
-    if (existingVote) {
-      ActionNoticeWindow.show("Ти можеш залишити лише 1 коментар до цієї мітки раз на 10 хвилин");
-      return;
-    }
-
-    const cooldownLeft = LocalStorageEngine.getCommentCooldownLeft(pointId);
-    if (cooldownLeft > 0) {
-      const minutes = Math.ceil(cooldownLeft / 60000);
-      ActionNoticeWindow.show(`Ти можеш залишити лише 1 коментар до цієї мітки раз на 10 хвилин. Спробуй через ${minutes} хв`);
+    const cooldown = LocalStorageEngine.getCommentCooldownLeft(pointId, clientId);
+    if (cooldown > 0) {
+      const minutes = Math.ceil(cooldown / 60000);
+      ActionNoticeWindow.show(`Ти зможеш написати коментар до цієї мітки через ${minutes} хв`);
       return;
     }
 
     const item = this.getPointById(pointId);
-    if (!item?.id) return;
-
-    APP_STATE.suspendRenderWhileTyping = true;
-    APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
+    if (!item) return;
 
     const nextComments = [
       ...(item.comments || []),
@@ -5032,27 +4936,18 @@ const PopupCommentFeature = {
       }
     ];
 
-    const nextType = this.resolveNextType(item.type, nextComments);
-    const typeWasChanged = nextType !== item.type;
-
     const ref = doc(db, "points", item.id);
+
     await updateDoc(ref, {
-      comments: nextComments,
-      type: nextType,
-      typeChangedAt: typeWasChanged ? Date.now() : (item.typeChangedAt || null),
-      typeChangedNotice: typeWasChanged
+      comments: nextComments
     });
 
-    LocalStorageEngine.setCommentVote(pointId, clientId, status);
-    LocalStorageEngine.setCommentCooldown(pointId);
+    LocalStorageEngine.setCommentCooldown(pointId, clientId);
 
     input.value = "";
-    this.attachCounter(pointId);
+    ActionNoticeWindow.show("Тепер ти зможеш написати коментар до цієї мітки через 3 хв");
 
-    setTimeout(() => {
-      APP_STATE.suspendRenderWhileTyping = false;
-      MarkerRenderEngine.queueRender(true);
-    }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
+    MarkerRenderEngine.queueRender(true);
   }
 };
     
@@ -5477,41 +5372,28 @@ const PopupCommentFeature = {
    Процес додавання мітки
    ========================================================= */
 const CreateMarkerFlow = {
-  openCreateMode() {
+  start() {
     APP_STATE.addMode = true;
-
-    ZoneWindow.hide();
-    if (DOM.zoneEditSheet) {
-      DOM.zoneEditSheet.style.display = "none";
-      DOM.zoneEditSheet.classList.remove("show-mobile");
-    }
-
-    if (DOM.settingsSheet && DOM.settingsSheet.style.display !== "none") {
-      SettingsWindow.hide();
-    }
-
-    DescWindow.hide();
-
-    setTimeout(() => {
-      document.body.classList.remove("settings-open");
-      PickerWindow.show();
-    }, LayoutHelpers.isMobile() ? 280 : 0);
+    PickerWindow.show();
   },
 
-  closeCreateMode() {
+  stop() {
     APP_STATE.addMode = false;
-    PickerWindow.hide();
-    DescWindow.hide();
-
     APP_STATE.selectedLatLng = null;
-    DescWindow.reset();
-
-    document.body.classList.remove("settings-open");
 
     if (APP_STATE.tempMarker) {
       MAP_INSTANCE.removeLayer(APP_STATE.tempMarker);
       APP_STATE.tempMarker = null;
     }
+
+    PickerWindow.hide();
+    DescWindow.hide();
+    DescWindow.reset();
+  },
+
+  setType(type) {
+    APP_STATE.currentType = type;
+    DescWindow.updateByType(type);
   },
 
   selectMapPoint(latlng) {
@@ -5522,12 +5404,9 @@ const CreateMarkerFlow = {
     }
 
     APP_STATE.tempMarker = L.marker(latlng, {
-      icon: MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()),
-      keyboard: false
+      icon: MarkerIconFactory.create(APP_STATE.currentType)
     }).addTo(MAP_INSTANCE);
 
-    PickerWindow.updateActive();
-    PickerWindow.hide();
     DescWindow.show();
   },
 
@@ -5552,7 +5431,7 @@ const CreateMarkerFlow = {
     const markerCooldownLeft = LocalStorageEngine.getMarkerCooldownLeft(APP_STATE.clientId);
     if (markerCooldownLeft > 0) {
       const minutes = Math.ceil(markerCooldownLeft / 60000);
-      ActionNoticeWindow.show(`Ти можеш ставити 1 мітку раз на 10 хвилин. Спробуй через ${minutes} хв`);
+      ActionNoticeWindow.show(`Ти можеш ставити 1 мітку раз на 3 хвилини. Спробуй через ${minutes} хв`);
       return;
     }
 
@@ -5602,7 +5481,6 @@ const CreateMarkerFlow = {
     }
   }
 };
-
     /* =========================================================
        BLOCK: APP_UI_HELPERS
        Допоміжні UI-функції
@@ -5914,66 +5792,72 @@ const ZoneEditWindowEvents = {
       }
     };
 
-    /* =========================================================
-       BLOCK: MAP_EVENT_BINDINGS
-       Події мапи та вікна
-       ========================================================= */
-    const MapEventBindings = {
-      init() {
-        MAP_INSTANCE.on("click", e => {
-          if (APP_STATE.isCreatingZone) {
-            // Якщо в режимі створення зони - ігноруємо додавання мітки
-            return;
-          }
-          if (!APP_STATE.addMode) return;
-          CreateMarkerFlow.selectMapPoint(e.latlng);
-        });
-
-        MAP_INSTANCE.on("zoomend", () => {
-          MarkerRenderEngine.queueRender(true);
-        });
-
-        window.addEventListener("resize", () => {
-          if (!UIStateHelpers.shouldSkipRenderNow()) {
-            if (DOM.settingsSheet.style.display !== "none") {
-              SettingsWindow.updateLayout();
-            }
-            AppUIHelpers.safeInvalidateMap();
-          }
-        });
-
-        window.addEventListener("orientationchange", () => {
-          setTimeout(() => {
-            AppUIHelpers.safeInvalidateMap(true);
-            if (DOM.settingsSheet.style.display !== "none") {
-              SettingsWindow.updateLayout();
-            }
-          }, 250);
-        });
-
-        MAP_INSTANCE.whenReady(() => {
-          APP_STATE.mapReady = true;
-          
-          // Якщо є збережена позиція карти — використовуємо її
-          if (APP_STATE.settings.startupMapView && 
-              typeof APP_STATE.settings.startupMapView.lat === "number" &&
-              typeof APP_STATE.settings.startupMapView.lng === "number" &&
-              typeof APP_STATE.settings.startupMapView.zoom === "number") {
-            MAP_INSTANCE.setView(
-              [APP_STATE.settings.startupMapView.lat, APP_STATE.settings.startupMapView.lng],
-              APP_STATE.settings.startupMapView.zoom,
-              { animate: false }
-            );
-          } else {
-            MapCityEngine.flyToCity(APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY, false);
-          }
-          
-          ZoneCircleEngine.init();
-          AppUIHelpers.safeInvalidateMap(true);
-          MarkerRenderEngine.queueRender(true);
-        });
+   /* =========================================================
+   BLOCK: MAP_EVENT_BINDINGS
+   Події мапи та вікна
+   ========================================================= */
+const MapEventBindings = {
+  init() {
+    MAP_INSTANCE.on("click", e => {
+      if (APP_STATE.isCreatingZone) {
+        return;
       }
-    };
+      if (!APP_STATE.addMode) return;
+      CreateMarkerFlow.selectMapPoint(e.latlng);
+    });
+
+    MAP_INSTANCE.on("zoomend", () => {
+      MarkerRenderEngine.queueRender(true);
+    });
+
+    window.addEventListener("resize", () => {
+      if (!UIStateHelpers.shouldSkipRenderNow()) {
+        if (DOM.settingsSheet.style.display !== "none") {
+          SettingsWindow.updateLayout();
+        }
+        AppUIHelpers.safeInvalidateMap();
+      }
+    });
+
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => {
+        AppUIHelpers.safeInvalidateMap(true);
+        if (DOM.settingsSheet.style.display !== "none") {
+          SettingsWindow.updateLayout();
+        }
+      }, 250);
+    });
+
+    MAP_INSTANCE.whenReady(() => {
+      APP_STATE.mapReady = true;
+
+      if (
+        APP_STATE.settings.startupMapView &&
+        typeof APP_STATE.settings.startupMapView.lat === "number" &&
+        typeof APP_STATE.settings.startupMapView.lng === "number" &&
+        typeof APP_STATE.settings.startupMapView.zoom === "number"
+      ) {
+        MAP_INSTANCE.setView(
+          [
+            APP_STATE.settings.startupMapView.lat,
+            APP_STATE.settings.startupMapView.lng
+          ],
+          APP_STATE.settings.startupMapView.zoom,
+          { animate: false }
+        );
+      } else {
+        MapCityEngine.flyToCity(
+          APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY,
+          false
+        );
+      }
+
+      ZoneCircleEngine.init();
+      AppUIHelpers.safeInvalidateMap(true);
+      MarkerRenderEngine.queueRender(true);
+    });
+  }
+};
 
 /* =========================================================
    BLOCK: WINDOW_GLOBAL_ACTIONS
