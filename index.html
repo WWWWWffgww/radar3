@@ -4941,10 +4941,7 @@ const PopupCommentFeature = {
 
   async add(pointId, status) {
     const input = document.getElementById(`commentInput_${pointId}`);
-    if (!input) {
-      ActionNoticeWindow.show("Поле коментаря не знайдено");
-      return;
-    }
+    if (!input) return;
 
     const text = input.value.trim();
     const clientId = APP_STATE.clientId;
