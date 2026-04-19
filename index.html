@@ -5405,6 +5405,15 @@ const PopupCommentFeature = {
 const CreateMarkerFlow = {
   openCreateMode() {
     APP_STATE.addMode = true;
+
+    if (DOM.settingsSheet && DOM.settingsSheet.style.display !== "none") {
+      SettingsWindow.hide();
+    }
+
+    if (DOM.zoneSheet && DOM.zoneSheet.style.display !== "none") {
+      ZoneWindow.hide();
+    }
+
     PickerWindow.show();
   },
 
