@@ -4796,7 +4796,7 @@ const PopupRenderer = {
   }
 };
 
-    /* =========================================================
+/* =========================================================
    BLOCK: POPUP_POSITION_ENGINE
    Логіка розміщення popup
    ========================================================= */
@@ -4853,30 +4853,30 @@ const PopupPositionEngine = {
 };
 
     /* =========================================================
-       BLOCK: POPUP_RESTORE_MANAGER
-       Логіка повторного відкриття popup
-       ========================================================= */
-    const PopupRestoreManager = {
-      restoreIfNeeded() {
-        if (LayoutHelpers.isMobile()) return;
-        if (!APP_STATE.currentOpenPointId) return;
-        if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
+   BLOCK: POPUP_RESTORE_MANAGER
+   Логіка повторного відкриття popup
+   ========================================================= */
+const PopupRestoreManager = {
+  restoreIfNeeded() {
+    if (LayoutHelpers.isMobile()) return;
+    if (!APP_STATE.currentOpenPointId) return;
+    if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
 
-        const entry = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
-        if (!entry) return;
-        if (entry.marker.isPopupOpen()) return;
+    const entry = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
+    if (!entry) return;
+    if (entry.marker.isPopupOpen()) return;
 
-        setTimeout(() => {
-          const reopen = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
-          if (!reopen) return;
-          if (reopen.marker.isPopupOpen()) return;
-          if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
-          if (LayoutHelpers.isMobile()) return;
+    setTimeout(() => {
+      const reopen = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
+      if (!reopen) return;
+      if (reopen.marker.isPopupOpen()) return;
+      if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
+      if (LayoutHelpers.isMobile()) return;
 
-          reopen.marker.openPopup();
-        }, APP_CONFIG.POPUP_RESTORE_DELAY_MS);
-      }
-    };
+      reopen.marker.openPopup();
+    }, APP_CONFIG.POPUP_RESTORE_DELAY_MS);
+  }
+};
 
 /* =========================================================
    BLOCK: PopupCommentFeature
