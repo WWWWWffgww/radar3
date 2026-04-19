@@ -1602,7 +1602,8 @@
   width: 100vw;
   max-width: 100vw;
   transform: translateY(100%);
-  transition: transform 0.26s ease;
+  transition: transform 0.26s ease, opacity 0.26s ease;
+  opacity: 1;
 }
 
 .mobile-marker-popup-backdrop.show {
@@ -1615,6 +1616,48 @@
 
 #mobileMarkerPopupContent {
   width: 100vw;
+}
+
+@media (min-width: 601px) {
+  .mobile-marker-popup-backdrop {
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.26);
+    padding: 12px;
+  }
+
+  .mobile-marker-popup-sheet {
+    width: min(360px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    transform: translateY(12px);
+    opacity: 0;
+  }
+
+  .mobile-marker-popup-backdrop.show .mobile-marker-popup-sheet {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  #mobileMarkerPopupContent {
+    width: 100%;
+  }
+
+  #mobileMarkerPopupContent .radar-popup {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: min(78dvh, 680px) !important;
+    max-height: min(78dvh, 680px) !important;
+    padding: 14px !important;
+    border-radius: 24px;
+    background: rgba(28, 28, 30, 0.96);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.22);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1638,6 +1681,7 @@
     min-height: 0;
   }
 }
+
 
    /* =========================================================
    BLOCK: CSS_GLOBAL_NOTIFICATION
@@ -4501,7 +4545,6 @@ const MobileMarkerPopupEngine = {
   },
 
   refreshIfOpen() {
-    if (!LayoutHelpers.isMobile()) return;
     if (!APP_STATE.mobileOpenPointId) return;
     if (UIStateHelpers.shouldSkipRenderNow()) return;
 
@@ -4531,6 +4574,7 @@ const MobileMarkerPopupEngine = {
     });
   }
 };
+
 
 
 /* =========================================================
@@ -4962,14 +5006,6 @@ const PopupPositionEngine = {
       return;
     }
 
-    marker.bindPopup(PopupRenderer.render(point), {
-      autoPan: false,
-      keepInView: false,
-      closeButton: false,
-      offset: [0, 0],
-      className: "radar-popup-wrap"
-    });
-
     const openDesktopPopup = e => {
       if (e?.originalEvent?.cancelable) {
         e.originalEvent.preventDefault();
@@ -4995,7 +5031,7 @@ const PopupPositionEngine = {
       MAP_INSTANCE.closePopup();
 
       const openAfterCenter = () => {
-        marker.openPopup();
+        MobileMarkerPopupEngine.open(point);
       };
 
       if (!needPan) {
@@ -5028,48 +5064,29 @@ const PopupPositionEngine = {
 
     marker.on("click", openDesktopPopup);
 
-    marker.on("popupopen", () => {
-      APP_STATE.currentOpenPointId = point.id;
-      setTimeout(() => {
-        PopupCommentFeature.attachCounter(point.id);
-        PopupCommentFeature.scrollCommentsToTop(point.id);
-      }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
-    });
-
-    marker.on("popupclose", () => {
-      if (APP_STATE.currentOpenPointId === point.id) {
-        APP_STATE.currentOpenPointId = null;
+    marker.on("touchend", e => {
+      if (e?.originalEvent?.cancelable) {
+        e.originalEvent.preventDefault();
       }
+      openDesktopPopup(e);
     });
   }
 };
 
 
-    /* =========================================================
+
+/* =========================================================
    BLOCK: POPUP_RESTORE_MANAGER
    Логіка повторного відкриття popup
    ========================================================= */
 const PopupRestoreManager = {
   restoreIfNeeded() {
-    if (LayoutHelpers.isMobile()) return;
-    if (!APP_STATE.currentOpenPointId) return;
-    if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
-
-    const entry = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
-    if (!entry) return;
-    if (entry.marker.isPopupOpen()) return;
-
-    setTimeout(() => {
-      const reopen = APP_STATE.markerRegistry.get(APP_STATE.currentOpenPointId);
-      if (!reopen) return;
-      if (reopen.marker.isPopupOpen()) return;
-      if (Date.now() <= APP_STATE.suppressPopupRestoreUntil) return;
-      if (LayoutHelpers.isMobile()) return;
-
-      reopen.marker.openPopup();
-    }, APP_CONFIG.POPUP_RESTORE_DELAY_MS);
+    // Для цього UI popup рендериться у власному overlay (не Leaflet popup),
+    // тому відновлення через marker.openPopup() не потрібне.
+    return;
   }
 };
+
 
 /* =========================================================
    BLOCK: PopupCommentFeature
@@ -6145,7 +6162,7 @@ const MapEventBindings = {
    Глобальні дії для popup
    ========================================================= */
 window.closePopup = function () {
-  if (LayoutHelpers.isMobile()) {
+  if (DOM.mobileMarkerPopupBackdrop?.classList.contains("show")) {
     MobileMarkerPopupEngine.close();
     return;
   }
@@ -6159,6 +6176,7 @@ window.vote = async function (pointId, type) {
 window.addComment = async function (pointId, status) {
   await PopupCommentFeature.add(pointId, status);
 };
+
 
 /* =========================================================
    BLOCK: APP_INIT
