@@ -5372,12 +5372,12 @@ const PopupCommentFeature = {
    Процес додавання мітки
    ========================================================= */
 const CreateMarkerFlow = {
-  start() {
+  openCreateMode() {
     APP_STATE.addMode = true;
     PickerWindow.show();
   },
 
-  stop() {
+  closeCreateMode() {
     APP_STATE.addMode = false;
     APP_STATE.selectedLatLng = null;
 
