@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -1682,7 +1683,6 @@
   }
 }
 
-
    /* =========================================================
    BLOCK: CSS_GLOBAL_NOTIFICATION
    Глобальні push-сповіщення
@@ -1855,6 +1855,40 @@
 
     .success-modal-btn:active {
       transform: scale(0.98);
+    }
+
+    /* =========================================================
+       BLOCK: CSS_ADMIN_AUTH
+       Схований вхід адміністратора
+       ========================================================= */
+    #adminAuthBackdrop {
+      display: none;
+    }
+
+    .admin-auth-input {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    #adminAuthError {
+      min-height: 16px;
+      font-size: 12px;
+      color: #ff8a80;
+      margin-bottom: 10px;
+    }
+
+    .admin-auth-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .admin-auth-btn-primary {
+      background: linear-gradient(180deg, #2f95ff 0%, #0a84ff 100%);
+    }
+
+    .admin-auth-btn-secondary {
+      background: rgba(255, 255, 255, 0.14);
     }
 
     /* =========================================================
@@ -2288,6 +2322,28 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       BLOCK: HTML_STRUCTURE_ADMIN_AUTH
+       Схований вхід адміністратора
+       ========================================================= -->
+  <div id="adminAuthBackdrop" class="success-modal-backdrop">
+    <div class="success-modal">
+      <div class="success-modal-text" style="margin-bottom:10px;">🔐 Вхід адміністратора</div>
+      <input
+        id="adminAuthInput"
+        class="popup-input admin-auth-input"
+        type="password"
+        placeholder="Пароль superadmin"
+        autocomplete="off"
+      />
+      <div id="adminAuthError"></div>
+      <div class="admin-auth-actions">
+        <button id="adminAuthClose" class="success-modal-btn admin-auth-btn-secondary">Скасувати</button>
+        <button id="adminAuthSubmit" class="success-modal-btn admin-auth-btn-primary">Увійти</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script type="module">
@@ -2303,6 +2359,7 @@
       onSnapshot,
       doc,
       updateDoc,
+      deleteDoc,
       query,
       orderBy
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -2340,7 +2397,13 @@ const APP_CONFIG = {
   COMMENT_COOLDOWN_MS: 3 * 60 * 1000,
   MARKER_COOLDOWN_MS: 3 * 60 * 1000,
   CITY_COOLDOWN_MS: 3 * 60 * 1000,
-  MAP_VIEW_COOLDOWN_MS: 3 * 60 * 1000
+  MAP_VIEW_COOLDOWN_MS: 3 * 60 * 1000,
+
+  ADMIN_ENTRY_TAPS: 7,
+  ADMIN_ENTRY_WINDOW_MS: 3000,
+  ADMIN_SESSION_KEY: "radar_admin_session",
+  ADMIN_SESSION_TTL_MS: 8 * 60 * 60 * 1000,
+  SUPERADMIN_PASSWORD_SHA256: "c49c30d167059f2126cee5fd7b27da9aaae54475861da93aa50a44be7640c1d7"
 };
 
 /* =========================================================
@@ -2999,6 +3062,10 @@ const APP_STATE = {
   notificationIsShowing: false,
   knownPointIds: new Set(),
   clientId: null,
+  isAdmin: false,
+  adminRole: null,
+  adminTapCount: 0,
+  adminTapStartedAt: 0,
 
   zonePreviewLayer: null,
   zoneEditHandle: null,
@@ -3058,6 +3125,7 @@ const DOM = {
   settingsSheet: document.getElementById("settingsSheet"),
   settingsBody: document.getElementById("settingsBody"),
   settingsClose: document.getElementById("settingsClose"),
+  settingsTitle: document.getElementById("settingsTitle"),
   saveSettingsBtn: document.getElementById("saveSettingsBtn"),
   saveMapViewBtn: document.getElementById("saveMapViewBtn"),
   citySelect: document.getElementById("citySelect"),
@@ -3077,6 +3145,12 @@ const DOM = {
 
   successModalBackdrop: document.getElementById("successModalBackdrop"),
   successModalClose: document.getElementById("successModalClose"),
+
+  adminAuthBackdrop: document.getElementById("adminAuthBackdrop"),
+  adminAuthInput: document.getElementById("adminAuthInput"),
+  adminAuthSubmit: document.getElementById("adminAuthSubmit"),
+  adminAuthClose: document.getElementById("adminAuthClose"),
+  adminAuthError: document.getElementById("adminAuthError"),
 
   mobileMarkerPopupBackdrop: document.getElementById("mobileMarkerPopupBackdrop"),
   mobileMarkerPopupSheet: document.getElementById("mobileMarkerPopupSheet"),
@@ -4000,44 +4074,43 @@ const PickerWindow = {
   }
 };
 
-   /* =========================================================
-   BLOCK: WINDOW_DESC_SHEET
-   Вікно опису мітки
-   ========================================================= */
-const DescWindow = {
-  show() {
-    DOM.descSheet.style.display = "block";
+    /* =========================================================
+       BLOCK: WINDOW_DESC_SHEET
+       Вікно опису мітки
+       ========================================================= */
+    const DescWindow = {
+      show() {
+        DOM.descSheet.style.display = "block";
 
-    if (LayoutHelpers.isMobile()) {
-      requestAnimationFrame(() => {
-        DOM.descSheet.classList.add("show-mobile");
-      });
-    }
-  },
+        if (LayoutHelpers.isMobile()) {
+          requestAnimationFrame(() => {
+            DOM.descSheet.classList.add("show-mobile");
+          });
+        }
+      },
 
-  hide() {
-    if (LayoutHelpers.isMobile()) {
-      DOM.descSheet.classList.remove("show-mobile");
-      setTimeout(() => {
+      hide() {
+        if (LayoutHelpers.isMobile()) {
+          DOM.descSheet.classList.remove("show-mobile");
+          setTimeout(() => {
+            DOM.descSheet.style.display = "none";
+          }, 220);
+          return;
+        }
+
         DOM.descSheet.style.display = "none";
-      }, 220);
-      return;
-    }
+      },
 
-    DOM.descSheet.style.display = "none";
-  },
+      reset() {
+        DOM.descInput.value = "";
+        DOM.descCounter.textContent = "0 / 100";
+      },
 
-  reset() {
-    DOM.descInput.value = "";
-    DOM.descCounter.textContent = "0 / 100";
-  },
-
-  updateByType(type) {
-    DOM.sheetIcon.src = MarkerIconFactory.getIconPath(type);
-    DOM.sheetTitle.textContent = APP_LABELS.markerTypes[type] || type;
-  }
-};
-
+      updateByType(type) {
+        DOM.sheetIcon.src = MarkerIconFactory.getIconPath(type);
+        DOM.sheetTitle.textContent = APP_LABELS.markerTypes[type] || type;
+      }
+    };
 
 /* =========================================================
    BLOCK: WINDOW_ZONE_SHEET
@@ -4505,6 +4578,210 @@ const ActionNoticeWindow = {
 };
 
 /* =========================================================
+   BLOCK: ADMIN_ACCESS_ENGINE
+   Схований вхід superadmin
+   ========================================================= */
+const AdminAccessEngine = {
+  init() {
+    this.restoreSession();
+
+    DOM.settingsTitle?.addEventListener("click", () => {
+      this.handleSecretTap();
+    });
+
+    DOM.adminAuthClose?.addEventListener("click", () => {
+      this.closeAuthModal();
+    });
+
+    DOM.adminAuthSubmit?.addEventListener("click", async () => {
+      await this.tryLogin();
+    });
+
+    DOM.adminAuthInput?.addEventListener("keydown", async e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        await this.tryLogin();
+      }
+    });
+
+    DOM.adminAuthBackdrop?.addEventListener("click", e => {
+      if (e.target === DOM.adminAuthBackdrop) {
+        this.closeAuthModal();
+      }
+    });
+  },
+
+  handleSecretTap() {
+    const now = Date.now();
+
+    if (now - APP_STATE.adminTapStartedAt > APP_CONFIG.ADMIN_ENTRY_WINDOW_MS) {
+      APP_STATE.adminTapStartedAt = now;
+      APP_STATE.adminTapCount = 0;
+    }
+
+    APP_STATE.adminTapCount += 1;
+
+    if (APP_STATE.adminTapCount >= APP_CONFIG.ADMIN_ENTRY_TAPS) {
+      APP_STATE.adminTapCount = 0;
+      this.openAuthModal();
+    }
+  },
+
+  async sha256(text) {
+    const bytes = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest))
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+  },
+
+  openAuthModal() {
+    if (!DOM.adminAuthBackdrop) return;
+    DOM.adminAuthInput.value = "";
+    DOM.adminAuthError.textContent = "";
+    DOM.adminAuthBackdrop.style.display = "flex";
+    setTimeout(() => DOM.adminAuthInput.focus(), 40);
+  },
+
+  closeAuthModal() {
+    if (!DOM.adminAuthBackdrop) return;
+    DOM.adminAuthBackdrop.style.display = "none";
+  },
+
+  async tryLogin() {
+    const pwd = (DOM.adminAuthInput?.value || "").trim();
+    if (!pwd) {
+      DOM.adminAuthError.textContent = "Введіть пароль";
+      return;
+    }
+
+    const hash = await this.sha256(pwd);
+
+    if (hash !== APP_CONFIG.SUPERADMIN_PASSWORD_SHA256) {
+      DOM.adminAuthError.textContent = "Невірний пароль";
+      return;
+    }
+
+    APP_STATE.isAdmin = true;
+    APP_STATE.adminRole = "superadmin";
+
+    localStorage.setItem(
+      APP_CONFIG.ADMIN_SESSION_KEY,
+      JSON.stringify({ role: "superadmin", ts: Date.now() })
+    );
+
+    this.closeAuthModal();
+    ActionNoticeWindow.show("Режим superadmin активовано");
+    MarkerRenderEngine.queueRender(true);
+  },
+
+  restoreSession() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(APP_CONFIG.ADMIN_SESSION_KEY) || "null");
+      if (!raw) return;
+
+      const sessionAge = Date.now() - Number(raw.ts || 0);
+      const isFresh = sessionAge <= APP_CONFIG.ADMIN_SESSION_TTL_MS;
+
+      if (!isFresh || raw.role !== "superadmin") {
+        localStorage.removeItem(APP_CONFIG.ADMIN_SESSION_KEY);
+        return;
+      }
+
+      APP_STATE.isAdmin = true;
+      APP_STATE.adminRole = "superadmin";
+    } catch {
+      localStorage.removeItem(APP_CONFIG.ADMIN_SESSION_KEY);
+    }
+  },
+
+  logout() {
+    APP_STATE.isAdmin = false;
+    APP_STATE.adminRole = null;
+    localStorage.removeItem(APP_CONFIG.ADMIN_SESSION_KEY);
+    ActionNoticeWindow.show("Режим superadmin вимкнено");
+    MarkerRenderEngine.queueRender(true);
+  }
+};
+
+/* =========================================================
+   BLOCK: ADMIN_MARKER_MODERATION_ENGINE
+   Редагування / видалення міток для superadmin
+   ========================================================= */
+const AdminMarkerModerationEngine = {
+  ensureAccess() {
+    if (!APP_STATE.isAdmin || APP_STATE.adminRole !== "superadmin") {
+      ActionNoticeWindow.show("Доступ лише для superadmin");
+      return false;
+    }
+    return true;
+  },
+
+  getPoint(pointId) {
+    return APP_STATE.points.find(p => p.id === pointId);
+  },
+
+  async edit(pointId) {
+    if (!this.ensureAccess()) return;
+
+    const point = this.getPoint(pointId);
+    if (!point) {
+      ActionNoticeWindow.show("Мітку не знайдено");
+      return;
+    }
+
+    const nextDescRaw = prompt("Новий опис (до 100 символів):", point.desc || "");
+    if (nextDescRaw === null) return;
+
+    const nextDesc = nextDescRaw.trim();
+    if (!nextDesc || nextDesc.length > 100) {
+      ActionNoticeWindow.show("Опис має бути 1..100 символів");
+      return;
+    }
+
+    const allowedTypes = Object.keys(APP_LABELS.markerTypes);
+    const nextTypeRaw = prompt(
+      `Новий тип (${allowedTypes.join(", ")}):`,
+      point.type || "safe"
+    );
+    if (nextTypeRaw === null) return;
+
+    const nextType = nextTypeRaw.trim();
+    if (!allowedTypes.includes(nextType)) {
+      ActionNoticeWindow.show("Невірний тип мітки");
+      return;
+    }
+
+    await updateDoc(doc(db, "points", pointId), {
+      desc: nextDesc,
+      type: nextType,
+      typeChangedNotice: nextType !== point.type,
+      editedAt: Date.now(),
+      editedByRole: APP_STATE.adminRole
+    });
+
+    ActionNoticeWindow.show("Мітку оновлено");
+  },
+
+  async remove(pointId) {
+    if (!this.ensureAccess()) return;
+
+    const point = this.getPoint(pointId);
+    if (!point) {
+      ActionNoticeWindow.show("Мітку не знайдено");
+      return;
+    }
+
+    if (!confirm(`Видалити мітку "${APP_LABELS.markerTypes[point.type] || point.type}"?`)) {
+      return;
+    }
+
+    await deleteDoc(doc(db, "points", pointId));
+    ActionNoticeWindow.show("Мітку видалено");
+  }
+};
+
+  /* =========================================================
    BLOCK: MOBILE_MARKER_POPUP_ENGINE
    Мобільний popup мітки
    ========================================================= */
@@ -4574,8 +4851,6 @@ const MobileMarkerPopupEngine = {
     });
   }
 };
-
-
 
 /* =========================================================
    BLOCK: GLOBAL_NOTIFICATION_ENGINE
@@ -4891,6 +5166,14 @@ const PopupRenderer = {
       .join("");
 
     const voted = LocalStorageEngine.hasVoted(point.id);
+    const adminToolsHtml = APP_STATE.isAdmin
+      ? `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <button class="popup-btn" style="background:linear-gradient(180deg,#5e5ce6,#4b49d1);" onclick="window.adminEditPoint('${point.id}')">✏️ Редагувати</button>
+          <button class="popup-btn" style="background:linear-gradient(180deg,#ff5a52,#ff3b30);" onclick="window.adminDeletePoint('${point.id}')">🗑 Видалити</button>
+        </div>
+      `
+      : "";
 
     return `
       <div class="radar-popup">
@@ -4931,6 +5214,8 @@ const PopupRenderer = {
           <button class="reaction-btn like ${voted ? "disabled" : ""}" onclick="window.vote('${point.id}', 'like')">👍 ${point.likes || 0}</button>
           <button class="reaction-btn dislike ${voted ? "disabled" : ""}" onclick="window.vote('${point.id}', 'dislike')">👎 ${point.dislikes || 0}</button>
         </div>
+
+        ${adminToolsHtml}
 
         <input id="commentInput_${point.id}" class="popup-input" maxlength="100" placeholder="${APP_LABELS.popup.writeComment}">
         <div class="popup-counter" id="commentCounter_${point.id}">0 / 100</div>
@@ -5072,10 +5357,7 @@ const PopupPositionEngine = {
     });
   }
 };
-
-
-
-/* =========================================================
+    /* =========================================================
    BLOCK: POPUP_RESTORE_MANAGER
    Логіка повторного відкриття popup
    ========================================================= */
@@ -5086,7 +5368,6 @@ const PopupRestoreManager = {
     return;
   }
 };
-
 
 /* =========================================================
    BLOCK: PopupCommentFeature
@@ -5744,7 +6025,6 @@ const CreateMarkerFlow = {
     }
   }
 };
-
     /* =========================================================
        BLOCK: APP_UI_HELPERS
        Допоміжні UI-функції
@@ -6177,6 +6457,17 @@ window.addComment = async function (pointId, status) {
   await PopupCommentFeature.add(pointId, status);
 };
 
+window.adminEditPoint = async function (pointId) {
+  await AdminMarkerModerationEngine.edit(pointId);
+};
+
+window.adminDeletePoint = async function (pointId) {
+  await AdminMarkerModerationEngine.remove(pointId);
+};
+
+window.adminLogout = function () {
+  AdminAccessEngine.logout();
+};
 
 /* =========================================================
    BLOCK: APP_INIT
@@ -6224,6 +6515,7 @@ function initApp() {
   FirebasePointsRepository.subscribe();
   TelegramMiniAppEngine.init();
   MobileMarkerPopupEngine.init();
+  AdminAccessEngine.init();
 
   setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 200);
   setTimeout(() => AppUIHelpers.safeInvalidateMap(true), 800);
