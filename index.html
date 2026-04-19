@@ -4716,19 +4716,20 @@ const PopupRenderer = {
         const statusClass =
           c.status === "not_actual"
             ? "comment-item comment-not-actual"
-            : "comment-item comment-actual";
+            : c.status === "actual"
+              ? "comment-item comment-actual"
+              : "comment-item comment-neutral";
 
         return `
           <div class="${statusClass}">
             <div class="comment-text">${HtmlUtils.escapeHtml(c.text || "")}</div>
-            <div class="comment-time">${TimeUtils.formatTime(c.time)}</div>
+            <div class="comment-time">${TimeUtils.formatDateTime(c.time)}</div>
           </div>
         `;
       })
       .join("");
 
     const voted = LocalStorageEngine.hasVoted(point.id);
-    const commentVote = LocalStorageEngine.getCommentVote(point.id, APP_STATE.clientId);
 
     return `
       <div class="radar-popup">
@@ -5700,60 +5701,96 @@ const ZoneEditWindowEvents = {
   }
 };
 
-    /* =========================================================
-       BLOCK: WINDOW_SETTINGS_SHEET_EVENTS
-       Події вікна налаштувань
-       ========================================================= */
-    const SettingsWindowEvents = {
-      init() {
-        DOM.settingsClose.addEventListener("click", () => {
-          SettingsWindow.hide();
-        });
+/* =========================================================
+   BLOCK: WINDOW_SETTINGS_SHEET_EVENTS
+   Події вікна налаштувань
+   ========================================================= */
+const SettingsWindowEvents = {
+  init() {
+    DOM.settingsClose.addEventListener("click", () => {
+      SettingsWindow.hide();
+    });
 
-        DOM.timeSlider.addEventListener("input", e => {
-          SettingsUIEngine.updateTimeDisplay(parseInt(e.target.value, 10));
-        });
+    DOM.timeSlider.addEventListener("input", e => {
+      SettingsUIEngine.updateTimeDisplay(parseInt(e.target.value, 10));
+    });
 
-        DOM.saveSettingsBtn.addEventListener("click", () => {
-          APP_STATE.settings.timeFilterMinutes = TimeUtils.clampMinutes(
-            parseInt(DOM.timeSlider.value, 10)
-          );
+    DOM.saveSettingsBtn.addEventListener("click", () => {
+      const prevCity = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
+      const nextCity = CITY_CONFIG[DOM.citySelect.value]
+        ? DOM.citySelect.value
+        : APP_CONFIG.DEFAULT_CITY_KEY;
 
-          APP_STATE.settings.selectedCity = CITY_CONFIG[DOM.citySelect.value]
-            ? DOM.citySelect.value
-            : APP_CONFIG.DEFAULT_CITY_KEY;
+      const currentCenter = MAP_INSTANCE.getCenter();
+      const currentZoom = MAP_INSTANCE.getZoom();
 
-          LocalStorageEngine.saveSettings(APP_STATE.settings);
-          MapThemeEngine.apply(APP_STATE.settings.mapTheme);
+      APP_STATE.settings.timeFilterMinutes = TimeUtils.clampMinutes(
+        parseInt(DOM.timeSlider.value, 10)
+      );
 
-          SettingsWindow.hide();
-          MapCityEngine.flyToCity(APP_STATE.settings.selectedCity, true);
-          AppUIHelpers.safeInvalidateMap(true);
-        });
-
-        // ========== НОВА КНОПКА: Запам'ятати карту (ДОДАНО) ==========
-        if (DOM.saveMapViewBtn) {
-          DOM.saveMapViewBtn.addEventListener("click", () => {
-            const center = MAP_INSTANCE.getCenter();
-            const zoom = MAP_INSTANCE.getZoom();
-            APP_STATE.settings.startupMapView = {
-              lat: center.lat,
-              lng: center.lng,
-              zoom: zoom
-            };
-            LocalStorageEngine.saveSettings(APP_STATE.settings);
-            
-            const notif = document.createElement("div");
-            notif.className = "global-notification";
-            notif.innerHTML = `<div class="global-notification-head"><div class="global-notification-left"><div class="global-notification-meta"><div class="global-notification-title">💾 Стартову позицію збережено</div><div class="global-notification-text">Карта відкриватиметься з цього місця</div></div></div></div>`;
-            DOM.globalNotificationHost.appendChild(notif);
-            requestAnimationFrame(() => notif.classList.add("show"));
-            setTimeout(() => { notif.classList.remove("show"); setTimeout(() => notif.remove(), 300); }, 2600);
-          });
+      if (nextCity !== prevCity) {
+        const cityCooldownLeft = LocalStorageEngine.getCityCooldownLeft(APP_STATE.clientId);
+        if (cityCooldownLeft > 0) {
+          const minutes = Math.ceil(cityCooldownLeft / 60000);
+          ActionNoticeWindow.show(`Місто можна змінювати 1 раз на 3 хвилини. Спробуй через ${minutes} хв`);
+          DOM.citySelect.value = prevCity;
+          return;
         }
-        // ===========================================================
+
+        APP_STATE.settings.selectedCity = nextCity;
+        LocalStorageEngine.setCityCooldown(APP_STATE.clientId);
+      } else {
+        APP_STATE.settings.selectedCity = nextCity;
       }
-    };
+
+      LocalStorageEngine.saveSettings(APP_STATE.settings);
+      MapThemeEngine.apply(APP_STATE.settings.mapTheme);
+
+      SettingsWindow.hide();
+
+      MAP_INSTANCE.setView([currentCenter.lat, currentCenter.lng], currentZoom, {
+        animate: false
+      });
+
+      AppUIHelpers.safeInvalidateMap(true);
+      MarkerRenderEngine.queueRender(true);
+    });
+
+    if (DOM.saveMapViewBtn) {
+      DOM.saveMapViewBtn.addEventListener("click", () => {
+        const cooldownLeft = LocalStorageEngine.getMapViewCooldownLeft(APP_STATE.clientId);
+
+        if (cooldownLeft > 0) {
+          const minutes = Math.ceil(cooldownLeft / 60000);
+          ActionNoticeWindow.show(`Стартову карту можна змінювати 1 раз на 3 хвилини. Спробуй через ${minutes} хв`);
+          return;
+        }
+
+        const center = MAP_INSTANCE.getCenter();
+        const zoom = MAP_INSTANCE.getZoom();
+
+        APP_STATE.settings.startupMapView = {
+          lat: center.lat,
+          lng: center.lng,
+          zoom: zoom
+        };
+
+        LocalStorageEngine.saveSettings(APP_STATE.settings);
+        LocalStorageEngine.setMapViewCooldown(APP_STATE.clientId);
+
+        const notif = document.createElement("div");
+        notif.className = "global-notification";
+        notif.innerHTML = `<div class="global-notification-head"><div class="global-notification-left"><div class="global-notification-meta"><div class="global-notification-title">💾 Стартову позицію збережено</div><div class="global-notification-text">Наступна зміна буде доступна через 3 хв</div></div></div></div>`;
+        DOM.globalNotificationHost.appendChild(notif);
+        requestAnimationFrame(() => notif.classList.add("show"));
+        setTimeout(() => {
+          notif.classList.remove("show");
+          setTimeout(() => notif.remove(), 300);
+        }, 2600);
+      });
+    }
+  }
+};
 
     /* =========================================================
        BLOCK: WINDOW_SUCCESS_MODAL_EVENTS
