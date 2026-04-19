@@ -5731,14 +5731,13 @@ const SettingsWindowEvents = {
         ? DOM.citySelect.value
         : APP_CONFIG.DEFAULT_CITY_KEY;
 
-      const currentCenter = MAP_INSTANCE.getCenter();
-      const currentZoom = MAP_INSTANCE.getZoom();
-
       APP_STATE.settings.timeFilterMinutes = TimeUtils.clampMinutes(
         parseInt(DOM.timeSlider.value, 10)
       );
 
-      if (nextCity !== prevCity) {
+      const cityChanged = nextCity !== prevCity;
+
+      if (cityChanged) {
         const cityCooldownLeft = LocalStorageEngine.getCityCooldownLeft(APP_STATE.clientId);
         if (cityCooldownLeft > 0) {
           const minutes = Math.ceil(cityCooldownLeft / 60000);
@@ -5748,6 +5747,13 @@ const SettingsWindowEvents = {
         }
 
         APP_STATE.settings.selectedCity = nextCity;
+
+        // ВАЖЛИВО:
+        // якщо змінюємо місто через "Зберегти",
+        // прибираємо власне збереження карти,
+        // щоб стартовий вигляд знову був стандартним для міста
+        APP_STATE.settings.startupMapView = null;
+
         LocalStorageEngine.setCityCooldown(APP_STATE.clientId);
       } else {
         APP_STATE.settings.selectedCity = nextCity;
@@ -5758,12 +5764,12 @@ const SettingsWindowEvents = {
 
       SettingsWindow.hide();
 
-      MAP_INSTANCE.setView([currentCenter.lat, currentCenter.lng], currentZoom, {
-        animate: false
-      });
-
-      AppUIHelpers.safeInvalidateMap(true);
-      MarkerRenderEngine.queueRender(true);
+      if (cityChanged) {
+        MapCityEngine.flyToCity(APP_STATE.settings.selectedCity, true);
+      } else {
+        AppUIHelpers.safeInvalidateMap(true);
+        MarkerRenderEngine.queueRender(true);
+      }
     });
 
     if (DOM.saveMapViewBtn) {
@@ -5790,7 +5796,7 @@ const SettingsWindowEvents = {
 
         const notif = document.createElement("div");
         notif.className = "global-notification";
-        notif.innerHTML = `<div class="global-notification-head"><div class="global-notification-left"><div class="global-notification-meta"><div class="global-notification-title">💾 Стартову позицію збережено</div><div class="global-notification-text">Наступна зміна буде доступна через 3 хв</div></div></div></div>`;
+        notif.innerHTML = `<div class="global-notification-head"><div class="global-notification-left"><div class="global-notification-meta"><div class="global-notification-title">💾 Стартову позицію збережено</div><div class="global-notification-text">Карта відкриватиметься з цього місця. Наступна зміна буде доступна через 3 хв</div></div></div></div>`;
         DOM.globalNotificationHost.appendChild(notif);
         requestAnimationFrame(() => notif.classList.add("show"));
         setTimeout(() => {
@@ -5801,7 +5807,6 @@ const SettingsWindowEvents = {
     }
   }
 };
-
     /* =========================================================
        BLOCK: WINDOW_SUCCESS_MODAL_EVENTS
        Події success modal
