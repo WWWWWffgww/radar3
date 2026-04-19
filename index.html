@@ -4941,7 +4941,10 @@ const PopupCommentFeature = {
 
   async add(pointId, status) {
     const input = document.getElementById(`commentInput_${pointId}`);
-    if (!input) return;
+    if (!input) {
+      ActionNoticeWindow.show("Поле коментаря не знайдено");
+      return;
+    }
 
     const text = input.value.trim();
     const clientId = APP_STATE.clientId;
@@ -4968,8 +4971,11 @@ const PopupCommentFeature = {
       return;
     }
 
-    const item = this.getPointById(id = pointId);
-    if (!item) return;
+    const item = this.getPointById(pointId);
+    if (!item) {
+      ActionNoticeWindow.show("Не вдалося знайти мітку");
+      return;
+    }
 
     APP_STATE.suspendRenderWhileTyping = true;
     APP_STATE.suppressPopupRestoreUntil = Date.now() + 1200;
@@ -4984,23 +4990,29 @@ const PopupCommentFeature = {
       }
     ];
 
-    const ref = doc(db, "points", item.id);
+    try {
+      const ref = doc(db, "points", item.id);
 
-    await updateDoc(ref, {
-      comments: nextComments
-    });
+      await updateDoc(ref, {
+        comments: nextComments
+      });
 
-    LocalStorageEngine.setCommentCooldown(pointId, clientId);
+      LocalStorageEngine.setCommentCooldown(pointId, clientId);
 
-    input.value = "";
-    this.attachCounter(pointId);
+      input.value = "";
+      this.attachCounter(pointId);
 
-    ActionNoticeWindow.show("Тепер ти зможеш написати коментар до цієї мітки через 3 хв");
+      ActionNoticeWindow.show("Тепер ти зможеш написати коментар до цієї мітки через 3 хв");
 
-    setTimeout(() => {
+      setTimeout(() => {
+        APP_STATE.suspendRenderWhileTyping = false;
+        MarkerRenderEngine.queueRender(true);
+      }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
+    } catch (err) {
+      console.error("Comment save error:", err);
       APP_STATE.suspendRenderWhileTyping = false;
-      MarkerRenderEngine.queueRender(true);
-    }, APP_CONFIG.COMMENT_RENDER_DELAY_MS);
+      ActionNoticeWindow.show("Не вдалося опублікувати коментар");
+    }
   }
 };
     
