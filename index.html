@@ -4797,60 +4797,60 @@ const PopupRenderer = {
 };
 
     /* =========================================================
-       BLOCK: POPUP_POSITION_ENGINE
-       Логіка розміщення popup
-       ========================================================= */
-    const PopupPositionEngine = {
-      bindMarkerPopup(marker, point) {
-        marker.unbindPopup();
+   BLOCK: POPUP_POSITION_ENGINE
+   Логіка розміщення popup
+   ========================================================= */
+const PopupPositionEngine = {
+  bindMarkerPopup(marker, point) {
+    marker.unbindPopup();
 
-        marker.off("click");
-        marker.off("touchstart");
-        marker.off("touchend");
-        marker.off("popupopen");
-        marker.off("popupclose");
+    marker.off("click");
+    marker.off("touchstart");
+    marker.off("touchend");
+    marker.off("popupopen");
+    marker.off("popupclose");
 
-        if (LayoutHelpers.isMobile()) {
-          const openMobilePopup = () => {
-            APP_STATE.suppressPopupRestoreUntil = Date.now() + 500;
-            MobileMarkerPopupEngine.open(point);
-          };
+    if (LayoutHelpers.isMobile()) {
+      const openMobilePopup = () => {
+        APP_STATE.suppressPopupRestoreUntil = Date.now() + 500;
+        MobileMarkerPopupEngine.open(point);
+      };
 
-          marker.on("click", openMobilePopup);
+      marker.on("click", openMobilePopup);
 
-          marker.on("touchend", e => {
-            if (e?.originalEvent?.cancelable) {
-              e.originalEvent.preventDefault();
-            }
-            openMobilePopup();
-          });
-
-          return;
+      marker.on("touchend", e => {
+        if (e?.originalEvent?.cancelable) {
+          e.originalEvent.preventDefault();
         }
+        openMobilePopup();
+      });
 
-        marker.bindPopup(PopupRenderer.render(point), {
-          autoPan: false,
-          keepInView: false,
-          closeButton: false,
-          offset: [0, 0],
-          className: "radar-popup-wrap"
-        });
+      return;
+    }
 
-        marker.on("popupopen", () => {
-          APP_STATE.currentOpenPointId = point.id;
-          setTimeout(() => {
-            PopupCommentFeature.attachCounter(point.id);
-            PopupCommentFeature.scrollCommentsToTop(point.id);
-          }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
-        });
+    marker.bindPopup(PopupRenderer.render(point), {
+      autoPan: false,
+      keepInView: false,
+      closeButton: false,
+      offset: [0, 0],
+      className: "radar-popup-wrap"
+    });
 
-        marker.on("popupclose", () => {
-          if (APP_STATE.currentOpenPointId === point.id) {
-            APP_STATE.currentOpenPointId = null;
-          }
-        });
+    marker.on("popupopen", () => {
+      APP_STATE.currentOpenPointId = point.id;
+      setTimeout(() => {
+        PopupCommentFeature.attachCounter(point.id);
+        PopupCommentFeature.scrollCommentsToTop(point.id);
+      }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
+    });
+
+    marker.on("popupclose", () => {
+      if (APP_STATE.currentOpenPointId === point.id) {
+        APP_STATE.currentOpenPointId = null;
       }
-    };
+    });
+  }
+};
 
     /* =========================================================
        BLOCK: POPUP_RESTORE_MANAGER
@@ -5048,61 +5048,61 @@ const PopupCommentFeature = {
       }
     };
 
-    /* =========================================================
-       BLOCK: MARKER_CREATE_ENGINE
-       Створення marker
-       ========================================================= */
-    const MarkerCreateEngine = {
-      create(point, index, zoom) {
-        const marker = L.marker([point.lat, point.lng], {
-          icon: MarkerIconFactory.getIcon(point.type, zoom),
-          keyboard: false
-        }).addTo(MAP_INSTANCE);
+ /* =========================================================
+   BLOCK: MARKER_CREATE_ENGINE
+   Створення marker
+   ========================================================= */
+const MarkerCreateEngine = {
+  create(point, index, zoom) {
+    const marker = L.marker([point.lat, point.lng], {
+      icon: MarkerIconFactory.getIcon(point.type, zoom),
+      keyboard: false
+    }).addTo(MAP_INSTANCE);
 
-        marker.pointId = point.id;
-        PopupPositionEngine.bindMarkerPopup(marker, point);
+    marker.pointId = point.id;
+    PopupPositionEngine.bindMarkerPopup(marker, point);
 
-        APP_STATE.markerRegistry.set(point.id, {
-          marker,
-          hash: MarkerRegistry.getVisualHash(point),
-          lat: point.lat,
-          lng: point.lng,
-          iconKey: `${point.type}_${zoom}`
-        });
+    APP_STATE.markerRegistry.set(point.id, {
+      marker,
+      hash: MarkerRegistry.getVisualHash(point),
+      lat: point.lat,
+      lng: point.lng,
+      iconKey: `${point.type}_${zoom}`
+    });
+  }
+};
+
+ /* =========================================================
+   BLOCK: MARKER_UPDATE_ENGINE
+   Оновлення marker
+   ========================================================= */
+const MarkerUpdateEngine = {
+  update(entry, point, index, zoom) {
+    const newHash = MarkerRegistry.getVisualHash(point);
+    const newIconKey = `${point.type}_${zoom}`;
+
+    if (entry.iconKey !== newIconKey) {
+      entry.marker.setIcon(MarkerIconFactory.getIcon(point.type, zoom));
+      entry.iconKey = newIconKey;
+    }
+
+    if (entry.lat !== point.lat || entry.lng !== point.lng) {
+      entry.marker.setLatLng([point.lat, point.lng]);
+      entry.lat = point.lat;
+      entry.lng = point.lng;
+    }
+
+    if (entry.hash !== newHash) {
+      const popup = entry.marker.getPopup();
+      if (popup) {
+        popup.setContent(PopupRenderer.render(point));
+      } else {
+        PopupPositionEngine.bindMarkerPopup(entry.marker, point);
       }
-    };
-
-    /* =========================================================
-       BLOCK: MARKER_UPDATE_ENGINE
-       Оновлення marker
-       ========================================================= */
-    const MarkerUpdateEngine = {
-      update(entry, point, index, zoom) {
-        const newHash = MarkerRegistry.getVisualHash(point);
-        const newIconKey = `${point.type}_${zoom}`;
-
-        if (entry.iconKey !== newIconKey) {
-          entry.marker.setIcon(MarkerIconFactory.getIcon(point.type, zoom));
-          entry.iconKey = newIconKey;
-        }
-
-        if (entry.lat !== point.lat || entry.lng !== point.lng) {
-          entry.marker.setLatLng([point.lat, point.lng]);
-          entry.lat = point.lat;
-          entry.lng = point.lng;
-        }
-
-        if (entry.hash !== newHash) {
-          const popup = entry.marker.getPopup();
-          if (popup) {
-            popup.setContent(PopupRenderer.render(point));
-          } else {
-            PopupPositionEngine.bindMarkerPopup(entry.marker, point);
-          }
-          entry.hash = newHash;
-        }
-      }
-    };
+      entry.hash = newHash;
+    }
+  }
+};
 
     /* =========================================================
        BLOCK: MARKER_GROUP_ENGINE
