@@ -5444,7 +5444,8 @@ const CreateMarkerFlow = {
     }
 
     APP_STATE.tempMarker = L.marker(latlng, {
-      icon: MarkerIconFactory.create(APP_STATE.currentType)
+      icon: MarkerIconFactory.getIcon(APP_STATE.currentType, MAP_INSTANCE.getZoom()),
+      keyboard: false
     }).addTo(MAP_INSTANCE);
 
     DescWindow.show();
