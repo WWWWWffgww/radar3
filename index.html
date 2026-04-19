@@ -3439,6 +3439,28 @@ const LocalStorageEngine = {
     localStorage.setItem(APP_CONFIG.SETTINGS_KEY, JSON.stringify(settings));
   },
 
+  hasVoted(pointId) {
+    const voted = JSON.parse(localStorage.getItem(APP_CONFIG.VOTES_KEY) || "{}");
+    return !!voted[pointId];
+  },
+
+  setVoted(pointId, type) {
+    const voted = JSON.parse(localStorage.getItem(APP_CONFIG.VOTES_KEY) || "{}");
+    voted[pointId] = type;
+    localStorage.setItem(APP_CONFIG.VOTES_KEY, JSON.stringify(voted));
+  },
+
+  getCommentVote(pointId, clientId) {
+    const raw = JSON.parse(localStorage.getItem(APP_CONFIG.COMMENT_VOTES_KEY) || "{}");
+    return raw[`${pointId}__${clientId}`] || null;
+  },
+
+  setCommentVote(pointId, clientId, type) {
+    const raw = JSON.parse(localStorage.getItem(APP_CONFIG.COMMENT_VOTES_KEY) || "{}");
+    raw[`${pointId}__${clientId}`] = type;
+    localStorage.setItem(APP_CONFIG.COMMENT_VOTES_KEY, JSON.stringify(raw));
+  },
+
   /* ===== COMMENTS ===== */
   loadCommentRateLimit() {
     try {
@@ -4774,7 +4796,7 @@ const PopupRenderer = {
         <input id="commentInput_${point.id}" class="popup-input" maxlength="100" placeholder="${APP_LABELS.popup.writeComment}">
         <div class="popup-counter" id="commentCounter_${point.id}">0 / 100</div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <button
             class="popup-btn"
             style="background:linear-gradient(180deg,#34c759,#28a745);box-shadow:0 10px 22px rgba(52,199,89,0.22);"
@@ -4930,7 +4952,7 @@ const PopupCommentFeature = {
     }
 
     if (text.length < APP_CONFIG.COMMENT_MIN_LENGTH) {
-      ActionNoticeWindow.show(`Мінімум ${APP_CONFIG.COMMENT_MIN_LENGTH} символів`);
+      ActionNoticeWindow.show(APP_LABELS.errors.min10);
       return;
     }
 
@@ -4946,7 +4968,7 @@ const PopupCommentFeature = {
       return;
     }
 
-    const item = this.getPointById(pointId);
+    const item = this.getPointById(id = pointId);
     if (!item) return;
 
     APP_STATE.suspendRenderWhileTyping = true;
@@ -5747,13 +5769,7 @@ const SettingsWindowEvents = {
         }
 
         APP_STATE.settings.selectedCity = nextCity;
-
-        // ВАЖЛИВО:
-        // якщо змінюємо місто через "Зберегти",
-        // прибираємо власне збереження карти,
-        // щоб стартовий вигляд знову був стандартним для міста
         APP_STATE.settings.startupMapView = null;
-
         LocalStorageEngine.setCityCooldown(APP_STATE.clientId);
       } else {
         APP_STATE.settings.selectedCity = nextCity;
@@ -5768,7 +5784,6 @@ const SettingsWindowEvents = {
         MapCityEngine.flyToCity(APP_STATE.settings.selectedCity, true);
       } else {
         AppUIHelpers.safeInvalidateMap(true);
-        MarkerRenderEngine.queueRender(true);
       }
     });
 
