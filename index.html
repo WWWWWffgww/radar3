@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -2342,6 +2343,79 @@ const APP_LABELS = {
 };
 
 /* =========================================================
+   BLOCK: SETTINGS_DEFAULTS
+   Дефолтні налаштування
+   ========================================================= */
+const SettingsDefaults = {
+  create() {
+    return {
+      selectedCity: APP_CONFIG.DEFAULT_CITY_KEY,
+      mapTheme: APP_CONFIG.DEFAULT_THEME,
+      notificationsEnabled: true,
+      timeFilterMinutes: 1440,
+      startupMapView: null,
+      filters: {
+        safe: true,
+        block: true,
+        danger2: true,
+        trash: true,
+        question: true,
+        poop: true
+      }
+    };
+  }
+};
+
+/* =========================================================
+   BLOCK: SETTINGS_NORMALIZER
+   Нормалізація налаштувань
+   ========================================================= */
+const SettingsNormalizer = {
+  normalize(rawSettings) {
+    const defaults = SettingsDefaults.create();
+    const source = rawSettings && typeof rawSettings === "object" ? rawSettings : {};
+    const rawFilters = source.filters && typeof source.filters === "object" ? source.filters : {};
+
+    const selectedCity = CITY_CONFIG[source.selectedCity]
+      ? source.selectedCity
+      : defaults.selectedCity;
+
+    const mapTheme = MAP_THEME_CONFIG[source.mapTheme]
+      ? source.mapTheme
+      : defaults.mapTheme;
+
+    const rawMinutes = Number(source.timeFilterMinutes);
+    const timeFilterMinutes = Number.isFinite(rawMinutes)
+      ? Math.min(1440, Math.max(15, rawMinutes))
+      : defaults.timeFilterMinutes;
+
+    let startupMapView = null;
+    if (source.startupMapView && typeof source.startupMapView === "object") {
+      const lat = Number(source.startupMapView.lat);
+      const lng = Number(source.startupMapView.lng);
+      const zoom = Number(source.startupMapView.zoom);
+      if (Number.isFinite(lat) && Number.isFinite(lng) && Number.isFinite(zoom)) {
+        startupMapView = { lat, lng, zoom };
+      }
+    }
+
+    return {
+      ...defaults,
+      ...source,
+      selectedCity,
+      mapTheme,
+      notificationsEnabled: source.notificationsEnabled !== false,
+      timeFilterMinutes,
+      startupMapView,
+      filters: {
+        ...defaults.filters,
+        ...rawFilters
+      }
+    };
+  }
+};
+
+/* =========================================================
    BLOCK: ZONE_TEMPLATE_CONFIG
    Шаблони зон
    ========================================================= */
@@ -3102,9 +3176,9 @@ const DOM = {
         }
 
         if (
-          typeof zone.lat === "number" &&
-          typeof zone.lng === "number" &&
-          typeof zone.radius === "number"
+          Number.isFinite(zone.lat) &&
+          Number.isFinite(zone.lng) &&
+          Number.isFinite(zone.radius)
         ) {
           return this.isPointInCircle(lat, lng, zone.lat, zone.lng, zone.radius);
         }
@@ -3124,16 +3198,21 @@ const ZoneStorageEngine = {
       if (!saved) return [];
 
       const zones = JSON.parse(saved);
-      return zones.map(z => ({
-        ...z,
-        enabled: z.enabled !== false,
-        kind: z.kind || "circle",
-        radius: Number(z.radius) || 500,
-        lat: Number(z.lat),
-        lng: Number(z.lng),
-        points: Array.isArray(z.points) ? z.points : null,
-        icon: z.icon || "🏠"
-      }));
+      return zones.map(z => {
+        const kind = z.kind || "circle";
+        const isPolygon = kind === "polygon" && Array.isArray(z.points) && z.points.length >= 3;
+
+        return {
+          ...z,
+          enabled: z.enabled !== false,
+          kind,
+          radius: isPolygon ? null : Number(z.radius) || 500,
+          lat: isPolygon ? null : Number(z.lat),
+          lng: isPolygon ? null : Number(z.lng),
+          points: isPolygon ? z.points : null,
+          icon: z.icon || "🏠"
+        };
+      });
     } catch {
       return [];
     }
@@ -3430,14 +3509,19 @@ const LocalStorageEngine = {
 
   loadSettings() {
     try {
-      return JSON.parse(localStorage.getItem(APP_CONFIG.SETTINGS_KEY) || "{}");
+      return SettingsNormalizer.normalize(
+        JSON.parse(localStorage.getItem(APP_CONFIG.SETTINGS_KEY) || "{}")
+      );
     } catch {
-      return {};
+      return SettingsNormalizer.normalize({});
     }
   },
 
   saveSettings(settings) {
-    localStorage.setItem(APP_CONFIG.SETTINGS_KEY, JSON.stringify(settings));
+    localStorage.setItem(
+      APP_CONFIG.SETTINGS_KEY,
+      JSON.stringify(SettingsNormalizer.normalize(settings))
+    );
   },
 
   hasVoted(pointId) {
@@ -3691,8 +3775,9 @@ const LocalStorageEngine = {
        ========================================================= */
     const MapThemeEngine = {
       createLayer(theme) {
-        return new CachedTileLayer(MAP_THEME_CONFIG[theme].url, {
-          attribution: MAP_THEME_CONFIG[theme].attribution,
+        const resolvedTheme = MAP_THEME_CONFIG[theme] ? theme : APP_CONFIG.DEFAULT_THEME;
+        return new CachedTileLayer(MAP_THEME_CONFIG[resolvedTheme].url, {
+          attribution: MAP_THEME_CONFIG[resolvedTheme].attribution,
           updateWhenIdle: true,
           updateWhenZooming: false,
           keepBuffer: 8,
@@ -3705,7 +3790,9 @@ const LocalStorageEngine = {
         if (APP_STATE.currentTileLayer) {
           MAP_INSTANCE.removeLayer(APP_STATE.currentTileLayer);
         }
-        APP_STATE.currentTileLayer = this.createLayer(theme);
+        const resolvedTheme = MAP_THEME_CONFIG[theme] ? theme : APP_CONFIG.DEFAULT_THEME;
+        APP_STATE.settings.mapTheme = resolvedTheme;
+        APP_STATE.currentTileLayer = this.createLayer(resolvedTheme);
         APP_STATE.currentTileLayer.addTo(MAP_INSTANCE);
       }
     };
@@ -3900,6 +3987,11 @@ const PickerWindow = {
       reset() {
         DOM.descInput.value = "";
         DOM.descCounter.textContent = "0 / 100";
+      },
+
+      updateByType(type) {
+        DOM.sheetIcon.src = MarkerIconFactory.getIconPath(type);
+        DOM.sheetTitle.textContent = APP_LABELS.markerTypes[type] || type;
       }
     };
 
@@ -4384,6 +4476,7 @@ const MobileMarkerPopupEngine = {
     });
 
     APP_STATE.currentOpenPointId = point.id;
+    APP_STATE.mobileOpenPointId = point.id;
 
     setTimeout(() => {
       PopupCommentFeature.attachCounter(point.id);
@@ -4404,6 +4497,28 @@ const MobileMarkerPopupEngine = {
     }, 260);
 
     APP_STATE.currentOpenPointId = null;
+    APP_STATE.mobileOpenPointId = null;
+  },
+
+  refreshIfOpen() {
+    if (!LayoutHelpers.isMobile()) return;
+    if (!APP_STATE.mobileOpenPointId) return;
+    if (UIStateHelpers.shouldSkipRenderNow()) return;
+
+    const point = APP_STATE.points.find(p => p.id === APP_STATE.mobileOpenPointId);
+    if (!point) {
+      this.close();
+      return;
+    }
+
+    if (!DOM.mobileMarkerPopupBackdrop.classList.contains("show")) return;
+
+    DOM.mobileMarkerPopupContent.innerHTML = PopupRenderer.render(point);
+
+    setTimeout(() => {
+      PopupCommentFeature.attachCounter(point.id);
+      PopupCommentFeature.scrollCommentsToTop(point.id);
+    }, APP_CONFIG.COMMENT_INPUT_ATTACH_DELAY_MS);
   },
 
   init() {
@@ -4692,9 +4807,11 @@ const SettingsBehaviorEngine = {
       getVisiblePoints() {
         const now = Date.now();
         const timeLimit = TimeUtils.clampMinutes(APP_STATE.settings.timeFilterMinutes) * 60 * 1000;
+        const selectedCity = APP_STATE.settings.selectedCity || APP_CONFIG.DEFAULT_CITY_KEY;
 
         return APP_STATE.points.filter(point => {
           return (
+            point.city === selectedCity &&
             APP_STATE.settings.filters[point.type] &&
             now - point.time <= timeLimit
           );
