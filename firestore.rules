@@ -1,0 +1,104 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return signedIn() && request.auth.token.role != null
+        ? request.auth.token.role
+        : "user";
+    }
+
+    function roleRank(r) {
+      return r == "superadmin"
+        ? 3
+        : r == "admin"
+          ? 2
+          : r == "moderator"
+            ? 1
+            : 0;
+    }
+
+    function atLeast(requiredRole) {
+      return roleRank(role()) >= roleRank(requiredRole);
+    }
+
+    function isMod() {
+      return atLeast("moderator");
+    }
+
+    function isAdmin() {
+      return atLeast("admin");
+    }
+
+    function isSuper() {
+      return atLeast("superadmin");
+    }
+
+    function emergencyEnabled() {
+      let cfg = get(/databases/$(database)/documents/app_config/global);
+      return cfg.exists() && cfg.data.emergencyMode == true;
+    }
+
+    function sanctionForUid(uid) {
+      return get(/databases/$(database)/documents/sanctions/uid_$(uid));
+    }
+
+    function isSanctioned(uid) {
+      let sanction = sanctionForUid(uid);
+      return sanction.exists()
+        && sanction.data.active == true
+        && sanction.data.expiresAt is timestamp
+        && sanction.data.expiresAt > request.time;
+    }
+
+    function canWriteAsUser() {
+      return signedIn()
+        && !emergencyEnabled()
+        && !isSanctioned(request.auth.uid);
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (uid == request.auth.uid || isAdmin());
+      allow write: if isSuper();
+    }
+
+    match /points/{pointId} {
+      allow read: if resource.data.hidden != true || isMod();
+
+      // Якщо лишаєш прямий addDoc з фронту, цього достатньо для базового захисту.
+      allow create: if canWriteAsUser();
+
+      // Модератор+ може змінювати будь-що.
+      // Звичайний користувач може лише реакції/коменти.
+      allow update: if isMod() || (
+        canWriteAsUser()
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly([
+          "comments",
+          "likes",
+          "dislikes",
+          "updatedAt"
+        ])
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    match /app_config/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /sanctions/{sanctionId} {
+      allow read: if isAdmin() || (signedIn() && sanctionId == ("uid_" + request.auth.uid));
+      allow write: if isAdmin();
+    }
+
+    match /audit_log/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+  }
+}
