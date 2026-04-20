@@ -14,34 +14,16 @@ service cloud.firestore {
         : "user";
     }
 
-    function roleRank(r) {
-      return r == "superadmin" ? 3
-        : r == "admin" ? 2
-        : r == "moderator" ? 1
-        : 0;
+    function isMod() {
+      return role() == "moderator" || role() == "admin" || role() == "superadmin";
     }
 
-    function atLeast(r) {
-      return roleRank(role()) >= roleRank(r);
+    function isAdmin() {
+      return role() == "admin" || role() == "superadmin";
     }
 
-    function isMod() { return atLeast("moderator"); }
-    function isAdmin() { return atLeast("admin"); }
-    function isSuper() { return atLeast("superadmin"); }
-
-    function emergencyEnabled() {
-      return exists(/databases/$(database)/documents/app_config/global) &&
-             get(/databases/$(database)/documents/app_config/global).data.emergencyMode == true;
-    }
-
-    function isSanctioned() {
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.sanction.expiresAt is timestamp &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.sanction.expiresAt > request.time;
-    }
-
-    function canWriteAsUser() {
-      return signedIn() && !emergencyEnabled() && !isSanctioned();
+    function isSuper() {
+      return role() == "superadmin";
     }
 
     match /users/{uid} {
@@ -51,8 +33,8 @@ service cloud.firestore {
 
     match /points/{pointId} {
       allow read: if resource.data.hidden != true || isMod();
-      allow create: if canWriteAsUser();
-      allow update: if isMod() || canWriteAsUser();
+      allow create: if signedIn();
+      allow update: if signedIn();
       allow delete: if isAdmin();
     }
 
@@ -62,8 +44,7 @@ service cloud.firestore {
     }
 
     match /sanctions/{sanctionId} {
-      allow read: if isAdmin() || (signedIn() && sanctionId == ("uid_" + request.auth.uid));
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
     match /audit_log/{logId} {
@@ -74,4 +55,4 @@ service cloud.firestore {
 }
 RULES
 
-npx firebase deploy --only functions,firestore:rules
+npx firebase deploy --only firestore:rules,functions
