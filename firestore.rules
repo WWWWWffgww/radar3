@@ -1,3 +1,6 @@
+cd ~/radar3
+
+cat > firestore.rules <<'RULES'
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -12,53 +15,33 @@ service cloud.firestore {
     }
 
     function roleRank(r) {
-      return r == "superadmin"
-        ? 3
-        : r == "admin"
-          ? 2
-          : r == "moderator"
-            ? 1
-            : 0;
+      return r == "superadmin" ? 3
+        : r == "admin" ? 2
+        : r == "moderator" ? 1
+        : 0;
     }
 
-    function atLeast(requiredRole) {
-      return roleRank(role()) >= roleRank(requiredRole);
+    function atLeast(r) {
+      return roleRank(role()) >= roleRank(r);
     }
 
-    function isMod() {
-      return atLeast("moderator");
-    }
-
-    function isAdmin() {
-      return atLeast("admin");
-    }
-
-    function isSuper() {
-      return atLeast("superadmin");
-    }
+    function isMod() { return atLeast("moderator"); }
+    function isAdmin() { return atLeast("admin"); }
+    function isSuper() { return atLeast("superadmin"); }
 
     function emergencyEnabled() {
-      let cfg = get(/databases/$(database)/documents/app_config/global);
-      return cfg.exists() && cfg.data.emergencyMode == true;
+      return exists(/databases/$(database)/documents/app_config/global) &&
+             get(/databases/$(database)/documents/app_config/global).data.emergencyMode == true;
     }
 
-   function sanctionDocById(docId) {
-  return get(/databases/$(database)/documents/sanctions/$(docId));
-}
-
-function isSanctioned(uid) {
-  let sanction = sanctionDocById("uid_" + uid);
-
-      return sanction.exists()
-        && sanction.data.active == true
-        && sanction.data.expiresAt is timestamp
-        && sanction.data.expiresAt > request.time;
+    function isSanctioned() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.sanction.expiresAt is timestamp &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.sanction.expiresAt > request.time;
     }
 
     function canWriteAsUser() {
-      return signedIn()
-        && !emergencyEnabled()
-        && !isSanctioned(request.auth.uid);
+      return signedIn() && !emergencyEnabled() && !isSanctioned();
     }
 
     match /users/{uid} {
@@ -68,22 +51,8 @@ function isSanctioned(uid) {
 
     match /points/{pointId} {
       allow read: if resource.data.hidden != true || isMod();
-
-      // Якщо лишаєш прямий addDoc з фронту, цього достатньо для базового захисту.
       allow create: if canWriteAsUser();
-
-      // Модератор+ може змінювати будь-що.
-      // Звичайний користувач може лише реакції/коменти.
-      allow update: if isMod() || (
-        canWriteAsUser()
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly([
-          "comments",
-          "likes",
-          "dislikes",
-          "updatedAt"
-        ])
-      );
-
+      allow update: if isMod() || canWriteAsUser();
       allow delete: if isAdmin();
     }
 
@@ -103,3 +72,6 @@ function isSanctioned(uid) {
     }
   }
 }
+RULES
+
+npx firebase deploy --only functions,firestore:rules
