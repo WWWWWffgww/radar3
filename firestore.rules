@@ -42,12 +42,13 @@ service cloud.firestore {
       return cfg.exists() && cfg.data.emergencyMode == true;
     }
 
-    function sanctionForUid(uid) {
-      return get(/databases/$(database)/documents/sanctions/uid_$(uid));
-    }
+   function sanctionDocById(docId) {
+  return get(/databases/$(database)/documents/sanctions/$(docId));
+}
 
-    function isSanctioned(uid) {
-      let sanction = sanctionForUid(uid);
+function isSanctioned(uid) {
+  let sanction = sanctionDocById("uid_" + uid);
+
       return sanction.exists()
         && sanction.data.active == true
         && sanction.data.expiresAt is timestamp
